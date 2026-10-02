@@ -273,12 +273,14 @@ function showShareStatus(message) {
 async function sharePhoto(filename) {
     const shareUrl = new URL(window.location.href);
     shareUrl.hash = "photo=" + encodeURIComponent(filename);
+    const photoNumber = filename.match(/(\d+)(?=\.[^.]+$)/);
 
     if (navigator.share) {
         try {
             await navigator.share({
-                title: "Игорь и Алина — наша свадьба",
-                text: "Фотография из нашей свадебной галереи",
+                title: "Игорь и Алина",
+                text: "Игорь и Алина: фотография №" +
+                    (photoNumber ? Number(photoNumber[1]) : ""),
                 url: shareUrl.toString()
             });
             return;
