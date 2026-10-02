@@ -4,19 +4,25 @@ const photos = Array.from(
 );
 
 const photoBaseUrl = "https://photos.aligor.us";
+
 const gallery = document.getElementById("gallery");
 
 const lightbox = document.getElementById("lightbox");
 const lightboxImage = document.getElementById("lightbox-image");
+
 const downloadBig = document.getElementById("download-big");
 const downloadSmall = document.getElementById("download-small");
 
 let currentIndex = 0;
 
+// Create thumbnails
 photos.forEach((filename, index) => {
     const img = document.createElement("img");
 
-    img.src = `${photoBaseUrl}/small/${encodeURIComponent(filename)}`;
+    const imageUrl =
+        `${photoBaseUrl}/small/${encodeURIComponent(filename)}`;
+
+    img.src = imageUrl;
     img.className = "thumbnail";
     img.loading = "lazy";
 
@@ -27,57 +33,63 @@ photos.forEach((filename, index) => {
     gallery.appendChild(img);
 });
 
+// Open photo
 function openPhoto(index) {
     currentIndex = index;
 
     const smallFilename = photos[index];
     const bigFilename = smallFilename.replace("_s_", "_b_");
 
-    lightboxImage.src =
+    const smallUrl =
+        `${photoBaseUrl}/small/${encodeURIComponent(smallFilename)}`;
+
+    const bigUrl =
         `${photoBaseUrl}/big/${encodeURIComponent(bigFilename)}`;
 
-    setDownload(downloadBig, "big", bigFilename);
-    setDownload(downloadSmall, "small", smallFilename);
+    // Show full-size image
+    lightboxImage.src = bigUrl;
+    lightboxImage.alt = bigFilename;
+
+    // Direct download links to R2
+    downloadBig.href = bigUrl;
+    downloadBig.download = bigFilename;
+
+    downloadSmall.href = smallUrl;
+    downloadSmall.download = smallFilename;
 
     lightbox.classList.add("active");
 }
 
-function setDownload(link, size, filename) {
-    const downloadUrl = `/download?size=${encodeURIComponent(size)}&filename=${encodeURIComponent(filename)}`;
-    link.href = downloadUrl;
-    link.download = filename;
-}
-
-function closePhoto() {
+// Close lightbox
+function closeLightbox() {
     lightbox.classList.remove("active");
+    lightboxImage.src = "";
 }
 
-function nextPhoto() {
-    currentIndex = (currentIndex + 1) % photos.length;
-    openPhoto(currentIndex);
-}
-
-function previousPhoto() {
-    currentIndex =
-        (currentIndex - 1 + photos.length) % photos.length;
-
-    openPhoto(currentIndex);
-}
-
-document.querySelector(".close").addEventListener("click", closePhoto);
-document.querySelector(".next").addEventListener("click", nextPhoto);
-document.querySelector(".prev").addEventListener("click", previousPhoto);
-
+// Close when clicking outside the image
 lightbox.addEventListener("click", (event) => {
     if (event.target === lightbox) {
-        closePhoto();
+        closeLightbox();
     }
 });
 
+// Keyboard controls
 document.addEventListener("keydown", (event) => {
-    if (!lightbox.classList.contains("active")) return;
+    if (!lightbox.classList.contains("active")) {
+        return;
+    }
 
-    if (event.key === "Escape") closePhoto();
-    if (event.key === "ArrowRight") nextPhoto();
-    if (event.key === "ArrowLeft") previousPhoto();
+    if (event.key === "Escape") {
+        closeLightbox();
+    }
+
+    if (event.key === "ArrowRight") {
+        openPhoto((currentIndex + 1) % photos.length);
+    }
+
+    if (event.key === "ArrowLeft") {
+        openPhoto(
+            (currentIndex - 1 + photos.length) % photos.length
+        );
+    }
 });
