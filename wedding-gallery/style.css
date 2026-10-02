@@ -322,7 +322,8 @@ a {
 }
 
 .lightbox-close,
-.lightbox-nav {
+.lightbox-nav,
+.lightbox-share {
     position: absolute;
     z-index: 10;
     display: grid;
@@ -333,11 +334,13 @@ a {
     border: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 50%;
     cursor: pointer;
+    touch-action: manipulation;
     transition: background 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
 }
 
 .lightbox-close:hover,
-.lightbox-nav:hover:not(:disabled) {
+.lightbox-nav:hover:not(:disabled),
+.lightbox-share:hover {
     background: rgba(255, 255, 255, 0.16);
     transform: scale(1.05);
 }
@@ -347,6 +350,23 @@ a {
     right: 24px;
     width: 44px;
     height: 44px;
+}
+
+.lightbox-share {
+    top: 22px;
+    right: 80px;
+    width: 44px;
+    height: 44px;
+}
+
+.lightbox-share svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
 }
 
 .lightbox-close span {
@@ -473,23 +493,6 @@ a {
     border-color: white;
 }
 
-.share-button {
-    appearance: none;
-    color: rgba(255, 255, 255, 0.86);
-    background: rgba(255, 255, 255, 0.09);
-    cursor: pointer;
-}
-
-.share-button svg {
-    width: 15px;
-    height: 15px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.5;
-}
-
 .download-primary {
     background: rgba(255, 255, 255, 0.09);
 }
@@ -565,6 +568,13 @@ a {
     .lightbox-close {
         top: 9px;
         right: 10px;
+        width: 38px;
+        height: 38px;
+    }
+
+    .lightbox-share {
+        top: 9px;
+        right: 58px;
         width: 38px;
         height: 38px;
     }
