@@ -336,17 +336,16 @@ async function renderNextBatch() {
 
     const fragment =
         document.createDocumentFragment();
+    const batchCards = [];
 
     for (let index = start; index < end; index++) {
-        fragment.appendChild(
-            createPhotoCard(
-                photos[index],
-                index
-            )
-        );
+        const card = createPhotoCard(photos[index], index);
+        batchCards.push(card);
+        fragment.appendChild(card);
     }
 
     gallery.appendChild(fragment);
+    batchCards.forEach(updateMasonryCard);
 
     renderedCount = end;
     isLoadingBatch = false;
@@ -401,11 +400,14 @@ function createPhotoCard(filename, index) {
 
 function updateMasonryCard(card) {
     const image = card.querySelector(".thumbnail");
-    if (image && image.naturalWidth > 0) {
+    if (image) {
         const rowGap = parseFloat(getComputedStyle(gallery).rowGap) || 0;
+        const imageHeight = image.naturalWidth > 0
+            ? image.getBoundingClientRect().height
+            : card.getBoundingClientRect().width * 0.75;
         card.style.gridRowEnd =
             "span " + Math.ceil(
-                (image.getBoundingClientRect().height + rowGap) /
+                (imageHeight + rowGap) /
                 (1 + rowGap)
             );
     }
