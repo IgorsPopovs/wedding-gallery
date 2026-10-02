@@ -4,6 +4,7 @@ const photos = Array.from(
 );
 
 const photoBaseUrl = "https://photos.aligor.us";
+const galleryBasePath = "/wedding-gallery";
 
 const gallery = document.getElementById("gallery");
 
@@ -13,13 +14,19 @@ const lightboxImage = document.getElementById("lightbox-image");
 const downloadBig = document.getElementById("download-big");
 const downloadSmall = document.getElementById("download-small");
 
+const closeButton = document.querySelector(".close");
+const previousButton = document.querySelector(".prev");
+const nextButton = document.querySelector(".next");
+
 let currentIndex = 0;
 
 // Create thumbnails
 photos.forEach((filename, index) => {
     const img = document.createElement("img");
 
-    img.src = `${photoBaseUrl}/small/${encodeURIComponent(filename)}`;
+    img.src =
+        `${photoBaseUrl}/small/${encodeURIComponent(filename)}`;
+
     img.className = "thumbnail";
     img.loading = "lazy";
 
@@ -47,11 +54,16 @@ function openPhoto(index) {
     lightboxImage.src = bigUrl;
     lightboxImage.alt = bigFilename;
 
-    // Download buttons
-    downloadBig.href = `/download/big/${encodeURIComponent(bigFilename)}`;
+    // Download full-size image
+    downloadBig.href =
+        `${galleryBasePath}/download/big/${encodeURIComponent(bigFilename)}`;
+
     downloadBig.download = bigFilename;
 
-    downloadSmall.href = `/download/small/${encodeURIComponent(smallFilename)}`;
+    // Download small image
+    downloadSmall.href =
+        `${galleryBasePath}/download/small/${encodeURIComponent(smallFilename)}`;
+
     downloadSmall.download = smallFilename;
 
     lightbox.classList.add("active");
@@ -63,10 +75,32 @@ function closeLightbox() {
     lightboxImage.src = "";
 }
 
+// Close button
+closeButton.addEventListener("click", closeLightbox);
+
+// Click outside photo
 lightbox.addEventListener("click", (event) => {
     if (event.target === lightbox) {
         closeLightbox();
     }
+});
+
+// Previous photo
+previousButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+
+    openPhoto(
+        (currentIndex - 1 + photos.length) % photos.length
+    );
+});
+
+// Next photo
+nextButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+
+    openPhoto(
+        (currentIndex + 1) % photos.length
+    );
 });
 
 // Keyboard controls
@@ -79,13 +113,15 @@ document.addEventListener("keydown", (event) => {
         closeLightbox();
     }
 
-    if (event.key === "ArrowRight") {
-        openPhoto((currentIndex + 1) % photos.length);
-    }
-
     if (event.key === "ArrowLeft") {
         openPhoto(
             (currentIndex - 1 + photos.length) % photos.length
+        );
+    }
+
+    if (event.key === "ArrowRight") {
+        openPhoto(
+            (currentIndex + 1) % photos.length
         );
     }
 });
