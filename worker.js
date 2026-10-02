@@ -11,7 +11,6 @@ export default {
         } else if (path.startsWith(`${BASE_PATH}/`)) {
             path = path.slice(BASE_PATH.length);
         }
-
         if (path.startsWith("/download/")) {
             const key = decodeURIComponent(
                 path.slice("/download/".length)
