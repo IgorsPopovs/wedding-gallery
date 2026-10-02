@@ -395,6 +395,7 @@ a {
     width: 48px;
     height: 48px;
     margin-top: -24px;
+    touch-action: manipulation;
 }
 
 .lightbox-nav:disabled {
