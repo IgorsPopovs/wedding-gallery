@@ -512,6 +512,7 @@ a {
 
 .download-icon {
     justify-self: start;
+    margin-left: 3px;
     font-size: 18px;
     line-height: 1;
 }
