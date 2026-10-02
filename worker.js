@@ -1,16 +1,23 @@
-const GALLERY_PREFIX = "/wedding-gallery";
+const BASE_PATH = "/wedding-gallery";
 
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
 
-        // Handle R2 downloads
-        if (url.pathname.startsWith(`${GALLERY_PREFIX}/download/`)) {
+        let pathname = url.pathname;
+
+        // Remove the /wedding-gallery prefix
+        // so Cloudflare Assets can find the actual file.
+        if (pathname === BASE_PATH) {
+            pathname = "/";
+        } else if (pathname.startsWith(`${BASE_PATH}/`)) {
+            pathname = pathname.slice(BASE_PATH.length);
+        }
+
+        // Download file from R2
+        if (pathname.startsWith("/download/")) {
             const key = decodeURIComponent(
-                url.pathname.replace(
-                    `${GALLERY_PREFIX}/download/`,
-                    ""
-                )
+                pathname.replace("/download/", "")
             );
 
             const object = await env.GALLERY.get(key);
@@ -38,26 +45,9 @@ export default {
             });
         }
 
-        // Remove /wedding-gallery from the URL
+        // Serve static website
         const assetUrl = new URL(request.url);
-
-        if (
-            assetUrl.pathname === GALLERY_PREFIX ||
-            assetUrl.pathname === `${GALLERY_PREFIX}/`
-        ) {
-            assetUrl.pathname = "/index.html";
-        } else if (
-            assetUrl.pathname.startsWith(`${GALLERY_PREFIX}/`)
-        ) {
-            assetUrl.pathname =
-                assetUrl.pathname.substring(
-                    GALLERY_PREFIX.length
-                );
-        } else {
-            return new Response("Not Found", {
-                status: 404
-            });
-        }
+        assetUrl.pathname = pathname;
 
         return env.ASSETS.fetch(
             new Request(assetUrl, request)
