@@ -1,22 +1,16 @@
-const BASE_PATH = "/wedding-gallery";
+const GALLERY_PREFIX = "/wedding-gallery";
 
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
 
-        let path = url.pathname;
-
-        // Remove /wedding-gallery from the request path
-        if (path === BASE_PATH || path === `${BASE_PATH}/`) {
-            path = "/";
-        } else if (path.startsWith(`${BASE_PATH}/`)) {
-            path = path.slice(BASE_PATH.length);
-        }
-
-        // Handle downloads from R2
-        if (path.startsWith("/download/")) {
+        // Handle R2 downloads
+        if (url.pathname.startsWith(`${GALLERY_PREFIX}/download/`)) {
             const key = decodeURIComponent(
-                path.slice("/download/".length)
+                url.pathname.replace(
+                    `${GALLERY_PREFIX}/download/`,
+                    ""
+                )
             );
 
             const object = await env.GALLERY.get(key);
@@ -44,11 +38,26 @@ export default {
             });
         }
 
-        // Serve the website
+        // Remove /wedding-gallery from the URL
         const assetUrl = new URL(request.url);
 
-        assetUrl.pathname =
-            path === "/" ? "/index.html" : path;
+        if (
+            assetUrl.pathname === GALLERY_PREFIX ||
+            assetUrl.pathname === `${GALLERY_PREFIX}/`
+        ) {
+            assetUrl.pathname = "/index.html";
+        } else if (
+            assetUrl.pathname.startsWith(`${GALLERY_PREFIX}/`)
+        ) {
+            assetUrl.pathname =
+                assetUrl.pathname.substring(
+                    GALLERY_PREFIX.length
+                );
+        } else {
+            return new Response("Not Found", {
+                status: 404
+            });
+        }
 
         return env.ASSETS.fetch(
             new Request(assetUrl, request)
