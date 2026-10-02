@@ -19,6 +19,7 @@ const downloadSmall = document.getElementById("download-small");
 
 const currentPhoto = document.getElementById("current-photo");
 const totalPhotos = document.getElementById("total-photos");
+const photoCount = document.getElementById("photo-count");
 
 let photos = [];
 let renderedCount = 0;
@@ -32,7 +33,7 @@ async function init() {
     }
 
     try {
-        setLoadingText("Loading memories...");
+        setLoadingText("Собираем наши воспоминания…");
 
         const response = await fetch(
             GALLERY_BASE_PATH + "/api/photos",
@@ -56,12 +57,16 @@ async function init() {
 
         photos = data;
 
+        if (photoCount) {
+            photoCount.textContent = photos.length;
+        }
+
         if (totalPhotos) {
             totalPhotos.textContent = photos.length;
         }
 
         if (photos.length === 0) {
-            setLoadingText("No photos found.");
+            setLoadingText("Фотографии скоро появятся.");
             return;
         }
 
@@ -72,7 +77,7 @@ async function init() {
         console.error(error);
 
         setLoadingText(
-            "Unable to load photos. Please try again later."
+            "Не удалось загрузить фотографии. Попробуйте обновить страницу."
         );
     }
 }
@@ -103,7 +108,7 @@ function showLightboxImage() {
 
 function showLightboxImageError() {
     if (lightboxImage) {
-        console.error("Failed to load image:", lightboxImage.src);
+        console.error("Не удалось загрузить фотографию:", lightboxImage.src);
         lightboxImage.classList.remove("loaded");
     }
 
@@ -131,7 +136,7 @@ function loadLightboxImage(filename) {
         lightboxError.classList.add("hidden");
     }
 
-    lightboxImage.alt = "Wedding photo " + (currentIndex + 1);
+    lightboxImage.alt = "Свадебная фотография " + (currentIndex + 1);
     lightboxImage.src = getSmallUrl(filename);
 
     if (lightboxImage.complete) {
@@ -176,7 +181,7 @@ async function renderNextBatch() {
 
     isLoadingBatch = true;
 
-    setLoadingText("Loading memories...");
+    setLoadingText("Собираем наши воспоминания…");
 
     const start = renderedCount;
 
@@ -206,7 +211,7 @@ async function renderNextBatch() {
         finishLoading();
     } else {
         setLoadingText(
-            "Scroll for more memories..."
+            "Листайте дальше — впереди ещё фотографии."
         );
         observeLastPhoto();
     }
@@ -219,6 +224,15 @@ function createPhotoCard(filename, index) {
     const image =
         document.createElement("img");
 
+    const caption =
+        document.createElement("div");
+
+    const captionScript =
+        document.createElement("span");
+
+    const captionNumber =
+        document.createElement("span");
+
     card.className = "photo-card";
 
     image.className = "thumbnail";
@@ -227,7 +241,7 @@ function createPhotoCard(filename, index) {
         getSmallUrl(filename);
 
     image.alt =
-        "Wedding photo " +
+        "Свадебная фотография " +
         (index + 1);
 
     image.loading =
@@ -245,6 +259,19 @@ function createPhotoCard(filename, index) {
     );
 
     card.appendChild(image);
+
+    caption.className = "photo-caption";
+    caption.setAttribute("aria-hidden", "true");
+
+    captionScript.className = "photo-caption-script";
+    captionScript.textContent = "наш день";
+
+    captionNumber.className = "photo-caption-number";
+    captionNumber.textContent = String(index + 1).padStart(3, "0");
+
+    caption.appendChild(captionScript);
+    caption.appendChild(captionNumber);
+    card.appendChild(caption);
 
     return card;
 }

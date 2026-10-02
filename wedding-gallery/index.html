@@ -1,202 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-
     <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     >
-
-    <meta
-            name="theme-color"
-            content="#e9e1d5"
-    >
-
+    <meta name="theme-color" content="#f5ece8">
     <meta
             name="description"
-            content="Igor & Alina — Wedding Gallery"
+            content="Фотографии свадьбы Игоря и Алины — 20 июня 2026 года."
     >
-
-    <title>Igor & Alina — Wedding Gallery</title>
-
+    <title>Игорь & Алина — наша свадьба</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Caveat:wght@500;600&family=Jost:wght@300;400;500&display=swap"
+            rel="stylesheet"
+    >
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+<div class="background" aria-hidden="true"></div>
+<div class="background-overlay" aria-hidden="true"></div>
+
 <div class="page">
 
-    <div class="background"></div>
-    <div class="background-overlay"></div>
-
-
     <header class="gallery-header">
-
-        <div class="header-decoration">
+        <div class="header-ornament" aria-hidden="true">
             <span></span>
-            <i>✦</i>
-            <span></span>
-        </div>
-
-        <p class="eyebrow">
-            OUR WEDDING
-        </p>
-
-        <h1>
-            Igor <span>&</span> Alina
-        </h1>
-
-        <p class="subtitle">
-            Our wedding memories
-        </p>
-
-        <div class="header-line">
-            <span></span>
-            <i>✦</i>
+            <i>♥</i>
             <span></span>
         </div>
 
+        <p class="eyebrow">НАША СВАДЬБА</p>
+
+        <h1>Игорь <span>&</span> Алина</h1>
+
+        <p class="wedding-date">20 ИЮНЯ 2026</p>
+
+        <div class="header-message">
+            <p class="script-line">Дорогие друзья и родные!</p>
+            <p class="intro-copy">
+                Помните тот день, когда мы стали семьёй?<br class="desktop-break">
+                Давайте проживём его ещё раз — вместе.
+            </p>
+            <p class="intro-note">
+                Здесь собраны наши любимые моменты и ваши взгляды на этот день.
+                Спасибо, что были рядом.
+            </p>
+        </div>
+
+        <a class="gallery-jump" href="#moments">
+            <span>Пересмотреть этот день</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 4v15m-6-6 6 6 6-6" />
+            </svg>
+        </a>
     </header>
 
-
-    <main>
+    <main id="moments">
+        <section class="gallery-intro" aria-labelledby="gallery-title">
+            <div class="section-ornament" aria-hidden="true">
+                <span></span>
+                <i>✦</i>
+                <span></span>
+            </div>
+            <p class="section-kicker">ЛЕТО · ЛЮБОВЬ · МЫ</p>
+            <h2 id="gallery-title">Моменты нашего дня</h2>
+            <p>
+                Ищите себя, сохраняйте любимые кадры и делитесь ими с близкими.
+            </p>
+            <div class="memory-count">
+                <span id="photo-count">…</span>
+                <span>воспоминаний</span>
+            </div>
+        </section>
 
         <section
                 id="gallery"
                 class="gallery"
-                aria-label="Wedding photos"
+                aria-label="Фотографии свадьбы Игоря и Алины"
         ></section>
 
-
-        <div
-                id="gallery-loading"
-                class="gallery-loading"
-        >
-            <span class="loader"></span>
-            <p>Loading memories...</p>
+        <div id="gallery-loading" class="gallery-loading" aria-live="polite">
+            <span class="loader" aria-hidden="true"></span>
+            <p>Собираем наши воспоминания…</p>
         </div>
-
     </main>
 
-
-    <div
-            id="lightbox"
-            class="lightbox"
-            aria-hidden="true"
-    >
-
-        <button
-                class="lightbox-close"
-                type="button"
-                aria-label="Close"
-        >
-            <span></span>
-            <span></span>
-        </button>
-
-
-        <button
-                class="lightbox-nav lightbox-prev"
-                type="button"
-                aria-label="Previous photo"
-        >
-            <span></span>
-        </button>
-
-
-        <div class="lightbox-content">
-
-            <div class="lightbox-photo-wrapper">
-
-                <img
-                        id="lightbox-image"
-                        src=""
-                        alt=""
-                >
-
-                <p
-                        id="lightbox-error"
-                        class="lightbox-error hidden"
-                        aria-live="polite"
-                >
-                    Unable to load this photo.
-                </p>
-
-                <div
-                        id="lightbox-loader"
-                        class="lightbox-loader"
-                >
-                    <span class="loader"></span>
-                </div>
-
-            </div>
-
-
-            <div class="lightbox-info">
-
-                <div class="photo-counter">
-                    <span id="current-photo">1</span>
-                    <span class="counter-divider">/</span>
-                    <span id="total-photos">10</span>
-                </div>
-
-
-                <div class="download-actions">
-
-                    <a
-                            id="download-big"
-                            class="download-button download-primary"
-                            href="#"
-                    >
-                        <span class="download-icon">↓</span>
-                        <span>Download full size</span>
-                    </a>
-
-
-                    <a
-                            id="download-small"
-                            class="download-button"
-                            href="#"
-                    >
-                        <span class="download-icon">↓</span>
-                        <span>Download small</span>
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <button
-                class="lightbox-nav lightbox-next"
-                type="button"
-                aria-label="Next photo"
-        >
-            <span></span>
-        </button>
-
-    </div>
-
-
     <footer class="gallery-footer">
-
-        <div class="footer-line"></div>
-
-        <p>
-            With love, Igor & Alina
-        </p>
-
-        <span>
-            20 · 06 · 2026
-        </span>
-
+        <div class="footer-ornament" aria-hidden="true">
+            <span></span>
+            <i>♥</i>
+            <span></span>
+        </div>
+        <p class="footer-script">С любовью, Игорь и Алина</p>
+        <span class="footer-date">20 · 06 · 2026</span>
+        <p class="footer-note">Дальше — наша общая история.</p>
     </footer>
 
 </div>
 
+<div id="lightbox" class="lightbox" aria-hidden="true">
+    <button class="lightbox-close" type="button" aria-label="Закрыть фото">
+        <span></span>
+        <span></span>
+    </button>
+
+    <button class="lightbox-nav lightbox-prev" type="button" aria-label="Предыдущее фото">
+        <span></span>
+    </button>
+
+    <div class="lightbox-content">
+        <div class="lightbox-photo-wrapper">
+            <img id="lightbox-image" src="" alt="">
+            <p id="lightbox-error" class="lightbox-error hidden" aria-live="polite">
+                Не удалось загрузить фотографию.
+            </p>
+            <div id="lightbox-loader" class="lightbox-loader" aria-hidden="true">
+                <span class="loader"></span>
+            </div>
+        </div>
+
+        <div class="lightbox-info">
+            <div class="photo-counter" aria-live="polite">
+                <span class="counter-label">кадр</span>
+                <span id="current-photo">1</span>
+                <span class="counter-divider">из</span>
+                <span id="total-photos">…</span>
+            </div>
+
+            <div class="download-actions">
+                <a id="download-big" class="download-button download-primary" href="#">
+                    <span class="download-icon" aria-hidden="true">↓</span>
+                    <span>Скачать оригинал</span>
+                </a>
+                <a id="download-small" class="download-button" href="#">
+                    <span class="download-icon" aria-hidden="true">↓</span>
+                    <span>Скачать фото</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <button class="lightbox-nav lightbox-next" type="button" aria-label="Следующее фото">
+        <span></span>
+    </button>
+</div>
 
 <script src="script.js"></script>
 
