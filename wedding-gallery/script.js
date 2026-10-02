@@ -19,10 +19,7 @@ let currentIndex = 0;
 photos.forEach((filename, index) => {
     const img = document.createElement("img");
 
-    const imageUrl =
-        `${photoBaseUrl}/small/${encodeURIComponent(filename)}`;
-
-    img.src = imageUrl;
+    img.src = `${photoBaseUrl}/small/${encodeURIComponent(filename)}`;
     img.className = "thumbnail";
     img.loading = "lazy";
 
@@ -50,14 +47,46 @@ function openPhoto(index) {
     lightboxImage.src = bigUrl;
     lightboxImage.alt = bigFilename;
 
-    // Direct download links to R2
-    downloadBig.href = bigUrl;
-    downloadBig.download = bigFilename;
+    // Download buttons
+    downloadBig.onclick = () => {
+        downloadFile(bigUrl, bigFilename);
+    };
 
-    downloadSmall.href = smallUrl;
-    downloadSmall.download = smallFilename;
+    downloadSmall.onclick = () => {
+        downloadFile(smallUrl, smallFilename);
+    };
 
     lightbox.classList.add("active");
+}
+
+// Download file
+async function downloadFile(url, filename) {
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const blob = await response.blob();
+
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = filename;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+        console.error("Download failed:", error);
+
+        // Fallback: open the file
+        window.open(url, "_blank");
+    }
 }
 
 // Close lightbox
@@ -66,7 +95,6 @@ function closeLightbox() {
     lightboxImage.src = "";
 }
 
-// Close when clicking outside the image
 lightbox.addEventListener("click", (event) => {
     if (event.target === lightbox) {
         closeLightbox();
