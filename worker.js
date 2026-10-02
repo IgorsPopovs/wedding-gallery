@@ -9,9 +9,14 @@ export default {
         let path = url.pathname;
 
         // Remove /wedding-gallery from the request path
-        if (path === BASE_PATH || path === `${BASE_PATH}/`) {
+        if (
+            path === BASE_PATH ||
+            path === BASE_PATH + "/"
+        ) {
             path = "/";
-        } else if (path.startsWith(`${BASE_PATH}/`)) {
+        } else if (
+            path.startsWith(BASE_PATH + "/")
+        ) {
             path = path.slice(BASE_PATH.length);
         }
 
@@ -19,38 +24,53 @@ export default {
         if (path === "/api/photos") {
             const photos = [];
 
-            let cursor;
+            let cursor = undefined;
+            let truncated = true;
 
-            do {
-                const result = await env.GALLERY.list({
+            while (truncated) {
+                const options = {
                     prefix: PHOTO_PREFIX,
-                    limit: 1000,
-                    ...(cursor ? { cursor } : {})
-                });
+                    limit: 1000
+                };
+
+                if (cursor) {
+                    options.cursor = cursor;
+                }
+
+                const result =
+                    await env.GALLERY.list(options);
 
                 for (const object of result.objects) {
                     if (
-                        object.key.startsWith(PHOTO_PREFIX) &&
-                        object.key.toLowerCase().endsWith(".jpg")
+                        object.key.startsWith(
+                            PHOTO_PREFIX
+                        ) &&
+                        object.key
+                            .toLowerCase()
+                            .endsWith(".jpg")
                     ) {
                         photos.push(
-                            object.key.slice(PHOTO_PREFIX.length)
+                            object.key.slice(
+                                PHOTO_PREFIX.length
+                            )
                         );
                     }
                 }
 
-                cursor = result.truncated
-                    ? result.cursor
-                    : undefined;
+                truncated = result.truncated;
 
-            } while (cursor);
+                cursor = result.cursor;
+            }
 
             return new Response(
                 JSON.stringify(photos),
                 {
                     headers: {
-                        "Content-Type": "application/json; charset=utf-8",
-                        "Cache-Control": "public, max-age=300"
+                        "Content-Type":
+                            "application/json; charset=utf-8",
+
+                        "Cache-Control":
+                            "public, max-age=300"
                     }
                 }
             );
@@ -62,42 +82,59 @@ export default {
                 path.slice("/download/".length)
             );
 
-            const object = await env.GALLERY.get(key);
+            const object =
+                await env.GALLERY.get(key);
 
             if (!object) {
-                return new Response("File not found", {
-                    status: 404
-                });
+                return new Response(
+                    "File not found",
+                    {
+                        status: 404
+                    }
+                );
             }
 
-            const filename = key.split("/").pop();
+            const filename =
+                key.split("/").pop();
 
-            return new Response(object.body, {
-                headers: {
-                    "Content-Type":
-                        object.httpMetadata?.contentType ||
-                        "application/octet-stream",
+            return new Response(
+                object.body,
+                {
+                    headers: {
+                        "Content-Type":
+                            object.httpMetadata
+                                ?.contentType ||
+                            "application/octet-stream",
 
-                    "Content-Disposition":
-                        `attachment; filename="${filename}"`,
+                        "Content-Disposition":
+                            'attachment; filename="' +
+                            filename +
+                            '"',
 
-                    "Content-Length":
-                        object.size.toString(),
+                        "Content-Length":
+                            object.size.toString(),
 
-                    "Cache-Control":
-                        "no-store"
+                        "Cache-Control":
+                            "no-store"
+                    }
                 }
-            });
+            );
         }
 
         // Static website
-        const assetUrl = new URL(request.url);
+        const assetUrl =
+            new URL(request.url);
 
         assetUrl.pathname =
-            path === "/" ? "/index.html" : path;
+            path === "/"
+                ? "/index.html"
+                : path;
 
         return env.ASSETS.fetch(
-            new Request(assetUrl, request)
+            new Request(
+                assetUrl,
+                request
+            )
         );
     }
 };
