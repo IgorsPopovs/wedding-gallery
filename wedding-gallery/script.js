@@ -31,6 +31,7 @@ let downloadSizeRequestId = 0;
 let shareStatusTimeout = null;
 let isLoadingBatch = false;
 let loadMoreObserver = null;
+const shareImagePromises = new Map();
 
 async function init() {
     if (!gallery) {
@@ -140,6 +141,7 @@ function loadLightboxImage(filename) {
 
     lightboxImage.alt = "Свадебная фотография " + (currentIndex + 1);
     lightboxImage.src = getSmallUrl(filename);
+    prepareShareImage(filename);
 
     if (lightboxImage.complete) {
         if (lightboxImage.naturalWidth > 0) {
@@ -148,6 +150,39 @@ function loadLightboxImage(filename) {
             showLightboxImageError();
         }
     }
+}
+
+function prepareShareImage(filename) {
+    if (
+        !navigator.canShare ||
+        typeof File === "undefined" ||
+        shareImagePromises.has(filename)
+    ) {
+        return;
+    }
+
+    const probe = new File([""], filename, { type: "image/jpeg" });
+    if (!navigator.canShare({ files: [probe] })) {
+        return;
+    }
+
+    const imagePromise = fetch(getSmallUrl(filename))
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error("Could not load the photo for sharing");
+            }
+            return response.blob();
+        })
+        .then(function (blob) {
+            return new File([blob], filename, {
+                type: blob.type || "image/jpeg"
+            });
+        });
+
+    shareImagePromises.set(filename, imagePromise);
+    imagePromise.catch(function () {
+        shareImagePromises.delete(filename);
+    });
 }
 
 function getBigFilename(filename) {
@@ -277,12 +312,26 @@ async function sharePhoto(filename) {
 
     if (navigator.share) {
         try {
-            await navigator.share({
+            const shareData = {
                 title: "Игорь и Алина",
                 text: "Игорь и Алина: фотография №" +
                     (photoNumber ? Number(photoNumber[1]) : ""),
                 url: shareUrl.toString()
-            });
+            };
+            const imagePromise = shareImagePromises.get(filename);
+
+            if (imagePromise) {
+                try {
+                    const file = await imagePromise;
+                    if (navigator.canShare({ files: [file] })) {
+                        shareData.files = [file];
+                    }
+                } catch (error) {
+                    // Keep text-and-link sharing available if the image cannot be loaded.
+                }
+            }
+
+            await navigator.share(shareData);
             return;
         } catch (error) {
             if (error.name === "AbortError") {
