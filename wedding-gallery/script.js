@@ -195,11 +195,11 @@ async function loadDownloadSizes(filename) {
     const requestId = ++downloadSizeRequestId;
 
     if (downloadBigSize) {
-        downloadBigSize.textContent = "считаем размер…";
+        downloadBigSize.textContent = "";
     }
 
     if (downloadSmallSize) {
-        downloadSmallSize.textContent = "считаем размер…";
+        downloadSmallSize.textContent = "";
     }
 
     try {
