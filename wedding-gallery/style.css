@@ -112,22 +112,23 @@ a {
 }
 
 .gallery {
-    column-count: 4;
-    column-gap: clamp(13px, 1.7vw, 24px);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(13px, 1.7vw, 24px);
     width: 100%;
     padding: 18px 0 clamp(36px, 5vw, 68px);
 }
 
 .photo-card {
     position: relative;
-    display: inline-block;
+    display: block;
+    align-self: start;
     width: 100%;
-    margin: 0 0 clamp(15px, 2vw, 26px);
+    margin: 0;
     padding: 0;
     overflow: hidden;
     background: transparent;
     cursor: pointer;
-    break-inside: avoid;
     animation: photoAppear 0.65s ease both;
     transition: opacity 0.25s ease, transform 0.3s ease;
 }
@@ -506,7 +507,7 @@ a {
 
 @media (max-width: 1100px) {
     .gallery {
-        column-count: 3;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
@@ -532,14 +533,10 @@ a {
     }
 
     .gallery {
-        column-count: 2;
-        column-gap: 10px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 10px;
         padding-top: 10px;
         padding-bottom: 30px;
-    }
-
-    .photo-card {
-        margin-bottom: 12px;
     }
 
     .share-status {
