@@ -57,36 +57,6 @@ function openPhoto(index) {
     lightbox.classList.add("active");
 }
 
-// Download file
-async function downloadFile(url, filename) {
-    try {
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        const blob = await response.blob();
-
-        const blobUrl = URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = filename;
-
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        URL.revokeObjectURL(blobUrl);
-    } catch (error) {
-        console.error("Download failed:", error);
-
-        // Fallback: open the file
-        window.open(url, "_blank");
-    }
-}
-
 // Close lightbox
 function closeLightbox() {
     lightbox.classList.remove("active");
