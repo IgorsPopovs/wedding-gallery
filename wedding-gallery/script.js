@@ -810,35 +810,46 @@ document.addEventListener(
     }
 );
 
-let touchStartX = 0;
-let touchEndX = 0;
+let touchStartX = null;
+let touchStartY = null;
 
-if (lightboxImage) {
-    lightboxImage.addEventListener(
+if (lightbox) {
+    lightbox.addEventListener(
         "touchstart",
         function (event) {
-            touchStartX =
-                event.changedTouches[0]
-                    .screenX;
+            if (event.touches.length !== 1) {
+                touchStartX = null;
+                touchStartY = null;
+                return;
+            }
+
+            touchStartX = event.touches[0].clientX;
+            touchStartY = event.touches[0].clientY;
         },
-        {
-            passive: true
-        }
+        { passive: true }
     );
 
-    lightboxImage.addEventListener(
+    lightbox.addEventListener(
         "touchend",
         function (event) {
-            touchEndX =
-                event.changedTouches[0]
-                    .screenX;
+            if (
+                touchStartX === null ||
+                !event.changedTouches.length
+            ) {
+                return;
+            }
 
             const difference =
-                touchStartX -
-                touchEndX;
+                touchStartX - event.changedTouches[0].clientX;
+            const verticalDifference =
+                touchStartY - event.changedTouches[0].clientY;
+
+            touchStartX = null;
+            touchStartY = null;
 
             if (
-                Math.abs(difference) < 50
+                Math.abs(difference) < 50 ||
+                Math.abs(difference) <= Math.abs(verticalDifference)
             ) {
                 return;
             }
@@ -849,9 +860,16 @@ if (lightboxImage) {
                 showPrevious();
             }
         },
-        {
-            passive: true
-        }
+        { passive: true }
+    );
+
+    lightbox.addEventListener(
+        "touchcancel",
+        function () {
+            touchStartX = null;
+            touchStartY = null;
+        },
+        { passive: true }
     );
 }
 
