@@ -3,16 +3,21 @@ const GALLERY_BASE_PATH = "/wedding-gallery";
 const BATCH_SIZE = 48;
 
 const gallery = document.getElementById("gallery");
+const galleryLoading = document.getElementById("gallery-loading");
 
 const lightbox = document.getElementById("lightbox");
 const lightboxImage = document.getElementById("lightbox-image");
+const lightboxLoader = document.getElementById("lightbox-loader");
+
+const closeButton = document.getElementById("lightbox-close");
+const previousButton = document.getElementById("lightbox-prev");
+const nextButton = document.getElementById("lightbox-next");
 
 const downloadBig = document.getElementById("download-big");
 const downloadSmall = document.getElementById("download-small");
 
-const closeButton = document.querySelector(".close");
-const previousButton = document.querySelector(".prev");
-const nextButton = document.querySelector(".next");
+const currentPhoto = document.getElementById("current-photo");
+const totalPhotos = document.getElementById("total-photos");
 
 let photos = [];
 let renderedCount = 0;
@@ -21,7 +26,13 @@ let isLoadingBatch = false;
 let loadMoreObserver = null;
 
 async function init() {
+    if (!gallery) {
+        return;
+    }
+
     try {
+        setLoadingText("Loading memories...");
+
         const response = await fetch(
             GALLERY_BASE_PATH + "/api/photos",
             {
@@ -31,18 +42,25 @@ async function init() {
 
         if (!response.ok) {
             throw new Error(
-                "Failed to load photos: " +
+                "Failed to load photo list: " +
                 response.status
             );
         }
 
-        photos = await response.json();
+        const data = await response.json();
 
-        if (!Array.isArray(photos)) {
+        if (!Array.isArray(data)) {
             throw new Error("Invalid photo list");
         }
 
+        photos = data;
+
+        if (totalPhotos) {
+            totalPhotos.textContent = photos.length;
+        }
+
         if (photos.length === 0) {
+            setLoadingText("No photos found.");
             return;
         }
 
@@ -51,6 +69,10 @@ async function init() {
 
     } catch (error) {
         console.error(error);
+
+        setLoadingText(
+            "Unable to load photos. Please try again later."
+        );
     }
 }
 
@@ -85,15 +107,17 @@ function getSmallDownloadUrl(filename) {
 }
 
 async function renderNextBatch() {
-    if (isLoadingBatch) {
-        return;
-    }
-
-    if (renderedCount >= photos.length) {
+    if (
+        !gallery ||
+        isLoadingBatch ||
+        renderedCount >= photos.length
+    ) {
         return;
     }
 
     isLoadingBatch = true;
+
+    setLoadingText("Loading memories...");
 
     const start = renderedCount;
 
@@ -106,12 +130,12 @@ async function renderNextBatch() {
         document.createDocumentFragment();
 
     for (let index = start; index < end; index++) {
-        const card = createPhotoCard(
-            photos[index],
-            index
+        fragment.appendChild(
+            createPhotoCard(
+                photos[index],
+                index
+            )
         );
-
-        fragment.appendChild(card);
     }
 
     gallery.appendChild(fragment);
@@ -119,14 +143,19 @@ async function renderNextBatch() {
     renderedCount = end;
     isLoadingBatch = false;
 
-    if (renderedCount < photos.length) {
+    if (renderedCount >= photos.length) {
+        finishLoading();
+    } else {
+        setLoadingText(
+            "Scroll for more memories..."
+        );
         observeLastPhoto();
     }
 }
 
 function createPhotoCard(filename, index) {
     const card =
-        document.createElement("div");
+        document.createElement("article");
 
     const image =
         document.createElement("img");
@@ -152,7 +181,7 @@ function createPhotoCard(filename, index) {
     card.addEventListener(
         "click",
         function () {
-            openPhoto(index);
+            openLightbox(index);
         }
     );
 
@@ -225,7 +254,32 @@ async function loadMorePhotos() {
     await renderNextBatch();
 }
 
-function openPhoto(index) {
+function setLoadingText(text) {
+    if (!galleryLoading) {
+        return;
+    }
+
+    const textElement =
+        galleryLoading.querySelector("p");
+
+    if (textElement) {
+        textElement.textContent = text;
+    }
+
+    galleryLoading.style.display = "";
+}
+
+function finishLoading() {
+    if (galleryLoading) {
+        galleryLoading.style.display = "none";
+    }
+
+    if (loadMoreObserver) {
+        loadMoreObserver.disconnect();
+    }
+}
+
+function openLightbox(index) {
     if (
         !lightbox ||
         !lightboxImage ||
@@ -240,27 +294,55 @@ function openPhoto(index) {
     const filename =
         photos[currentIndex];
 
+    lightboxImage.classList.remove(
+        "loaded"
+    );
+
+    if (lightboxLoader) {
+        lightboxLoader.classList.remove(
+            "hidden"
+        );
+    }
+
     lightboxImage.src =
         getSmallUrl(filename);
 
     lightboxImage.alt =
-        filename;
+        "Wedding photo " +
+        (currentIndex + 1);
 
-    downloadBig.href =
-        getBigDownloadUrl(filename);
+    if (currentPhoto) {
+        currentPhoto.textContent =
+            currentIndex + 1;
+    }
 
-    downloadBig.download =
-        getBigFilename(filename);
+    if (totalPhotos) {
+        totalPhotos.textContent =
+            photos.length;
+    }
 
-    downloadSmall.href =
-        getSmallDownloadUrl(filename);
+    if (downloadBig) {
+        downloadBig.href =
+            getBigDownloadUrl(filename);
+    }
 
-    downloadSmall.download =
-        filename;
+    if (downloadSmall) {
+        downloadSmall.href =
+            getSmallDownloadUrl(filename);
+    }
 
-    lightbox.classList.add(
-        "active"
+    lightbox.classList.add("active");
+
+    lightbox.setAttribute(
+        "aria-hidden",
+        "false"
     );
+
+    document.body.classList.add(
+        "lightbox-open"
+    );
+
+    updateNavigation();
 }
 
 function closeLightbox() {
@@ -272,8 +354,58 @@ function closeLightbox() {
         "active"
     );
 
+    lightbox.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    document.body.classList.remove(
+        "lightbox-open"
+    );
+
     if (lightboxImage) {
+        lightboxImage.classList.remove(
+            "loaded"
+        );
+
         lightboxImage.src = "";
+    }
+}
+
+function updateLightboxImage() {
+    const filename =
+        photos[currentIndex];
+
+    lightboxImage.classList.remove(
+        "loaded"
+    );
+
+    if (lightboxLoader) {
+        lightboxLoader.classList.remove(
+            "hidden"
+        );
+    }
+
+    lightboxImage.src =
+        getSmallUrl(filename);
+
+    lightboxImage.alt =
+        "Wedding photo " +
+        (currentIndex + 1);
+
+    if (currentPhoto) {
+        currentPhoto.textContent =
+            currentIndex + 1;
+    }
+
+    if (downloadBig) {
+        downloadBig.href =
+            getBigDownloadUrl(filename);
+    }
+
+    if (downloadSmall) {
+        downloadSmall.href =
+            getSmallDownloadUrl(filename);
     }
 }
 
@@ -282,13 +414,15 @@ function showPrevious() {
         return;
     }
 
-    openPhoto(
+    currentIndex =
         (
             currentIndex -
             1 +
             photos.length
-        ) % photos.length
-    );
+        ) %
+        photos.length;
+
+    updateLightboxImage();
 }
 
 function showNext() {
@@ -296,19 +430,52 @@ function showNext() {
         return;
     }
 
-    openPhoto(
+    currentIndex =
         (
             currentIndex +
             1
-        ) % photos.length
+        ) %
+        photos.length;
+
+    updateLightboxImage();
+}
+
+function updateNavigation() {
+    const enabled =
+        photos.length > 1;
+
+    if (previousButton) {
+        previousButton.disabled =
+            !enabled;
+    }
+
+    if (nextButton) {
+        nextButton.disabled =
+            !enabled;
+    }
+}
+
+if (lightboxImage) {
+    lightboxImage.addEventListener(
+        "load",
+        function () {
+            lightboxImage.classList.add(
+                "loaded"
+            );
+
+            if (lightboxLoader) {
+                lightboxLoader.classList.add(
+                    "hidden"
+                );
+            }
+        }
     );
 }
 
 if (closeButton) {
     closeButton.addEventListener(
         "click",
-        function (event) {
-            event.stopPropagation();
+        function () {
             closeLightbox();
         }
     );
@@ -317,8 +484,7 @@ if (closeButton) {
 if (previousButton) {
     previousButton.addEventListener(
         "click",
-        function (event) {
-            event.stopPropagation();
+        function () {
             showPrevious();
         }
     );
@@ -327,8 +493,7 @@ if (previousButton) {
 if (nextButton) {
     nextButton.addEventListener(
         "click",
-        function (event) {
-            event.stopPropagation();
+        function () {
             showNext();
         }
     );
@@ -372,5 +537,50 @@ document.addEventListener(
         }
     }
 );
+
+let touchStartX = 0;
+let touchEndX = 0;
+
+if (lightboxImage) {
+    lightboxImage.addEventListener(
+        "touchstart",
+        function (event) {
+            touchStartX =
+                event.changedTouches[0]
+                    .screenX;
+        },
+        {
+            passive: true
+        }
+    );
+
+    lightboxImage.addEventListener(
+        "touchend",
+        function (event) {
+            touchEndX =
+                event.changedTouches[0]
+                    .screenX;
+
+            const difference =
+                touchStartX -
+                touchEndX;
+
+            if (
+                Math.abs(difference) < 50
+            ) {
+                return;
+            }
+
+            if (difference > 0) {
+                showNext();
+            } else {
+                showPrevious();
+            }
+        },
+        {
+            passive: true
+        }
+    );
+}
 
 init();
