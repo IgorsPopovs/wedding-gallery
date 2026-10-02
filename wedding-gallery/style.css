@@ -265,14 +265,6 @@ a {
     letter-spacing: 0.25em;
 }
 
-.footer-note {
-    margin: 15px 0 0;
-    color: var(--olive);
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 17px;
-    font-style: italic;
-}
-
 .lightbox {
     position: fixed;
     inset: 0;
