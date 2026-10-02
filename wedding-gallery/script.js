@@ -69,6 +69,7 @@ async function init() {
 
     } catch (error) {
         console.error(error);
+
         setLoadingText(
             "Unable to load photos. Please try again later."
         );
@@ -88,7 +89,8 @@ function getBigFilename(smallFilename) {
 }
 
 function getBigDownloadUrl(smallFilename) {
-    const bigFilename = getBigFilename(smallFilename);
+    const bigFilename =
+        getBigFilename(smallFilename);
 
     return (
         GALLERY_BASE_PATH +
@@ -120,12 +122,14 @@ async function renderNextBatch() {
     setLoadingText("Loading memories...");
 
     const start = renderedCount;
+
     const end = Math.min(
         renderedCount + BATCH_SIZE,
         photos.length
     );
 
-    const fragment = document.createDocumentFragment();
+    const fragment =
+        document.createDocumentFragment();
 
     for (let index = start; index < end; index++) {
         const card = createPhotoCard(
@@ -139,32 +143,49 @@ async function renderNextBatch() {
     gallery.appendChild(fragment);
 
     renderedCount = end;
+
     isLoadingBatch = false;
 
     if (renderedCount >= photos.length) {
         finishLoading();
     } else {
-        setLoadingText("Scroll for more memories...");
+        setLoadingText(
+            "Scroll for more memories..."
+        );
     }
 }
 
 function createPhotoCard(filename, index) {
-    const card = document.createElement("article");
+    const card =
+        document.createElement("article");
 
     card.className = "photo-card";
     card.dataset.index = index;
 
-    const image = document.createElement("img");
+    card.addEventListener(
+        "click",
+        function () {
+            openLightbox(index);
+        }
+    );
+
+    const image =
+        document.createElement("img");
 
     image.className = "thumbnail";
-    image.src = getSmallUrl(filename);
-    image.alt = "Wedding photo " + (index + 1);
-    image.loading = index < 12 ? "eager" : "lazy";
-    image.decoding = "async";
 
-    image.addEventListener("click", function () {
-        openLightbox(index);
-    });
+    image.src =
+        getSmallUrl(filename);
+
+    image.alt =
+        "Wedding photo " + (index + 1);
+
+    image.loading =
+        index < 12
+            ? "eager"
+            : "lazy";
+
+    image.decoding = "async";
 
     card.appendChild(image);
 
@@ -172,27 +193,30 @@ function createPhotoCard(filename, index) {
 }
 
 function setupLoadMoreObserver() {
-    if (!("IntersectionObserver" in window)) {
+    if (
+        !("IntersectionObserver" in window)
+    ) {
         return;
     }
 
-    loadMoreObserver = new IntersectionObserver(
-        function (entries) {
-            for (const entry of entries) {
-                if (
-                    entry.isIntersecting &&
-                    renderedCount < photos.length
-                ) {
-                    loadMorePhotos();
+    loadMoreObserver =
+        new IntersectionObserver(
+            function (entries) {
+                for (const entry of entries) {
+                    if (
+                        entry.isIntersecting &&
+                        renderedCount < photos.length
+                    ) {
+                        loadMorePhotos();
+                    }
                 }
+            },
+            {
+                root: null,
+                rootMargin: "1200px 0px",
+                threshold: 0
             }
-        },
-        {
-            root: null,
-            rootMargin: "1200px 0px",
-            threshold: 0
-        }
-    );
+        );
 
     observeLastPhoto();
 }
@@ -203,7 +227,9 @@ function observeLastPhoto() {
     }
 
     const cards =
-        gallery.querySelectorAll(".photo-card");
+        gallery.querySelectorAll(
+            ".photo-card"
+        );
 
     if (cards.length === 0) {
         return;
@@ -213,6 +239,7 @@ function observeLastPhoto() {
         cards[cards.length - 1];
 
     loadMoreObserver.disconnect();
+
     loadMoreObserver.observe(lastCard);
 }
 
@@ -265,11 +292,15 @@ function openLightbox(index) {
 
     currentIndex = index;
 
-    const filename = photos[currentIndex];
+    const filename =
+        photos[currentIndex];
 
-    lightboxImage.src = getSmallUrl(filename);
+    lightboxImage.src =
+        getSmallUrl(filename);
+
     lightboxImage.alt =
-        "Wedding photo " + (currentIndex + 1);
+        "Wedding photo " +
+        (currentIndex + 1);
 
     if (currentPhoto) {
         currentPhoto.textContent =
@@ -292,7 +323,10 @@ function openLightbox(index) {
     }
 
     lightbox.classList.add("is-open");
-    document.body.classList.add("lightbox-open");
+
+    document.body.classList.add(
+        "lightbox-open"
+    );
 
     updateNavigation();
 }
@@ -302,8 +336,13 @@ function closeLightbox() {
         return;
     }
 
-    lightbox.classList.remove("is-open");
-    document.body.classList.remove("lightbox-open");
+    lightbox.classList.remove(
+        "is-open"
+    );
+
+    document.body.classList.remove(
+        "lightbox-open"
+    );
 
     if (lightboxImage) {
         lightboxImage.src = "";
@@ -316,7 +355,11 @@ function showPrevious() {
     }
 
     currentIndex =
-        (currentIndex - 1 + photos.length) %
+        (
+            currentIndex -
+            1 +
+            photos.length
+        ) %
         photos.length;
 
     updateLightbox();
@@ -328,7 +371,10 @@ function showNext() {
     }
 
     currentIndex =
-        (currentIndex + 1) %
+        (
+            currentIndex +
+            1
+        ) %
         photos.length;
 
     updateLightbox();
@@ -346,7 +392,8 @@ function updateLightbox() {
         getSmallUrl(filename);
 
     lightboxImage.alt =
-        "Wedding photo " + (currentIndex + 1);
+        "Wedding photo " +
+        (currentIndex + 1);
 
     if (currentPhoto) {
         currentPhoto.textContent =
@@ -386,7 +433,9 @@ document.addEventListener(
     function (event) {
         if (
             !lightbox ||
-            !lightbox.classList.contains("is-open")
+            !lightbox.classList.contains(
+                "is-open"
+            )
         ) {
             return;
         }
@@ -430,7 +479,9 @@ if (lightbox) {
     lightbox.addEventListener(
         "click",
         function (event) {
-            if (event.target === lightbox) {
+            if (
+                event.target === lightbox
+            ) {
                 closeLightbox();
             }
         }
@@ -445,7 +496,8 @@ if (lightboxImage) {
         "touchstart",
         function (event) {
             touchStartX =
-                event.changedTouches[0].screenX;
+                event.changedTouches[0]
+                    .screenX;
         },
         {
             passive: true
@@ -456,12 +508,16 @@ if (lightboxImage) {
         "touchend",
         function (event) {
             touchEndX =
-                event.changedTouches[0].screenX;
+                event.changedTouches[0]
+                    .screenX;
 
             const difference =
-                touchStartX - touchEndX;
+                touchStartX -
+                touchEndX;
 
-            if (Math.abs(difference) < 50) {
+            if (
+                Math.abs(difference) < 50
+            ) {
                 return;
             }
 
