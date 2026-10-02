@@ -243,67 +243,6 @@ a {
     transform: translateY(2px);
 }
 
-.gallery-intro {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: clamp(30px, 4vw, 48px) 12px 28px;
-    border-top: 1px solid var(--line);
-    text-align: center;
-}
-
-.section-ornament {
-    margin-bottom: 14px;
-    opacity: 0.72;
-}
-
-.section-ornament span {
-    width: 28px;
-}
-
-.section-ornament i {
-    font-size: 10px;
-    font-style: normal;
-}
-
-.section-kicker {
-    font-size: 9px;
-    letter-spacing: 0.25em;
-}
-
-.gallery-intro h2 {
-    margin: 11px 0 5px;
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: clamp(31px, 4.8vw, 48px);
-    font-weight: 500;
-    line-height: 1.1;
-}
-
-.gallery-intro > p:last-of-type {
-    margin: 5px 0 0;
-    color: var(--text-mid);
-    font-size: 13px;
-    line-height: 1.7;
-}
-
-.memory-count {
-    display: flex;
-    align-items: baseline;
-    gap: 7px;
-    margin-top: 13px;
-    color: var(--fig);
-    font-size: 10px;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
-}
-
-#photo-count {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 21px;
-    font-weight: 600;
-    letter-spacing: 0;
-}
-
 .gallery {
     column-count: 4;
     column-gap: clamp(13px, 1.7vw, 24px);
@@ -319,7 +258,7 @@ a {
     padding: 0;
     overflow: hidden;
     background: transparent;
-    cursor: zoom-in;
+    cursor: pointer;
     break-inside: avoid;
     animation: photoAppear 0.65s ease both;
     transition: opacity 0.25s ease, transform 0.3s ease;
@@ -337,7 +276,12 @@ a {
     height: auto;
     background: #eee5df;
     object-fit: contain;
-    transition: opacity 0.25s ease;
+    transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.photo-card:hover .thumbnail {
+    filter: brightness(1.035);
+    transform: scale(1.025);
 }
 
 @keyframes photoAppear {
@@ -625,8 +569,8 @@ a {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-height: 38px;
-    padding: 0 15px;
+    min-height: 46px;
+    padding: 0 14px;
     color: rgba(255, 255, 255, 0.86);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 999px;
@@ -635,6 +579,20 @@ a {
     text-decoration: none;
     text-transform: uppercase;
     transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.download-button-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+
+.download-size {
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    opacity: 0.68;
+    text-transform: none;
 }
 
 .download-button:hover {
@@ -720,24 +678,6 @@ a {
         letter-spacing: 0.09em;
     }
 
-    .gallery-intro {
-        padding: 28px 4px 20px;
-    }
-
-    .section-kicker {
-        font-size: 8px;
-        letter-spacing: 0.19em;
-    }
-
-    .gallery-intro h2 {
-        font-size: clamp(29px, 8vw, 39px);
-    }
-
-    .gallery-intro > p:last-of-type {
-        max-width: 330px;
-        font-size: 12px;
-    }
-
     .gallery {
         column-count: 2;
         column-gap: 10px;
@@ -805,12 +745,20 @@ a {
 
     .download-button {
         flex: 1;
-        min-height: 38px;
+        min-height: 44px;
         gap: 5px;
         padding: 0 6px;
-        font-size: 7px;
+        font-size: 6px;
         letter-spacing: 0.07em;
-        white-space: nowrap;
+        text-align: center;
+    }
+
+    .download-button-text {
+        align-items: center;
+    }
+
+    .download-size {
+        font-size: 6px;
     }
 }
 
@@ -826,7 +774,7 @@ a {
     }
 
     .download-button {
-        font-size: 6.5px;
+        font-size: 5.5px;
     }
 }
 

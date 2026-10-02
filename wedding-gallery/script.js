@@ -16,14 +16,16 @@ const nextButton = document.querySelector(".lightbox-next");
 
 const downloadBig = document.getElementById("download-big");
 const downloadSmall = document.getElementById("download-small");
+const downloadBigSize = document.getElementById("download-big-size");
+const downloadSmallSize = document.getElementById("download-small-size");
 
 const currentPhoto = document.getElementById("current-photo");
 const totalPhotos = document.getElementById("total-photos");
-const photoCount = document.getElementById("photo-count");
 
 let photos = [];
 let renderedCount = 0;
 let currentIndex = 0;
+let downloadSizeRequestId = 0;
 let isLoadingBatch = false;
 let loadMoreObserver = null;
 
@@ -56,10 +58,6 @@ async function init() {
         }
 
         photos = data;
-
-        if (photoCount) {
-            photoCount.textContent = photos.length;
-        }
 
         if (totalPhotos) {
             totalPhotos.textContent = photos.length;
@@ -168,6 +166,84 @@ function getSmallDownloadUrl(filename) {
         "/download/small/" +
         encodeURIComponent(filename)
     );
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024 * 1024) {
+        return (
+            Math.round(bytes / 1024).toLocaleString("ru-RU") +
+            " КБ"
+        );
+    }
+
+    return (
+        (bytes / (1024 * 1024)).toLocaleString(
+            "ru-RU",
+            {
+                maximumFractionDigits: 1
+            }
+        ) +
+        " МБ"
+    );
+}
+
+async function loadDownloadSizes(filename) {
+    const requestId = ++downloadSizeRequestId;
+
+    if (downloadBigSize) {
+        downloadBigSize.textContent = "считаем размер…";
+    }
+
+    if (downloadSmallSize) {
+        downloadSmallSize.textContent = "считаем размер…";
+    }
+
+    try {
+        const url = new URL(
+            GALLERY_BASE_PATH + "/api/photo-sizes",
+            window.location.origin
+        );
+
+        url.searchParams.set("filename", filename);
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("Не удалось получить размеры файлов");
+        }
+
+        const sizes = await response.json();
+
+        if (requestId !== downloadSizeRequestId) {
+            return;
+        }
+
+        if (downloadBigSize) {
+            downloadBigSize.textContent =
+                sizes.big === null
+                    ? "размер недоступен"
+                    : formatFileSize(sizes.big);
+        }
+
+        if (downloadSmallSize) {
+            downloadSmallSize.textContent =
+                sizes.small === null
+                    ? "размер недоступен"
+                    : formatFileSize(sizes.small);
+        }
+    } catch (error) {
+        if (requestId !== downloadSizeRequestId) {
+            return;
+        }
+
+        if (downloadBigSize) {
+            downloadBigSize.textContent = "размер недоступен";
+        }
+
+        if (downloadSmallSize) {
+            downloadSmallSize.textContent = "размер недоступен";
+        }
+    }
 }
 
 async function renderNextBatch() {
@@ -380,6 +456,8 @@ function openLightbox(index) {
             getSmallDownloadUrl(filename);
     }
 
+    loadDownloadSizes(filename);
+
     lightbox.classList.add("active");
 
     lightbox.setAttribute(
@@ -412,6 +490,8 @@ function closeLightbox() {
         "lightbox-open"
     );
 
+    downloadSizeRequestId += 1;
+
     if (lightboxImage) {
         lightboxImage.classList.remove(
             "loaded"
@@ -441,6 +521,8 @@ function updateLightboxImage() {
         downloadSmall.href =
             getSmallDownloadUrl(filename);
     }
+
+    loadDownloadSizes(filename);
 }
 
 function showPrevious() {

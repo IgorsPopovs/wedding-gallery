@@ -62,23 +62,6 @@
     </header>
 
     <main id="moments">
-        <section class="gallery-intro" aria-labelledby="gallery-title">
-            <div class="section-ornament" aria-hidden="true">
-                <span></span>
-                <i>✦</i>
-                <span></span>
-            </div>
-            <p class="section-kicker">ЛЕТО · ЛЮБОВЬ · МЫ</p>
-            <h2 id="gallery-title">Моменты нашего дня</h2>
-            <p>
-                Ищите себя, сохраняйте любимые кадры и делитесь ими с близкими.
-            </p>
-            <div class="memory-count">
-                <span id="photo-count">…</span>
-                <span>воспоминаний</span>
-            </div>
-        </section>
-
         <section
                 id="gallery"
                 class="gallery"
@@ -136,11 +119,17 @@
             <div class="download-actions">
                 <a id="download-big" class="download-button download-primary" href="#">
                     <span class="download-icon" aria-hidden="true">↓</span>
-                    <span>Скачать оригинал</span>
+                    <span class="download-button-text">
+                        <span>Скачать оригинал</span>
+                        <span id="download-big-size" class="download-size">размер фото</span>
+                    </span>
                 </a>
                 <a id="download-small" class="download-button" href="#">
                     <span class="download-icon" aria-hidden="true">↓</span>
-                    <span>Скачать фото</span>
+                    <span class="download-button-text">
+                        <span>Скачать уменьшенную копию</span>
+                        <span id="download-small-size" class="download-size">размер фото</span>
+                    </span>
                 </a>
             </div>
         </div>

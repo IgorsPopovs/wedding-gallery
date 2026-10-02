@@ -59,6 +59,50 @@ export default {
             );
         }
 
+        if (path === "/api/photo-sizes") {
+            const filename =
+                url.searchParams.get("filename");
+
+            if (
+                !filename ||
+                filename.includes("/") ||
+                filename.includes("\\") ||
+                !filename.includes("_s_") ||
+                !filename.toLowerCase().endsWith(".jpg")
+            ) {
+                return new Response(
+                    "Invalid photo filename",
+                    {
+                        status: 400
+                    }
+                );
+            }
+
+            const bigFilename =
+                filename.replace("_s_", "_b_");
+
+            const [smallObject, bigObject] =
+                await Promise.all([
+                    env.GALLERY.head("small/" + filename),
+                    env.GALLERY.head("big/" + bigFilename)
+                ]);
+
+            return new Response(
+                JSON.stringify({
+                    small: smallObject?.size ?? null,
+                    big: bigObject?.size ?? null
+                }),
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/json; charset=utf-8",
+                        "Cache-Control":
+                            "public, max-age=3600"
+                    }
+                }
+            );
+        }
+
         if (path.startsWith("/download/")) {
             const key = decodeURIComponent(
                 path.slice("/download/".length)
