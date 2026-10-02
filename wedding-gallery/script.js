@@ -372,9 +372,6 @@ function createPhotoCard(filename, index) {
 
     image.className = "thumbnail";
 
-    image.src =
-        getSmallUrl(filename);
-
     image.alt =
         "Свадебная фотография " +
         (index + 1);
@@ -385,6 +382,9 @@ function createPhotoCard(filename, index) {
             : "lazy";
 
     image.decoding = "async";
+    image.addEventListener("load", function () {
+        updateMasonryCard(card);
+    });
 
     card.addEventListener(
         "click",
@@ -394,9 +394,31 @@ function createPhotoCard(filename, index) {
     );
 
     card.appendChild(image);
+    image.src = getSmallUrl(filename);
 
     return card;
 }
+
+function updateMasonryCard(card) {
+    if (!window.matchMedia("(max-width: 680px)").matches) {
+        card.style.gridRowEnd = "";
+        return;
+    }
+
+    const image = card.querySelector(".thumbnail");
+    if (image && image.naturalWidth > 0) {
+        card.style.gridRowEnd =
+            "span " + Math.ceil(image.getBoundingClientRect().height);
+    }
+}
+
+window.addEventListener("resize", function () {
+    if (!gallery) {
+        return;
+    }
+
+    gallery.querySelectorAll(".photo-card").forEach(updateMasonryCard);
+});
 
 function setupLoadMoreObserver() {
     if (
