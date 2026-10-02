@@ -468,12 +468,12 @@ a {
 }
 
 .download-button {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
     min-height: 46px;
-    padding: 0 14px;
+    padding: 0 38px;
     color: rgba(255, 255, 255, 0.86);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 999px;
@@ -487,8 +487,10 @@ a {
 .download-button-text {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 3px;
+    flex: 1;
+    min-width: 0;
 }
 
 .download-size {
@@ -510,6 +512,8 @@ a {
 }
 
 .download-icon {
+    position: absolute;
+    left: 15px;
     font-size: 15px;
     line-height: 1;
 }
@@ -627,15 +631,15 @@ a {
     .download-button {
         flex: 1;
         min-height: 44px;
-        gap: 5px;
-        padding: 0 6px;
+        padding: 0 28px;
         font-size: 6px;
         letter-spacing: 0.07em;
         text-align: center;
     }
 
-    .download-button-text {
-        align-items: center;
+    .download-icon {
+        left: 10px;
+        font-size: 12px;
     }
 
     .download-size {
