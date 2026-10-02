@@ -43,29 +43,9 @@ function openPhoto(index) {
 }
 
 function setDownload(link, size, filename) {
-    const imageUrl = `${photoBaseUrl}/${size}/${encodeURIComponent(filename)}`;
-    link.href = imageUrl;
+    const downloadUrl = `/download?size=${encodeURIComponent(size)}&filename=${encodeURIComponent(filename)}`;
+    link.href = downloadUrl;
     link.download = filename;
-    link.onclick = async (event) => {
-        event.preventDefault();
-
-        try {
-            const response = await fetch(imageUrl);
-            if (!response.ok) throw new Error(`Download failed (${response.status})`);
-
-            const blobUrl = URL.createObjectURL(await response.blob());
-            const temporaryLink = document.createElement("a");
-            temporaryLink.href = blobUrl;
-            temporaryLink.download = filename;
-            document.body.appendChild(temporaryLink);
-            temporaryLink.click();
-            temporaryLink.remove();
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-        } catch (error) {
-            console.error("Could not download image:", error);
-            window.alert("The image could not be downloaded. Please try again.");
-        }
-    };
 }
 
 function closePhoto() {
