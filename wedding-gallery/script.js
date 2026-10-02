@@ -848,6 +848,15 @@ if (lightbox) {
             touchStartY = null;
 
             if (
+                window.matchMedia("(max-width: 680px)").matches &&
+                verticalDifference < -80 &&
+                -verticalDifference > Math.abs(difference)
+            ) {
+                closeLightbox();
+                return;
+            }
+
+            if (
                 Math.abs(difference) < 50 ||
                 Math.abs(difference) <= Math.abs(verticalDifference)
             ) {
