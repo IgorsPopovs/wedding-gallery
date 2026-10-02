@@ -1,31 +1,23 @@
-```javascript
 const BASE_PATH = "/wedding-gallery";
 const PHOTO_PREFIX = "small/";
 
 export default {
-    fetch: async function (request, env) {
+    async fetch(request, env) {
         const url = new URL(request.url);
 
         let path = url.pathname;
 
-        // Remove /wedding-gallery from the URL
         if (path === BASE_PATH || path === BASE_PATH + "/") {
             path = "/";
-        } else if (path.indexOf(BASE_PATH + "/") === 0) {
-            path = path.substring(BASE_PATH.length);
+        } else if (path.startsWith(BASE_PATH + "/")) {
+            path = path.slice(BASE_PATH.length);
         }
-
-        // ==========================================
-        // GET PHOTO LIST FROM R2
-        // ==========================================
 
         if (path === "/api/photos") {
             const photos = [];
+            let cursor;
 
-            let cursor = null;
-            let hasMore = true;
-
-            while (hasMore) {
+            while (true) {
                 const options = {
                     prefix: PHOTO_PREFIX,
                     limit: 1000
@@ -35,53 +27,41 @@ export default {
                     options.cursor = cursor;
                 }
 
-                const result = await env.GALLERY.list(options);
+                const result =
+                    await env.GALLERY.list(options);
 
-                for (let i = 0; i < result.objects.length; i++) {
-                    const object = result.objects[i];
-
+                for (const object of result.objects) {
                     if (
-                        object.key.indexOf(PHOTO_PREFIX) === 0 &&
+                        object.key.startsWith(PHOTO_PREFIX) &&
                         object.key.toLowerCase().endsWith(".jpg")
                     ) {
-                        const filename =
-                            object.key.substring(
-                                PHOTO_PREFIX.length
-                            );
-
-                        photos.push(filename);
+                        photos.push(
+                            object.key.slice(PHOTO_PREFIX.length)
+                        );
                     }
                 }
 
-                if (result.truncated) {
-                    cursor = result.cursor;
-                } else {
-                    hasMore = false;
+                if (!result.truncated) {
+                    break;
                 }
+
+                cursor = result.cursor;
             }
 
             return new Response(
                 JSON.stringify(photos),
                 {
-                    status: 200,
                     headers: {
                         "Content-Type":
-                            "application/json; charset=UTF-8",
-
-                        "Cache-Control":
-                            "public, max-age=300"
+                            "application/json; charset=utf-8"
                     }
                 }
             );
         }
 
-        // ==========================================
-        // DOWNLOAD FROM R2
-        // ==========================================
-
-        if (path.indexOf("/download/") === 0) {
+        if (path.startsWith("/download/")) {
             const key = decodeURIComponent(
-                path.substring("/download/".length)
+                path.slice("/download/".length)
             );
 
             const object =
@@ -97,59 +77,38 @@ export default {
             }
 
             const filename =
-                key.substring(
-                    key.lastIndexOf("/") + 1
-                );
-
-            const headers = new Headers();
-
-            headers.set(
-                "Content-Type",
-                object.httpMetadata &&
-                object.httpMetadata.contentType
-                    ? object.httpMetadata.contentType
-                    : "application/octet-stream"
-            );
-
-            headers.set(
-                "Content-Disposition",
-                'attachment; filename="' +
-                    filename +
-                    '"'
-            );
-
-            headers.set(
-                "Content-Length",
-                String(object.size)
-            );
-
-            headers.set(
-                "Cache-Control",
-                "no-store"
-            );
+                key.split("/").pop();
 
             return new Response(
                 object.body,
                 {
-                    status: 200,
-                    headers: headers
+                    headers: {
+                        "Content-Type":
+                            object.httpMetadata?.contentType ||
+                            "application/octet-stream",
+
+                        "Content-Disposition":
+                            'attachment; filename="' +
+                            filename +
+                            '"',
+
+                        "Content-Length":
+                            String(object.size),
+
+                        "Cache-Control":
+                            "no-store"
+                    }
                 }
             );
         }
 
-        // ==========================================
-        // STATIC WEBSITE
-        // ==========================================
-
         const assetUrl =
             new URL(request.url);
 
-        if (path === "/") {
-            assetUrl.pathname =
-                "/index.html";
-        } else {
-            assetUrl.pathname = path;
-        }
+        assetUrl.pathname =
+            path === "/"
+                ? "/index.html"
+                : path;
 
         return env.ASSETS.fetch(
             new Request(
@@ -159,4 +118,3 @@ export default {
         );
     }
 };
-```
