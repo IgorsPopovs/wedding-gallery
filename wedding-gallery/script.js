@@ -18,6 +18,7 @@ const downloadBig = document.getElementById("download-big");
 const downloadSmall = document.getElementById("download-small");
 const downloadBigSize = document.getElementById("download-big-size");
 const downloadSmallSize = document.getElementById("download-small-size");
+const shareButton = document.getElementById("share-photo");
 const shareStatus = document.getElementById("share-status");
 
 const currentPhoto = document.getElementById("current-photo");
@@ -365,9 +366,6 @@ function createPhotoCard(filename, index) {
     const image =
         document.createElement("img");
 
-    const shareButton =
-        document.createElement("button");
-
     card.className = "photo-card";
 
     image.className = "thumbnail";
@@ -386,23 +384,6 @@ function createPhotoCard(filename, index) {
 
     image.decoding = "async";
 
-    shareButton.className = "photo-share";
-    shareButton.type = "button";
-    shareButton.setAttribute(
-        "aria-label",
-        "Поделиться фотографией " + (index + 1)
-    );
-    shareButton.innerHTML =
-        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-5 5 5-5 5 5M5 13v6h14v-6" /></svg>';
-
-    shareButton.addEventListener(
-        "click",
-        function (event) {
-            event.stopPropagation();
-            sharePhoto(filename);
-        }
-    );
-
     card.addEventListener(
         "click",
         function () {
@@ -411,7 +392,6 @@ function createPhotoCard(filename, index) {
     );
 
     card.appendChild(image);
-    card.appendChild(shareButton);
 
     return card;
 }
@@ -700,6 +680,19 @@ if (nextButton) {
         "click",
         function () {
             showNext();
+        }
+    );
+}
+
+if (shareButton) {
+    shareButton.addEventListener(
+        "click",
+        function () {
+            const filename = photos[currentIndex];
+
+            if (filename) {
+                sharePhoto(filename);
+            }
         }
     );
 }
