@@ -6,11 +6,14 @@ export default {
 
         let path = url.pathname;
 
+        // Remove /wedding-gallery from the request path
         if (path === BASE_PATH || path === `${BASE_PATH}/`) {
             path = "/";
         } else if (path.startsWith(`${BASE_PATH}/`)) {
             path = path.slice(BASE_PATH.length);
         }
+
+        // R2 downloads
         if (path.startsWith("/download/")) {
             const key = decodeURIComponent(
                 path.slice("/download/".length)
@@ -31,14 +34,20 @@ export default {
                     "Content-Type":
                         object.httpMetadata?.contentType ||
                         "application/octet-stream",
+
                     "Content-Disposition":
                         `attachment; filename="${filename}"`,
+
                     "Content-Length":
-                        object.size.toString()
+                        object.size.toString(),
+
+                    "Cache-Control":
+                        "no-store"
                 }
             });
         }
 
+        // Static website
         const assetUrl = new URL(request.url);
 
         assetUrl.pathname =

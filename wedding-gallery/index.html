@@ -2,33 +2,195 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wedding Gallery</title>
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <meta
+            name="theme-color"
+            content="#e9e1d5"
+    >
+
+    <meta
+            name="description"
+            content="Igor & Alina — Wedding Gallery"
+    >
+
+    <title>Igor & Alina — Wedding Gallery</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<header>
-    <h1>Wedding Gallery</h1>
-</header>
+<div class="page">
 
-<main id="gallery"></main>
+    <div class="background"></div>
+    <div class="background-overlay"></div>
 
-<div id="lightbox" class="lightbox">
-    <button class="close">&times;</button>
-    <button class="prev">&#10094;</button>
 
-    <div class="photo-container">
-        <img id="lightbox-image" src="" alt="">
-            <div class="download-actions">
-                <a id="download-big" class="download" download>Download full size</a>
-                <a id="download-small" class="download" download>Download small</a>
+    <header class="gallery-header">
+
+        <div class="header-decoration">
+            <span></span>
+            <i>✦</i>
+            <span></span>
+        </div>
+
+        <p class="eyebrow">
+            OUR WEDDING
+        </p>
+
+        <h1>
+            Igor <span>&</span> Alina
+        </h1>
+
+        <p class="subtitle">
+            Our wedding memories
+        </p>
+
+        <div class="header-line">
+            <span></span>
+            <i>✦</i>
+            <span></span>
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section
+                id="gallery"
+                class="gallery"
+                aria-label="Wedding photos"
+        ></section>
+
+
+        <div
+                id="gallery-loading"
+                class="gallery-loading"
+        >
+            <span class="loader"></span>
+            <p>Loading memories...</p>
+        </div>
+
+    </main>
+
+
+    <div
+            id="lightbox"
+            class="lightbox"
+            aria-hidden="true"
+    >
+
+        <button
+                class="lightbox-close"
+                type="button"
+                aria-label="Close"
+        >
+            <span></span>
+            <span></span>
+        </button>
+
+
+        <button
+                class="lightbox-nav lightbox-prev"
+                type="button"
+                aria-label="Previous photo"
+        >
+            <span></span>
+        </button>
+
+
+        <div class="lightbox-content">
+
+            <div class="lightbox-photo-wrapper">
+
+                <img
+                        id="lightbox-image"
+                        src=""
+                        alt=""
+                >
+
+                <div
+                        id="lightbox-loader"
+                        class="lightbox-loader"
+                >
+                    <span class="loader"></span>
+                </div>
+
             </div>
+
+
+            <div class="lightbox-info">
+
+                <div class="photo-counter">
+                    <span id="current-photo">1</span>
+                    <span class="counter-divider">/</span>
+                    <span id="total-photos">10</span>
+                </div>
+
+
+                <div class="download-actions">
+
+                    <a
+                            id="download-big"
+                            class="download-button download-primary"
+                            href="#"
+                    >
+                        <span class="download-icon">↓</span>
+                        <span>Download full size</span>
+                    </a>
+
+
+                    <a
+                            id="download-small"
+                            class="download-button"
+                            href="#"
+                    >
+                        <span class="download-icon">↓</span>
+                        <span>Download small</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button
+                class="lightbox-nav lightbox-next"
+                type="button"
+                aria-label="Next photo"
+        >
+            <span></span>
+        </button>
+
     </div>
 
-    <button class="next">&#10095;</button>
+
+    <footer class="gallery-footer">
+
+        <div class="footer-line"></div>
+
+        <p>
+            With love, Igor & Alina
+        </p>
+
+        <span>
+            20 · 06 · 2026
+        </span>
+
+    </footer>
+
 </div>
 
+
 <script src="script.js"></script>
+
 </body>
 </html>

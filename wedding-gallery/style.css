@@ -1,120 +1,1042 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap");
+
+
+:root {
+    --background-image: url("images/texture.png");
+
+    --paper: #eee8dc;
+    --paper-light: #f5f1e9;
+
+    --text: #3c3934;
+    --text-light: #706b63;
+
+    --border: rgba(60, 57, 52, 0.18);
+    --border-light: rgba(255, 255, 255, 0.45);
+
+    --shadow:
+        0 14px 40px rgba(45, 39, 30, 0.10);
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
 * {
     box-sizing: border-box;
 }
 
+
+html {
+    scroll-behavior: smooth;
+}
+
+
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    color: #222;
+
+    min-height: 100vh;
+
+    color: var(--text);
+
+    font-family:
+        "Montserrat",
+        Arial,
+        sans-serif;
+
+    background:
+        var(--paper);
+
+    -webkit-font-smoothing: antialiased;
 }
 
-header {
+
+button,
+a {
+    font: inherit;
+}
+
+
+button {
+    border: 0;
+}
+
+
+a {
+    color: inherit;
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.page {
+    position: relative;
+
+    min-height: 100vh;
+
+    overflow: hidden;
+}
+
+
+.background {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: -3;
+
+    background-image:
+        var(--background-image);
+
+    background-position: center;
+    background-size: cover;
+
+    opacity: 0.9;
+}
+
+
+.background-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: -2;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(238, 232, 220, 0.88) 0%,
+            rgba(238, 232, 220, 0.72) 35%,
+            rgba(238, 232, 220, 0.78) 100%
+        );
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.gallery-header {
+    padding:
+        72px 24px
+        42px;
+
     text-align: center;
-    padding: 30px 20px;
 }
 
-h1 {
-    margin: 0;
-    font-weight: 400;
-}
 
-#gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+.header-decoration {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
     gap: 12px;
-    padding: 20px;
-    max-width: 1600px;
-    margin: auto;
+
+    margin-bottom: 20px;
+
+    color: var(--text-light);
+
+    opacity: 0.65;
 }
+
+
+.header-decoration span {
+    display: block;
+
+    width: 36px;
+    height: 1px;
+
+    background:
+        var(--border);
+}
+
+
+.header-decoration i {
+    font-size: 10px;
+
+    font-style: normal;
+}
+
+
+.eyebrow {
+    margin:
+        0 0
+        8px;
+
+    font-size: 10px;
+
+    font-weight: 500;
+
+    letter-spacing: 0.34em;
+
+    text-transform: uppercase;
+
+    color: var(--text-light);
+}
+
+
+.gallery-header h1 {
+    margin: 0;
+
+    font-family:
+        "Cormorant Garamond",
+        Georgia,
+        serif;
+
+    font-size:
+        clamp(58px, 8vw, 108px);
+
+    font-weight: 400;
+
+    line-height: 0.9;
+
+    letter-spacing: -0.025em;
+}
+
+
+.gallery-header h1 span {
+    font-style: italic;
+
+    font-weight: 400;
+
+    padding:
+        0 0.08em;
+}
+
+
+.subtitle {
+    margin:
+        18px 0 0;
+
+    font-family:
+        "Cormorant Garamond",
+        Georgia,
+        serif;
+
+    font-size: 21px;
+
+    font-style: italic;
+
+    color: var(--text-light);
+}
+
+
+.header-line {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    width: min(280px, 70%);
+
+    margin:
+        28px auto 0;
+}
+
+
+.header-line span {
+    height: 1px;
+
+    flex: 1;
+
+    background:
+        var(--border);
+}
+
+
+.header-line i {
+    font-size: 9px;
+
+    font-style: normal;
+
+    color: var(--text-light);
+}
+
+
+/* =========================================================
+   GALLERY
+   ========================================================= */
+
+.gallery {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(0, 1fr)
+        );
+
+    gap: 16px;
+
+    width: min(
+        1500px,
+        calc(100% - 48px)
+    );
+
+    margin:
+        0 auto;
+
+    padding:
+        10px 0 60px;
+}
+
+
+.photo-card {
+    position: relative;
+
+    overflow: hidden;
+
+    aspect-ratio: 3 / 2;
+
+    background:
+        rgba(255, 255, 255, 0.35);
+
+    box-shadow:
+        var(--shadow);
+
+    cursor: pointer;
+
+    animation:
+        photoAppear
+        0.7s
+        ease both;
+}
+
+
+.photo-card::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.5);
+
+    opacity: 0.7;
+}
+
 
 .thumbnail {
+    display: block;
+
     width: 100%;
-    aspect-ratio: 3 / 2;
+    height: 100%;
+
     object-fit: cover;
-    cursor: pointer;
-    transition: opacity 0.2s;
+
+    transition:
+        transform 0.7s
+        cubic-bezier(0.2, 0.7, 0.2, 1),
+
+        filter 0.7s ease;
 }
 
-.thumbnail:hover {
-    opacity: 0.8;
+
+.photo-card:hover .thumbnail {
+    transform: scale(1.035);
+
+    filter:
+        brightness(1.03);
 }
+
+
+@keyframes photoAppear {
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.gallery-loading {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-direction: column;
+
+    gap: 14px;
+
+    min-height: 120px;
+
+    color: var(--text-light);
+
+    transition:
+        opacity 0.3s ease;
+}
+
+
+.gallery-loading.hidden {
+    display: none;
+}
+
+
+.gallery-loading p {
+    margin: 0;
+
+    font-size: 10px;
+
+    letter-spacing: 0.18em;
+
+    text-transform: uppercase;
+}
+
+
+.loader {
+    display: block;
+
+    width: 26px;
+    height: 26px;
+
+    border:
+        1px solid
+        rgba(60, 57, 52, 0.2);
+
+    border-top-color:
+        var(--text);
+
+    border-radius: 50%;
+
+    animation:
+        spin
+        0.8s
+        linear infinite;
+}
+
+
+@keyframes spin {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   LIGHTBOX
+   ========================================================= */
 
 .lightbox {
-    display: none;
     position: fixed;
+
     inset: 0;
-    background: rgba(0, 0, 0, 0.92);
+
     z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding:
+        60px 70px;
+
+    background:
+        rgba(30, 28, 25, 0.96);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.35s ease,
+        visibility 0.35s ease;
+}
+
+
+.lightbox.active {
+    opacity: 1;
+
+    visibility: visible;
+
+    pointer-events: auto;
+}
+
+
+.lightbox-content {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+
+    max-width: 1500px;
+}
+
+
+.lightbox-photo-wrapper {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    flex: 1;
+
+    min-height: 0;
+}
+
+
+#lightbox-image {
+    display: block;
+
+    max-width: 100%;
+    max-height: 100%;
+
+    object-fit: contain;
+
+    opacity: 0;
+
+    transform:
+        scale(0.985);
+
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease;
+}
+
+
+#lightbox-image.loaded {
+    opacity: 1;
+
+    transform:
+        scale(1);
+}
+
+
+.lightbox-loader {
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
     align-items: center;
     justify-content: center;
 }
 
-.lightbox.active {
-    display: flex;
+
+.lightbox-loader.hidden {
+    display: none;
 }
 
-.photo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    max-width: 90vw;
-    max-height: 90vh;
+
+.lightbox-loader .loader {
+    border-color:
+        rgba(255, 255, 255, 0.2);
+
+    border-top-color:
+        rgba(255, 255, 255, 0.9);
 }
 
-#lightbox-image {
-    max-width: 90vw;
-    max-height: 80vh;
-    object-fit: contain;
-}
 
-button {
-    border: none;
-    background: none;
-    color: white;
+/* =========================================================
+   LIGHTBOX BUTTONS
+   ========================================================= */
+
+.lightbox-close {
+    position: absolute;
+
+    top: 24px;
+    right: 28px;
+
+    width: 42px;
+    height: 42px;
+
+    background: transparent;
+
     cursor: pointer;
+
+    z-index: 10;
 }
 
-.close {
+
+.lightbox-close span {
     position: absolute;
+
     top: 20px;
-    right: 30px;
-    font-size: 40px;
+    left: 8px;
+
+    width: 26px;
+    height: 1px;
+
+    background: white;
+
+    transition:
+        transform 0.2s ease;
 }
 
-.prev,
-.next {
+
+.lightbox-close span:first-child {
+    transform:
+        rotate(45deg);
+}
+
+
+.lightbox-close span:last-child {
+    transform:
+        rotate(-45deg);
+}
+
+
+.lightbox-close:hover span:first-child {
+    transform:
+        rotate(45deg)
+        scaleX(1.15);
+}
+
+
+.lightbox-close:hover span:last-child {
+    transform:
+        rotate(-45deg)
+        scaleX(1.15);
+}
+
+
+.lightbox-nav {
     position: absolute;
+
     top: 50%;
-    transform: translateY(-50%);
-    font-size: 50px;
+
+    width: 60px;
+    height: 90px;
+
+    margin-top: -45px;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    z-index: 10;
+
+    opacity: 0.75;
+
+    transition:
+        opacity 0.2s ease;
 }
 
-.prev {
-    left: 20px;
+
+.lightbox-nav:hover {
+    opacity: 1;
 }
 
-.next {
-    right: 20px;
+
+.lightbox-prev {
+    left: 8px;
 }
 
-.download {
-    color: white;
-    text-decoration: none;
-    border: 1px solid white;
-    padding: 10px 20px;
-    border-radius: 4px;
+
+.lightbox-next {
+    right: 8px;
 }
+
+
+.lightbox-nav span {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: 18px;
+    height: 18px;
+
+    border-top:
+        1px solid white;
+
+    border-left:
+        1px solid white;
+}
+
+
+.lightbox-prev span {
+    transform:
+        translate(-25%, -50%)
+        rotate(-45deg);
+}
+
+
+.lightbox-next span {
+    transform:
+        translate(-75%, -50%)
+        rotate(135deg);
+}
+
+
+/* =========================================================
+   LIGHTBOX INFO
+   ========================================================= */
+
+.lightbox-info {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    padding:
+        18px 0 4px;
+}
+
+
+.photo-counter {
+    color:
+        rgba(255, 255, 255, 0.8);
+
+    font-size: 11px;
+
+    letter-spacing: 0.12em;
+}
+
+
+.counter-divider {
+    margin:
+        0 7px;
+
+    opacity: 0.35;
+}
+
 
 .download-actions {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
+
+    align-items: center;
+
+    gap: 8px;
 }
 
-.download:hover {
+
+.download-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 38px;
+
+    padding:
+        0 15px;
+
+    color:
+        rgba(255, 255, 255, 0.85);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.28);
+
+    text-decoration: none;
+
+    font-size: 9px;
+
+    letter-spacing: 0.12em;
+
+    text-transform: uppercase;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.download-button:hover {
+    color: #302e2a;
+
     background: white;
-    color: black;
+
+    border-color: white;
+}
+
+
+.download-primary {
+    background:
+        rgba(255, 255, 255, 0.1);
+}
+
+
+.download-icon {
+    font-size: 16px;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.gallery-footer {
+    padding:
+        0 24px 55px;
+
+    text-align: center;
+
+    color: var(--text-light);
+}
+
+
+.footer-line {
+    width: min(
+        280px,
+        70%
+    );
+
+    height: 1px;
+
+    margin:
+        0 auto 24px;
+
+    background:
+        var(--border);
+}
+
+
+.gallery-footer p {
+    margin: 0 0 7px;
+
+    font-family:
+        "Cormorant Garamond",
+        Georgia,
+        serif;
+
+    font-size: 21px;
+
+    font-style: italic;
+}
+
+
+.gallery-footer span {
+    font-size: 9px;
+
+    letter-spacing: 0.25em;
+
+    opacity: 0.75;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .gallery {
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(0, 1fr)
+            );
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 680px) {
+
+    .gallery-header {
+        padding:
+            48px 20px
+            28px;
+    }
+
+
+    .eyebrow {
+        font-size: 9px;
+
+        letter-spacing: 0.28em;
+    }
+
+
+    .gallery-header h1 {
+        font-size:
+            clamp(
+                54px,
+                16vw,
+                76px
+            );
+    }
+
+
+    .subtitle {
+        margin-top: 14px;
+
+        font-size: 18px;
+    }
+
+
+    .header-line {
+        margin-top: 22px;
+    }
+
+
+    .gallery {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 8px;
+
+        width:
+            calc(100% - 20px);
+
+        padding-bottom: 40px;
+    }
+
+
+    .photo-card {
+        aspect-ratio: 1 / 1;
+    }
+
+
+    .lightbox {
+        padding:
+            52px 12px
+            72px;
+    }
+
+
+    .lightbox-close {
+        top: 12px;
+        right: 10px;
+    }
+
+
+    .lightbox-nav {
+        width: 44px;
+        height: 60px;
+
+        margin-top: -30px;
+    }
+
+
+    .lightbox-prev {
+        left: 0;
+    }
+
+
+    .lightbox-next {
+        right: 0;
+    }
+
+
+    .lightbox-info {
+        flex-direction: column;
+
+        gap: 12px;
+
+        padding-top: 12px;
+    }
+
+
+    .download-actions {
+        width: 100%;
+    }
+
+
+    .download-button {
+        flex: 1;
+
+        min-height: 40px;
+
+        padding:
+            0 8px;
+
+        font-size: 8px;
+    }
+
+
+    .gallery-footer {
+        padding-bottom: 35px;
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .gallery-header {
+        padding-top: 40px;
+    }
+
+
+    .gallery {
+        gap: 6px;
+
+        width:
+            calc(100% - 12px);
+    }
+
+
+    .download-actions {
+        gap: 5px;
+    }
+
+
+    .download-button {
+        font-size: 7px;
+
+        letter-spacing: 0.08em;
+    }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+
+        animation-duration: 0.01ms !important;
+
+        animation-iteration-count: 1 !important;
+
+        transition-duration: 0.01ms !important;
+    }
+
 }
