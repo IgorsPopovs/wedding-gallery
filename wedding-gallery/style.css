@@ -468,12 +468,12 @@ a {
 }
 
 .download-button {
-    position: relative;
-    display: inline-flex;
+    display: inline-grid;
+    grid-template-columns: 24px 1fr;
     align-items: center;
-    justify-content: center;
+    gap: 4px;
     min-height: 46px;
-    padding: 0 38px;
+    padding: 0 14px;
     color: rgba(255, 255, 255, 0.86);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 999px;
@@ -489,7 +489,6 @@ a {
     flex-direction: column;
     align-items: center;
     gap: 3px;
-    flex: 1;
     min-width: 0;
 }
 
@@ -512,9 +511,8 @@ a {
 }
 
 .download-icon {
-    position: absolute;
-    left: 15px;
-    font-size: 15px;
+    justify-self: start;
+    font-size: 18px;
     line-height: 1;
 }
 
@@ -629,17 +627,18 @@ a {
     }
 
     .download-button {
+        grid-template-columns: 19px 1fr;
         flex: 1;
         min-height: 44px;
-        padding: 0 28px;
+        gap: 4px;
+        padding: 0 8px;
         font-size: 6px;
         letter-spacing: 0.07em;
         text-align: center;
     }
 
     .download-icon {
-        left: 10px;
-        font-size: 12px;
+        font-size: 15px;
     }
 
     .download-size {
