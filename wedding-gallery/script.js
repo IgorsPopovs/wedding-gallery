@@ -3,20 +3,16 @@ const GALLERY_BASE_PATH = "/wedding-gallery";
 const BATCH_SIZE = 48;
 
 const gallery = document.getElementById("gallery");
-const galleryLoading = document.getElementById("gallery-loading");
 
 const lightbox = document.getElementById("lightbox");
 const lightboxImage = document.getElementById("lightbox-image");
 
-const closeButton = document.getElementById("lightbox-close");
-const previousButton = document.getElementById("lightbox-prev");
-const nextButton = document.getElementById("lightbox-next");
-
 const downloadBig = document.getElementById("download-big");
 const downloadSmall = document.getElementById("download-small");
 
-const currentPhoto = document.getElementById("current-photo");
-const totalPhotos = document.getElementById("total-photos");
+const closeButton = document.querySelector(".close");
+const previousButton = document.querySelector(".prev");
+const nextButton = document.querySelector(".next");
 
 let photos = [];
 let renderedCount = 0;
@@ -25,14 +21,7 @@ let isLoadingBatch = false;
 let loadMoreObserver = null;
 
 async function init() {
-    if (!gallery) {
-        console.error("Gallery element not found");
-        return;
-    }
-
     try {
-        setLoadingText("Loading memories...");
-
         const response = await fetch(
             GALLERY_BASE_PATH + "/api/photos",
             {
@@ -42,25 +31,18 @@ async function init() {
 
         if (!response.ok) {
             throw new Error(
-                "Failed to load photo list: " +
+                "Failed to load photos: " +
                 response.status
             );
         }
 
-        const data = await response.json();
+        photos = await response.json();
 
-        if (!Array.isArray(data)) {
+        if (!Array.isArray(photos)) {
             throw new Error("Invalid photo list");
         }
 
-        photos = data;
-
-        if (totalPhotos) {
-            totalPhotos.textContent = photos.length;
-        }
-
         if (photos.length === 0) {
-            setLoadingText("No photos found.");
             return;
         }
 
@@ -69,10 +51,6 @@ async function init() {
 
     } catch (error) {
         console.error(error);
-
-        setLoadingText(
-            "Unable to load photos. Please try again later."
-        );
     }
 }
 
@@ -84,42 +62,38 @@ function getSmallUrl(filename) {
     );
 }
 
-function getBigFilename(smallFilename) {
-    return smallFilename.replace("_s_", "_b_");
+function getBigFilename(filename) {
+    return filename.replace("_s_", "_b_");
 }
 
-function getBigDownloadUrl(smallFilename) {
-    const bigFilename =
-        getBigFilename(smallFilename);
-
+function getBigDownloadUrl(filename) {
     return (
         GALLERY_BASE_PATH +
         "/download/big/" +
-        encodeURIComponent(bigFilename)
+        encodeURIComponent(
+            getBigFilename(filename)
+        )
     );
 }
 
-function getSmallDownloadUrl(smallFilename) {
+function getSmallDownloadUrl(filename) {
     return (
         GALLERY_BASE_PATH +
         "/download/small/" +
-        encodeURIComponent(smallFilename)
+        encodeURIComponent(filename)
     );
 }
 
 async function renderNextBatch() {
-    if (!gallery || isLoadingBatch) {
+    if (isLoadingBatch) {
         return;
     }
 
     if (renderedCount >= photos.length) {
-        finishLoading();
         return;
     }
 
     isLoadingBatch = true;
-
-    setLoadingText("Loading memories...");
 
     const start = renderedCount;
 
@@ -143,34 +117,21 @@ async function renderNextBatch() {
     gallery.appendChild(fragment);
 
     renderedCount = end;
-
     isLoadingBatch = false;
 
-    if (renderedCount >= photos.length) {
-        finishLoading();
-    } else {
-        setLoadingText(
-            "Scroll for more memories..."
-        );
+    if (renderedCount < photos.length) {
+        observeLastPhoto();
     }
 }
 
 function createPhotoCard(filename, index) {
     const card =
-        document.createElement("article");
-
-    card.className = "photo-card";
-    card.dataset.index = index;
-
-    card.addEventListener(
-        "click",
-        function () {
-            openLightbox(index);
-        }
-    );
+        document.createElement("div");
 
     const image =
         document.createElement("img");
+
+    card.className = "photo-card";
 
     image.className = "thumbnail";
 
@@ -178,7 +139,8 @@ function createPhotoCard(filename, index) {
         getSmallUrl(filename);
 
     image.alt =
-        "Wedding photo " + (index + 1);
+        "Wedding photo " +
+        (index + 1);
 
     image.loading =
         index < 12
@@ -186,6 +148,13 @@ function createPhotoCard(filename, index) {
             : "lazy";
 
     image.decoding = "async";
+
+    card.addEventListener(
+        "click",
+        function () {
+            openPhoto(index);
+        }
+    );
 
     card.appendChild(image);
 
@@ -222,7 +191,10 @@ function setupLoadMoreObserver() {
 }
 
 function observeLastPhoto() {
-    if (!loadMoreObserver || !gallery) {
+    if (
+        !loadMoreObserver ||
+        !gallery
+    ) {
         return;
     }
 
@@ -240,7 +212,9 @@ function observeLastPhoto() {
 
     loadMoreObserver.disconnect();
 
-    loadMoreObserver.observe(lastCard);
+    loadMoreObserver.observe(
+        lastCard
+    );
 }
 
 async function loadMorePhotos() {
@@ -249,38 +223,9 @@ async function loadMorePhotos() {
     }
 
     await renderNextBatch();
-
-    if (renderedCount < photos.length) {
-        observeLastPhoto();
-    }
 }
 
-function setLoadingText(text) {
-    if (!galleryLoading) {
-        return;
-    }
-
-    const textElement =
-        galleryLoading.querySelector("p");
-
-    if (textElement) {
-        textElement.textContent = text;
-    }
-
-    galleryLoading.style.display = "";
-}
-
-function finishLoading() {
-    if (galleryLoading) {
-        galleryLoading.style.display = "none";
-    }
-
-    if (loadMoreObserver) {
-        loadMoreObserver.disconnect();
-    }
-}
-
-function openLightbox(index) {
+function openPhoto(index) {
     if (
         !lightbox ||
         !lightboxImage ||
@@ -299,36 +244,23 @@ function openLightbox(index) {
         getSmallUrl(filename);
 
     lightboxImage.alt =
-        "Wedding photo " +
-        (currentIndex + 1);
+        filename;
 
-    if (currentPhoto) {
-        currentPhoto.textContent =
-            currentIndex + 1;
-    }
+    downloadBig.href =
+        getBigDownloadUrl(filename);
 
-    if (totalPhotos) {
-        totalPhotos.textContent =
-            photos.length;
-    }
+    downloadBig.download =
+        getBigFilename(filename);
 
-    if (downloadBig) {
-        downloadBig.href =
-            getBigDownloadUrl(filename);
-    }
+    downloadSmall.href =
+        getSmallDownloadUrl(filename);
 
-    if (downloadSmall) {
-        downloadSmall.href =
-            getSmallDownloadUrl(filename);
-    }
+    downloadSmall.download =
+        filename;
 
-    lightbox.classList.add("is-open");
-
-    document.body.classList.add(
-        "lightbox-open"
+    lightbox.classList.add(
+        "active"
     );
-
-    updateNavigation();
 }
 
 function closeLightbox() {
@@ -337,11 +269,7 @@ function closeLightbox() {
     }
 
     lightbox.classList.remove(
-        "is-open"
-    );
-
-    document.body.classList.remove(
-        "lightbox-open"
+        "active"
     );
 
     if (lightboxImage) {
@@ -354,15 +282,13 @@ function showPrevious() {
         return;
     }
 
-    currentIndex =
+    openPhoto(
         (
             currentIndex -
             1 +
             photos.length
-        ) %
-        photos.length;
-
-    updateLightbox();
+        ) % photos.length
+    );
 }
 
 function showNext() {
@@ -370,62 +296,55 @@ function showNext() {
         return;
     }
 
-    currentIndex =
+    openPhoto(
         (
             currentIndex +
             1
-        ) %
-        photos.length;
-
-    updateLightbox();
+        ) % photos.length
+    );
 }
 
-function updateLightbox() {
-    if (!lightboxImage) {
-        return;
-    }
-
-    const filename =
-        photos[currentIndex];
-
-    lightboxImage.src =
-        getSmallUrl(filename);
-
-    lightboxImage.alt =
-        "Wedding photo " +
-        (currentIndex + 1);
-
-    if (currentPhoto) {
-        currentPhoto.textContent =
-            currentIndex + 1;
-    }
-
-    if (downloadBig) {
-        downloadBig.href =
-            getBigDownloadUrl(filename);
-    }
-
-    if (downloadSmall) {
-        downloadSmall.href =
-            getSmallDownloadUrl(filename);
-    }
-
-    updateNavigation();
+if (closeButton) {
+    closeButton.addEventListener(
+        "click",
+        function (event) {
+            event.stopPropagation();
+            closeLightbox();
+        }
+    );
 }
 
-function updateNavigation() {
-    const hasMultiplePhotos =
-        photos.length > 1;
+if (previousButton) {
+    previousButton.addEventListener(
+        "click",
+        function (event) {
+            event.stopPropagation();
+            showPrevious();
+        }
+    );
+}
 
-    if (previousButton) {
-        previousButton.disabled =
-            !hasMultiplePhotos;
-    }
+if (nextButton) {
+    nextButton.addEventListener(
+        "click",
+        function (event) {
+            event.stopPropagation();
+            showNext();
+        }
+    );
+}
 
-    if (nextButton) {
-        nextButton.disabled =
-            !hasMultiplePhotos;
-    }
+if (lightbox) {
+    lightbox.addEventListener(
+        "click",
+        function (event) {
+            if (
+                event.target === lightbox
+            ) {
+                closeLightbox();
+            }
+        }
+    );
 }
 
 document.addEventListener(
@@ -434,7 +353,7 @@ document.addEventListener(
         if (
             !lightbox ||
             !lightbox.classList.contains(
-                "is-open"
+                "active"
             )
         ) {
             return;
@@ -453,84 +372,5 @@ document.addEventListener(
         }
     }
 );
-
-if (closeButton) {
-    closeButton.addEventListener(
-        "click",
-        closeLightbox
-    );
-}
-
-if (previousButton) {
-    previousButton.addEventListener(
-        "click",
-        showPrevious
-    );
-}
-
-if (nextButton) {
-    nextButton.addEventListener(
-        "click",
-        showNext
-    );
-}
-
-if (lightbox) {
-    lightbox.addEventListener(
-        "click",
-        function (event) {
-            if (
-                event.target === lightbox
-            ) {
-                closeLightbox();
-            }
-        }
-    );
-}
-
-let touchStartX = 0;
-let touchEndX = 0;
-
-if (lightboxImage) {
-    lightboxImage.addEventListener(
-        "touchstart",
-        function (event) {
-            touchStartX =
-                event.changedTouches[0]
-                    .screenX;
-        },
-        {
-            passive: true
-        }
-    );
-
-    lightboxImage.addEventListener(
-        "touchend",
-        function (event) {
-            touchEndX =
-                event.changedTouches[0]
-                    .screenX;
-
-            const difference =
-                touchStartX -
-                touchEndX;
-
-            if (
-                Math.abs(difference) < 50
-            ) {
-                return;
-            }
-
-            if (difference > 0) {
-                showNext();
-            } else {
-                showPrevious();
-            }
-        },
-        {
-            passive: true
-        }
-    );
-}
 
 init();
