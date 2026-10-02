@@ -18,6 +18,7 @@ const downloadBig = document.getElementById("download-big");
 const downloadSmall = document.getElementById("download-small");
 const downloadBigSize = document.getElementById("download-big-size");
 const downloadSmallSize = document.getElementById("download-small-size");
+const shareStatus = document.getElementById("share-status");
 
 const currentPhoto = document.getElementById("current-photo");
 const totalPhotos = document.getElementById("total-photos");
@@ -26,6 +27,7 @@ let photos = [];
 let renderedCount = 0;
 let currentIndex = 0;
 let downloadSizeRequestId = 0;
+let shareStatusTimeout = null;
 let isLoadingBatch = false;
 let loadMoreObserver = null;
 
@@ -70,6 +72,7 @@ async function init() {
 
         await renderNextBatch();
         setupLoadMoreObserver();
+        openSharedPhoto();
 
     } catch (error) {
         console.error(error);
@@ -246,6 +249,68 @@ async function loadDownloadSizes(filename) {
     }
 }
 
+function showShareStatus(message) {
+    if (!shareStatus) {
+        return;
+    }
+
+    shareStatus.textContent = message;
+    shareStatus.classList.add("visible");
+
+    if (shareStatusTimeout) {
+        clearTimeout(shareStatusTimeout);
+    }
+
+    shareStatusTimeout = setTimeout(
+        function () {
+            shareStatus.classList.remove("visible");
+        },
+        2600
+    );
+}
+
+async function sharePhoto(filename) {
+    const shareUrl = new URL(window.location.href);
+    shareUrl.hash = "photo=" + encodeURIComponent(filename);
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: "Игорь и Алина — наша свадьба",
+                text: "Фотография из нашей свадебной галереи",
+                url: shareUrl.toString()
+            });
+            return;
+        } catch (error) {
+            if (error.name === "AbortError") {
+                return;
+            }
+        }
+    }
+
+    try {
+        await navigator.clipboard.writeText(shareUrl.toString());
+        showShareStatus("Ссылка на фото скопирована");
+    } catch (error) {
+        showShareStatus("Не удалось скопировать ссылку");
+    }
+}
+
+function openSharedPhoto() {
+    const filename =
+        new URLSearchParams(window.location.hash.slice(1)).get("photo");
+
+    if (!filename) {
+        return;
+    }
+
+    const index = photos.indexOf(filename);
+
+    if (index >= 0) {
+        openLightbox(index);
+    }
+}
+
 async function renderNextBatch() {
     if (
         !gallery ||
@@ -300,6 +365,9 @@ function createPhotoCard(filename, index) {
     const image =
         document.createElement("img");
 
+    const shareButton =
+        document.createElement("button");
+
     card.className = "photo-card";
 
     image.className = "thumbnail";
@@ -318,6 +386,23 @@ function createPhotoCard(filename, index) {
 
     image.decoding = "async";
 
+    shareButton.className = "photo-share";
+    shareButton.type = "button";
+    shareButton.setAttribute(
+        "aria-label",
+        "Поделиться фотографией " + (index + 1)
+    );
+    shareButton.innerHTML =
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-5 5 5-5 5 5M5 13v6h14v-6" /></svg>';
+
+    shareButton.addEventListener(
+        "click",
+        function (event) {
+            event.stopPropagation();
+            sharePhoto(filename);
+        }
+    );
+
     card.addEventListener(
         "click",
         function () {
@@ -326,6 +411,7 @@ function createPhotoCard(filename, index) {
     );
 
     card.appendChild(image);
+    card.appendChild(shareButton);
 
     return card;
 }
@@ -491,6 +577,14 @@ function closeLightbox() {
     );
 
     downloadSizeRequestId += 1;
+
+    if (new URLSearchParams(window.location.hash.slice(1)).has("photo")) {
+        window.history.replaceState(
+            null,
+            "",
+            window.location.pathname + window.location.search
+        );
+    }
 
     if (lightboxImage) {
         lightboxImage.classList.remove(
