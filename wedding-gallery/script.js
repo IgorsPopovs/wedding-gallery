@@ -1,7 +1,5 @@
-```js
 const PHOTO_BASE_URL = "https://photos.aligor.us";
 const GALLERY_BASE_PATH = "/wedding-gallery";
-
 const BATCH_SIZE = 48;
 
 const gallery = document.getElementById("gallery");
@@ -24,20 +22,14 @@ let photos = [];
 let renderedCount = 0;
 let currentIndex = 0;
 let isLoadingBatch = false;
-
 let loadMoreObserver = null;
-
-
-// --------------------------------------------------
-// INITIALIZATION
-// --------------------------------------------------
 
 async function init() {
     try {
         setLoadingText("Loading memories...");
 
         const response = await fetch(
-            `${GALLERY_BASE_PATH}/api/photos`,
+            GALLERY_BASE_PATH + "/api/photos",
             {
                 cache: "no-store"
             }
@@ -45,7 +37,8 @@ async function init() {
 
         if (!response.ok) {
             throw new Error(
-                `Failed to load photo list: ${response.status}`
+                "Failed to load photo list: " +
+                response.status
             );
         }
 
@@ -57,8 +50,6 @@ async function init() {
 
         photos = data;
 
-        // Keep the order returned by R2.
-        // R2 returns objects lexicographically.
         totalPhotos.textContent = photos.length;
 
         if (photos.length === 0) {
@@ -71,20 +62,18 @@ async function init() {
 
     } catch (error) {
         console.error(error);
-
         setLoadingText(
             "Unable to load photos. Please try again later."
         );
     }
 }
 
-
-// --------------------------------------------------
-// PHOTO URLS
-// --------------------------------------------------
-
 function getSmallUrl(filename) {
-    return `${PHOTO_BASE_URL}/small/${encodeURIComponent(filename)}`;
+    return (
+        PHOTO_BASE_URL +
+        "/small/" +
+        encodeURIComponent(filename)
+    );
 }
 
 function getBigFilename(smallFilename) {
@@ -94,21 +83,20 @@ function getBigFilename(smallFilename) {
 function getBigDownloadUrl(smallFilename) {
     const bigFilename = getBigFilename(smallFilename);
 
-    return `${GALLERY_BASE_PATH}/download/big/${encodeURIComponent(
-        bigFilename
-    )}`;
+    return (
+        GALLERY_BASE_PATH +
+        "/download/big/" +
+        encodeURIComponent(bigFilename)
+    );
 }
 
 function getSmallDownloadUrl(smallFilename) {
-    return `${GALLERY_BASE_PATH}/download/small/${encodeURIComponent(
-        smallFilename
-    )}`;
+    return (
+        GALLERY_BASE_PATH +
+        "/download/small/" +
+        encodeURIComponent(smallFilename)
+    );
 }
-
-
-// --------------------------------------------------
-// GALLERY
-// --------------------------------------------------
 
 async function renderNextBatch() {
     if (isLoadingBatch) {
@@ -133,10 +121,8 @@ async function renderNextBatch() {
     const fragment = document.createDocumentFragment();
 
     for (let index = start; index < end; index++) {
-        const filename = photos[index];
-
         const card = createPhotoCard(
-            filename,
+            photos[index],
             index
         );
 
@@ -146,7 +132,6 @@ async function renderNextBatch() {
     gallery.appendChild(fragment);
 
     renderedCount = end;
-
     isLoadingBatch = false;
 
     if (renderedCount >= photos.length) {
@@ -156,30 +141,21 @@ async function renderNextBatch() {
     }
 }
 
-
 function createPhotoCard(filename, index) {
     const card = document.createElement("article");
 
     card.className = "photo-card";
-
     card.dataset.index = index;
 
     const image = document.createElement("img");
 
     image.className = "thumbnail";
-
     image.src = getSmallUrl(filename);
-
-    image.alt = `Wedding photo ${index + 1}`;
-
-    image.loading =
-        index < 12
-            ? "eager"
-            : "lazy";
-
+    image.alt = "Wedding photo " + (index + 1);
+    image.loading = index < 12 ? "eager" : "lazy";
     image.decoding = "async";
 
-    image.addEventListener("click", () => {
+    image.addEventListener("click", function () {
         openLightbox(index);
     });
 
@@ -188,18 +164,13 @@ function createPhotoCard(filename, index) {
     return card;
 }
 
-
-// --------------------------------------------------
-// LOAD MORE ON SCROLL
-// --------------------------------------------------
-
 function setupLoadMoreObserver() {
     if (!("IntersectionObserver" in window)) {
         return;
     }
 
     loadMoreObserver = new IntersectionObserver(
-        entries => {
+        function (entries) {
             for (const entry of entries) {
                 if (
                     entry.isIntersecting &&
@@ -219,7 +190,6 @@ function setupLoadMoreObserver() {
     observeLastPhoto();
 }
 
-
 function observeLastPhoto() {
     if (!loadMoreObserver) {
         return;
@@ -236,10 +206,8 @@ function observeLastPhoto() {
         cards[cards.length - 1];
 
     loadMoreObserver.disconnect();
-
     loadMoreObserver.observe(lastCard);
 }
-
 
 async function loadMorePhotos() {
     if (isLoadingBatch) {
@@ -252,11 +220,6 @@ async function loadMorePhotos() {
         observeLastPhoto();
     }
 }
-
-
-// --------------------------------------------------
-// LOADING UI
-// --------------------------------------------------
 
 function setLoadingText(text) {
     if (!galleryLoading) {
@@ -273,7 +236,6 @@ function setLoadingText(text) {
     galleryLoading.style.display = "";
 }
 
-
 function finishLoading() {
     if (!galleryLoading) {
         return;
@@ -285,11 +247,6 @@ function finishLoading() {
         loadMoreObserver.disconnect();
     }
 }
-
-
-// --------------------------------------------------
-// LIGHTBOX
-// --------------------------------------------------
 
 function openLightbox(index) {
     if (
@@ -303,12 +260,9 @@ function openLightbox(index) {
 
     const filename = photos[currentIndex];
 
-    // IMPORTANT:
-    // The lightbox uses SMALL, not BIG.
     lightboxImage.src = getSmallUrl(filename);
-
     lightboxImage.alt =
-        `Wedding photo ${currentIndex + 1}`;
+        "Wedding photo " + (currentIndex + 1);
 
     currentPhoto.textContent =
         currentIndex + 1;
@@ -316,34 +270,23 @@ function openLightbox(index) {
     totalPhotos.textContent =
         photos.length;
 
-    // BIG is used only for download.
     downloadBig.href =
         getBigDownloadUrl(filename);
 
-    // SMALL is used for small download.
     downloadSmall.href =
         getSmallDownloadUrl(filename);
 
     lightbox.classList.add("is-open");
-
-    document.body.classList.add(
-        "lightbox-open"
-    );
+    document.body.classList.add("lightbox-open");
 
     updateNavigation();
 }
 
-
 function closeLightbox() {
     lightbox.classList.remove("is-open");
-
-    document.body.classList.remove(
-        "lightbox-open"
-    );
-
+    document.body.classList.remove("lightbox-open");
     lightboxImage.src = "";
 }
-
 
 function showPrevious() {
     if (photos.length === 0) {
@@ -357,7 +300,6 @@ function showPrevious() {
     updateLightbox();
 }
 
-
 function showNext() {
     if (photos.length === 0) {
         return;
@@ -370,7 +312,6 @@ function showNext() {
     updateLightbox();
 }
 
-
 function updateLightbox() {
     const filename =
         photos[currentIndex];
@@ -379,7 +320,7 @@ function updateLightbox() {
         getSmallUrl(filename);
 
     lightboxImage.alt =
-        `Wedding photo ${currentIndex + 1}`;
+        "Wedding photo " + (currentIndex + 1);
 
     currentPhoto.textContent =
         currentIndex + 1;
@@ -393,7 +334,6 @@ function updateLightbox() {
     updateNavigation();
 }
 
-
 function updateNavigation() {
     const hasMultiplePhotos =
         photos.length > 1;
@@ -405,14 +345,9 @@ function updateNavigation() {
         !hasMultiplePhotos;
 }
 
-
-// --------------------------------------------------
-// KEYBOARD
-// --------------------------------------------------
-
 document.addEventListener(
     "keydown",
-    event => {
+    function (event) {
         if (
             !lightbox.classList.contains("is-open")
         ) {
@@ -433,11 +368,6 @@ document.addEventListener(
     }
 );
 
-
-// --------------------------------------------------
-// BUTTONS
-// --------------------------------------------------
-
 closeButton.addEventListener(
     "click",
     closeLightbox
@@ -453,31 +383,21 @@ nextButton.addEventListener(
     showNext
 );
 
-
-// --------------------------------------------------
-// CLOSE BY CLICKING BACKGROUND
-// --------------------------------------------------
-
 lightbox.addEventListener(
     "click",
-    event => {
+    function (event) {
         if (event.target === lightbox) {
             closeLightbox();
         }
     }
 );
 
-
-// --------------------------------------------------
-// MOBILE SWIPE
-// --------------------------------------------------
-
 let touchStartX = 0;
 let touchEndX = 0;
 
 lightboxImage.addEventListener(
     "touchstart",
-    event => {
+    function (event) {
         touchStartX =
             event.changedTouches[0].screenX;
     },
@@ -486,22 +406,16 @@ lightboxImage.addEventListener(
     }
 );
 
-
 lightboxImage.addEventListener(
     "touchend",
-    event => {
+    function (event) {
         touchEndX =
             event.changedTouches[0].screenX;
 
         const difference =
             touchStartX - touchEndX;
 
-        const minimumSwipeDistance = 50;
-
-        if (
-            Math.abs(difference) <
-            minimumSwipeDistance
-        ) {
+        if (Math.abs(difference) < 50) {
             return;
         }
 
@@ -516,10 +430,4 @@ lightboxImage.addEventListener(
     }
 );
 
-
-// --------------------------------------------------
-// START
-// --------------------------------------------------
-
 init();
-```
