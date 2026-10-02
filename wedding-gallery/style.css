@@ -77,21 +77,19 @@ a {
 
 .gallery-header h1 {
     margin: 20px 0 9px;
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: clamp(58px, 9vw, 112px);
+    font-family: "Great Vibes", cursive;
+    font-size: clamp(72px, 10vw, 128px);
     font-weight: 400;
-    line-height: 0.92;
-    letter-spacing: -0.055em;
+    line-height: 1.05;
+    letter-spacing: 0;
 }
 
 .gallery-header h1 span {
     display: inline-block;
     padding: 0 0.08em;
     color: var(--fig);
-    font-family: "Caveat", cursive;
-    font-size: 0.76em;
-    font-weight: 500;
-    transform: rotate(-8deg);
+    font-size: 0.78em;
+    font-weight: 400;
 }
 
 .wedding-date {
@@ -536,7 +534,7 @@ a {
 
     .gallery-header h1 {
         margin-top: 17px;
-        font-size: clamp(49px, 13vw, 76px);
+        font-size: clamp(64px, 16vw, 90px);
     }
 
     .wedding-date {
