@@ -224,15 +224,6 @@ function createPhotoCard(filename, index) {
     const image =
         document.createElement("img");
 
-    const caption =
-        document.createElement("div");
-
-    const captionScript =
-        document.createElement("span");
-
-    const captionNumber =
-        document.createElement("span");
-
     card.className = "photo-card";
 
     image.className = "thumbnail";
@@ -259,19 +250,6 @@ function createPhotoCard(filename, index) {
     );
 
     card.appendChild(image);
-
-    caption.className = "photo-caption";
-    caption.setAttribute("aria-hidden", "true");
-
-    captionScript.className = "photo-caption-script";
-    captionScript.textContent = "наш день";
-
-    captionNumber.className = "photo-caption-number";
-    captionNumber.textContent = String(index + 1).padStart(3, "0");
-
-    caption.appendChild(captionScript);
-    caption.appendChild(captionNumber);
-    card.appendChild(caption);
 
     return card;
 }

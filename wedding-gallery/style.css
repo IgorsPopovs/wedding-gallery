@@ -316,28 +316,19 @@ a {
     display: inline-block;
     width: 100%;
     margin: 0 0 clamp(15px, 2vw, 26px);
-    padding: clamp(6px, 0.85vw, 11px) clamp(6px, 0.85vw, 11px) 5px;
+    padding: 0;
     overflow: hidden;
-    background: #fffefa;
-    box-shadow: 0 5px 18px rgba(42, 26, 31, 0.15);
+    background: transparent;
     cursor: zoom-in;
     break-inside: avoid;
     animation: photoAppear 0.65s ease both;
-    transition: box-shadow 0.25s ease, transform 0.3s ease;
-}
-
-.photo-card:nth-child(4n + 1) {
-    transform: rotate(-0.35deg);
-}
-
-.photo-card:nth-child(4n + 3) {
-    transform: rotate(0.35deg);
+    transition: opacity 0.25s ease, transform 0.3s ease;
 }
 
 .photo-card:hover {
     z-index: 1;
-    box-shadow: 0 12px 30px rgba(42, 26, 31, 0.2);
-    transform: translateY(-3px) rotate(0);
+    opacity: 0.94;
+    transform: translateY(-2px);
 }
 
 .thumbnail {
@@ -346,33 +337,7 @@ a {
     height: auto;
     background: #eee5df;
     object-fit: contain;
-    transition: filter 0.35s ease;
-}
-
-.photo-card:hover .thumbnail {
-    filter: saturate(1.04);
-}
-
-.photo-caption {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    min-height: clamp(28px, 3vw, 38px);
-    padding: 4px 3px 0;
-}
-
-.photo-caption-script {
-    color: var(--fig);
-    font-family: "Caveat", cursive;
-    font-size: clamp(17px, 1.9vw, 23px);
-    line-height: 1;
-}
-
-.photo-caption-number {
-    color: #8d777d;
-    font-size: 8px;
-    letter-spacing: 0.12em;
+    transition: opacity 0.25s ease;
 }
 
 @keyframes photoAppear {
@@ -782,20 +747,6 @@ a {
 
     .photo-card {
         margin-bottom: 12px;
-        padding: 5px 5px 3px;
-    }
-
-    .photo-caption {
-        min-height: 29px;
-        padding: 4px 2px 0;
-    }
-
-    .photo-caption-script {
-        font-size: 18px;
-    }
-
-    .photo-caption-number {
-        font-size: 7px;
     }
 
     .gallery-loading {
