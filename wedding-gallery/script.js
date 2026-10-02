@@ -48,13 +48,11 @@ function openPhoto(index) {
     lightboxImage.alt = bigFilename;
 
     // Download buttons
-    downloadBig.onclick = () => {
-        downloadFile(bigUrl, bigFilename);
-    };
+    downloadBig.href = `/download/big/${encodeURIComponent(bigFilename)}`;
+    downloadBig.download = bigFilename;
 
-    downloadSmall.onclick = () => {
-        downloadFile(smallUrl, smallFilename);
-    };
+    downloadSmall.href = `/download/small/${encodeURIComponent(smallFilename)}`;
+    downloadSmall.download = smallFilename;
 
     lightbox.classList.add("active");
 }

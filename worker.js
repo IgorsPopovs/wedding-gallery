@@ -2,7 +2,6 @@ export default {
     async fetch(request, env) {
         const url = new URL(request.url);
 
-        // Download from R2
         if (url.pathname.startsWith("/download/")) {
             const key = decodeURIComponent(
                 url.pathname.replace("/download/", "")
@@ -33,7 +32,6 @@ export default {
             });
         }
 
-        // Everything else → static website
         return env.ASSETS.fetch(request);
     }
 };
