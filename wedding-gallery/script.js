@@ -8,7 +8,8 @@ const gallery = document.getElementById("gallery");
 
 const lightbox = document.getElementById("lightbox");
 const lightboxImage = document.getElementById("lightbox-image");
-const download = document.getElementById("download");
+const downloadBig = document.getElementById("download-big");
+const downloadSmall = document.getElementById("download-small");
 
 let currentIndex = 0;
 
@@ -35,12 +36,36 @@ function openPhoto(index) {
     lightboxImage.src =
         `${photoBaseUrl}/big/${encodeURIComponent(bigFilename)}`;
 
-    download.href =
-        `${photoBaseUrl}/big/${encodeURIComponent(bigFilename)}`;
-
-    download.download = bigFilename;
+    setDownload(downloadBig, "big", bigFilename);
+    setDownload(downloadSmall, "small", smallFilename);
 
     lightbox.classList.add("active");
+}
+
+function setDownload(link, size, filename) {
+    const imageUrl = `${photoBaseUrl}/${size}/${encodeURIComponent(filename)}`;
+    link.href = imageUrl;
+    link.download = filename;
+    link.onclick = async (event) => {
+        event.preventDefault();
+
+        try {
+            const response = await fetch(imageUrl);
+            if (!response.ok) throw new Error(`Download failed (${response.status})`);
+
+            const blobUrl = URL.createObjectURL(await response.blob());
+            const temporaryLink = document.createElement("a");
+            temporaryLink.href = blobUrl;
+            temporaryLink.download = filename;
+            document.body.appendChild(temporaryLink);
+            temporaryLink.click();
+            temporaryLink.remove();
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+        } catch (error) {
+            console.error("Could not download image:", error);
+            window.alert("The image could not be downloaded. Please try again.");
+        }
+    };
 }
 
 function closePhoto() {

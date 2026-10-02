@@ -107,6 +107,13 @@ button {
     border-radius: 4px;
 }
 
+.download-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
 .download:hover {
     background: white;
     color: black;
