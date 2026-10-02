@@ -1,4 +1,6 @@
+```js
 const BASE_PATH = "/wedding-gallery";
+const PHOTO_PREFIX = "small/";
 
 export default {
     async fetch(request, env) {
@@ -11,6 +13,47 @@ export default {
             path = "/";
         } else if (path.startsWith(`${BASE_PATH}/`)) {
             path = path.slice(BASE_PATH.length);
+        }
+
+        // Return the list of photos from R2
+        if (path === "/api/photos") {
+            const photos = [];
+
+            let cursor;
+
+            do {
+                const result = await env.GALLERY.list({
+                    prefix: PHOTO_PREFIX,
+                    limit: 1000,
+                    ...(cursor ? { cursor } : {})
+                });
+
+                for (const object of result.objects) {
+                    if (
+                        object.key.startsWith(PHOTO_PREFIX) &&
+                        object.key.toLowerCase().endsWith(".jpg")
+                    ) {
+                        photos.push(
+                            object.key.slice(PHOTO_PREFIX.length)
+                        );
+                    }
+                }
+
+                cursor = result.truncated
+                    ? result.cursor
+                    : undefined;
+
+            } while (cursor);
+
+            return new Response(
+                JSON.stringify(photos),
+                {
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8",
+                        "Cache-Control": "public, max-age=300"
+                    }
+                }
+            );
         }
 
         // R2 downloads
@@ -58,3 +101,4 @@ export default {
         );
     }
 };
+```
