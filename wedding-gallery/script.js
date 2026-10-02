@@ -400,15 +400,14 @@ function createPhotoCard(filename, index) {
 }
 
 function updateMasonryCard(card) {
-    if (!window.matchMedia("(max-width: 680px)").matches) {
-        card.style.gridRowEnd = "";
-        return;
-    }
-
     const image = card.querySelector(".thumbnail");
     if (image && image.naturalWidth > 0) {
+        const rowGap = parseFloat(getComputedStyle(gallery).rowGap) || 0;
         card.style.gridRowEnd =
-            "span " + Math.ceil(image.getBoundingClientRect().height);
+            "span " + Math.ceil(
+                (image.getBoundingClientRect().height + rowGap) /
+                (1 + rowGap)
+            );
     }
 }
 
