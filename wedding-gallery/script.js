@@ -8,10 +8,11 @@ const galleryLoading = document.getElementById("gallery-loading");
 const lightbox = document.getElementById("lightbox");
 const lightboxImage = document.getElementById("lightbox-image");
 const lightboxLoader = document.getElementById("lightbox-loader");
+const lightboxError = document.getElementById("lightbox-error");
 
-const closeButton = document.getElementById("lightbox-close");
-const previousButton = document.getElementById("lightbox-prev");
-const nextButton = document.getElementById("lightbox-next");
+const closeButton = document.querySelector(".lightbox-close");
+const previousButton = document.querySelector(".lightbox-prev");
+const nextButton = document.querySelector(".lightbox-next");
 
 const downloadBig = document.getElementById("download-big");
 const downloadSmall = document.getElementById("download-small");
@@ -82,6 +83,64 @@ function getSmallUrl(filename) {
         "/small/" +
         encodeURIComponent(filename)
     );
+}
+
+function showLightboxImage() {
+    if (!lightboxImage) {
+        return;
+    }
+
+    lightboxImage.classList.add("loaded");
+
+    if (lightboxLoader) {
+        lightboxLoader.classList.add("hidden");
+    }
+
+    if (lightboxError) {
+        lightboxError.classList.add("hidden");
+    }
+}
+
+function showLightboxImageError() {
+    if (lightboxImage) {
+        console.error("Failed to load image:", lightboxImage.src);
+        lightboxImage.classList.remove("loaded");
+    }
+
+    if (lightboxLoader) {
+        lightboxLoader.classList.add("hidden");
+    }
+
+    if (lightboxError) {
+        lightboxError.classList.remove("hidden");
+    }
+}
+
+function loadLightboxImage(filename) {
+    if (!lightboxImage) {
+        return;
+    }
+
+    lightboxImage.classList.remove("loaded");
+
+    if (lightboxLoader) {
+        lightboxLoader.classList.remove("hidden");
+    }
+
+    if (lightboxError) {
+        lightboxError.classList.add("hidden");
+    }
+
+    lightboxImage.alt = "Wedding photo " + (currentIndex + 1);
+    lightboxImage.src = getSmallUrl(filename);
+
+    if (lightboxImage.complete) {
+        if (lightboxImage.naturalWidth > 0) {
+            showLightboxImage();
+        } else {
+            showLightboxImageError();
+        }
+    }
 }
 
 function getBigFilename(filename) {
@@ -294,22 +353,7 @@ function openLightbox(index) {
     const filename =
         photos[currentIndex];
 
-    lightboxImage.classList.remove(
-        "loaded"
-    );
-
-    if (lightboxLoader) {
-        lightboxLoader.classList.remove(
-            "hidden"
-        );
-    }
-
-    lightboxImage.src =
-        getSmallUrl(filename);
-
-    lightboxImage.alt =
-        "Wedding photo " +
-        (currentIndex + 1);
+    loadLightboxImage(filename);
 
     if (currentPhoto) {
         currentPhoto.textContent =
@@ -376,22 +420,7 @@ function updateLightboxImage() {
     const filename =
         photos[currentIndex];
 
-    lightboxImage.classList.remove(
-        "loaded"
-    );
-
-    if (lightboxLoader) {
-        lightboxLoader.classList.remove(
-            "hidden"
-        );
-    }
-
-    lightboxImage.src =
-        getSmallUrl(filename);
-
-    lightboxImage.alt =
-        "Wedding photo " +
-        (currentIndex + 1);
+    loadLightboxImage(filename);
 
     if (currentPhoto) {
         currentPhoto.textContent =
@@ -458,17 +487,12 @@ function updateNavigation() {
 if (lightboxImage) {
     lightboxImage.addEventListener(
         "load",
-        function () {
-            lightboxImage.classList.add(
-                "loaded"
-            );
+        showLightboxImage
+    );
 
-            if (lightboxLoader) {
-                lightboxLoader.classList.add(
-                    "hidden"
-                );
-            }
-        }
+    lightboxImage.addEventListener(
+        "error",
+        showLightboxImageError
     );
 }
 

@@ -455,6 +455,21 @@ a {
     display: none;
 }
 
+.lightbox-error {
+    position: absolute;
+
+    margin: 0;
+
+    color: rgba(255, 255, 255, 0.85);
+
+    font-size: 12px;
+    letter-spacing: 0.08em;
+}
+
+.lightbox-error.hidden {
+    display: none;
+}
+
 .lightbox-loader .loader {
     border-color:
         rgba(255, 255, 255, 0.2);
