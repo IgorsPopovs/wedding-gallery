@@ -1,17 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap");
 
-
 :root {
     --background-image: url("images/texture.png");
 
     --paper: #eee8dc;
-    --paper-light: #f5f1e9;
-
     --text: #3c3934;
     --text-light: #706b63;
-
     --border: rgba(60, 57, 52, 0.18);
-    --border-light: rgba(255, 255, 255, 0.45);
 
     --shadow:
         0 14px 40px rgba(45, 39, 30, 0.10);
@@ -26,15 +21,12 @@
     box-sizing: border-box;
 }
 
-
 html {
     scroll-behavior: smooth;
 }
 
-
 body {
     margin: 0;
-
     min-height: 100vh;
 
     color: var(--text);
@@ -44,23 +36,19 @@ body {
         Arial,
         sans-serif;
 
-    background:
-        var(--paper);
+    background: var(--paper);
 
     -webkit-font-smoothing: antialiased;
 }
-
 
 button,
 a {
     font: inherit;
 }
 
-
 button {
     border: 0;
 }
-
 
 a {
     color: inherit;
@@ -73,35 +61,25 @@ a {
 
 .page {
     position: relative;
-
     min-height: 100vh;
-
     overflow: hidden;
 }
 
-
 .background {
     position: fixed;
-
     inset: 0;
-
     z-index: -3;
 
-    background-image:
-        var(--background-image);
-
+    background-image: var(--background-image);
     background-position: center;
     background-size: cover;
 
     opacity: 0.9;
 }
 
-
 .background-overlay {
     position: fixed;
-
     inset: 0;
-
     z-index: -2;
 
     background:
@@ -119,29 +97,21 @@ a {
    ========================================================= */
 
 .gallery-header {
-    padding:
-        72px 24px
-        42px;
-
+    padding: 72px 24px 42px;
     text-align: center;
 }
 
-
 .header-decoration {
     display: flex;
-
     align-items: center;
     justify-content: center;
-
     gap: 12px;
 
     margin-bottom: 20px;
 
     color: var(--text-light);
-
     opacity: 0.65;
 }
-
 
 .header-decoration span {
     display: block;
@@ -149,34 +119,25 @@ a {
     width: 36px;
     height: 1px;
 
-    background:
-        var(--border);
+    background: var(--border);
 }
-
 
 .header-decoration i {
     font-size: 10px;
-
     font-style: normal;
 }
 
-
 .eyebrow {
-    margin:
-        0 0
-        8px;
+    margin: 0 0 8px;
 
     font-size: 10px;
-
     font-weight: 500;
 
     letter-spacing: 0.34em;
-
     text-transform: uppercase;
 
     color: var(--text-light);
 }
-
 
 .gallery-header h1 {
     margin: 0;
@@ -186,30 +147,22 @@ a {
         Georgia,
         serif;
 
-    font-size:
-        clamp(58px, 8vw, 108px);
-
+    font-size: clamp(58px, 8vw, 108px);
     font-weight: 400;
 
     line-height: 0.9;
-
     letter-spacing: -0.025em;
 }
 
-
 .gallery-header h1 span {
+    padding: 0 0.08em;
+
     font-style: italic;
-
     font-weight: 400;
-
-    padding:
-        0 0.08em;
 }
 
-
 .subtitle {
-    margin:
-        18px 0 0;
+    margin: 18px 0 0;
 
     font-family:
         "Cormorant Garamond",
@@ -217,16 +170,13 @@ a {
         serif;
 
     font-size: 21px;
-
     font-style: italic;
 
     color: var(--text-light);
 }
 
-
 .header-line {
     display: flex;
-
     align-items: center;
     justify-content: center;
 
@@ -234,24 +184,18 @@ a {
 
     width: min(280px, 70%);
 
-    margin:
-        28px auto 0;
+    margin: 28px auto 0;
 }
-
 
 .header-line span {
     height: 1px;
-
     flex: 1;
 
-    background:
-        var(--border);
+    background: var(--border);
 }
-
 
 .header-line i {
     font-size: 9px;
-
     font-style: normal;
 
     color: var(--text-light);
@@ -263,43 +207,37 @@ a {
    ========================================================= */
 
 .gallery {
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            4,
-            minmax(0, 1fr)
-        );
-
-    gap: 16px;
+    column-count: 4;
+    column-gap: 16px;
 
     width: min(
         1500px,
         calc(100% - 48px)
     );
 
-    margin:
-        0 auto;
-
-    padding:
-        10px 0 60px;
+    margin: 0 auto;
+    padding: 10px 0 60px;
 }
-
 
 .photo-card {
     position: relative;
 
-    overflow: hidden;
+    display: inline-block;
 
-    aspect-ratio: 3 / 2;
+    width: 100%;
+
+    margin: 0 0 16px;
+
+    overflow: hidden;
 
     background:
         rgba(255, 255, 255, 0.35);
 
-    box-shadow:
-        var(--shadow);
+    box-shadow: var(--shadow);
 
     cursor: pointer;
+
+    break-inside: avoid;
 
     animation:
         photoAppear
@@ -307,12 +245,10 @@ a {
         ease both;
 }
 
-
 .photo-card::after {
     content: "";
 
     position: absolute;
-
     inset: 0;
 
     pointer-events: none;
@@ -324,44 +260,34 @@ a {
     opacity: 0.7;
 }
 
-
 .thumbnail {
     display: block;
 
     width: 100%;
-    height: 100%;
+    height: auto;
 
-    object-fit: cover;
+    object-fit: contain;
 
     transition:
         transform 0.7s
         cubic-bezier(0.2, 0.7, 0.2, 1),
-
         filter 0.7s ease;
 }
 
-
 .photo-card:hover .thumbnail {
-    transform: scale(1.035);
-
-    filter:
-        brightness(1.03);
+    transform: scale(1.025);
+    filter: brightness(1.03);
 }
-
 
 @keyframes photoAppear {
     from {
         opacity: 0;
-
-        transform:
-            translateY(16px);
+        transform: translateY(16px);
     }
 
     to {
         opacity: 1;
-
-        transform:
-            translateY(0);
+        transform: translateY(0);
     }
 }
 
@@ -383,16 +309,11 @@ a {
     min-height: 120px;
 
     color: var(--text-light);
-
-    transition:
-        opacity 0.3s ease;
 }
-
 
 .gallery-loading.hidden {
     display: none;
 }
-
 
 .gallery-loading p {
     margin: 0;
@@ -400,10 +321,8 @@ a {
     font-size: 10px;
 
     letter-spacing: 0.18em;
-
     text-transform: uppercase;
 }
-
 
 .loader {
     display: block;
@@ -415,8 +334,7 @@ a {
         1px solid
         rgba(60, 57, 52, 0.2);
 
-    border-top-color:
-        var(--text);
+    border-top-color: var(--text);
 
     border-radius: 50%;
 
@@ -426,11 +344,9 @@ a {
         linear infinite;
 }
 
-
 @keyframes spin {
     to {
-        transform:
-            rotate(360deg);
+        transform: rotate(360deg);
     }
 }
 
@@ -451,16 +367,13 @@ a {
     align-items: center;
     justify-content: center;
 
-    padding:
-        60px 70px;
+    padding: 50px 70px;
 
     background:
         rgba(30, 28, 25, 0.96);
 
     opacity: 0;
-
     visibility: hidden;
-
     pointer-events: none;
 
     transition:
@@ -468,15 +381,11 @@ a {
         visibility 0.35s ease;
 }
 
-
 .lightbox.active {
     opacity: 1;
-
     visibility: visible;
-
     pointer-events: auto;
 }
-
 
 .lightbox-content {
     display: flex;
@@ -490,7 +399,6 @@ a {
 
     max-width: 1500px;
 }
-
 
 .lightbox-photo-wrapper {
     position: relative;
@@ -507,9 +415,11 @@ a {
     min-height: 0;
 }
 
-
 #lightbox-image {
     display: block;
+
+    width: auto;
+    height: auto;
 
     max-width: 100%;
     max-height: 100%;
@@ -518,22 +428,17 @@ a {
 
     opacity: 0;
 
-    transform:
-        scale(0.985);
+    transform: scale(0.985);
 
     transition:
         opacity 0.3s ease,
         transform 0.3s ease;
 }
 
-
 #lightbox-image.loaded {
     opacity: 1;
-
-    transform:
-        scale(1);
+    transform: scale(1);
 }
-
 
 .lightbox-loader {
     position: absolute;
@@ -546,11 +451,9 @@ a {
     justify-content: center;
 }
 
-
 .lightbox-loader.hidden {
     display: none;
 }
-
 
 .lightbox-loader .loader {
     border-color:
@@ -581,7 +484,6 @@ a {
     z-index: 10;
 }
 
-
 .lightbox-close span {
     position: absolute;
 
@@ -597,18 +499,13 @@ a {
         transform 0.2s ease;
 }
 
-
 .lightbox-close span:first-child {
-    transform:
-        rotate(45deg);
+    transform: rotate(45deg);
 }
-
 
 .lightbox-close span:last-child {
-    transform:
-        rotate(-45deg);
+    transform: rotate(-45deg);
 }
-
 
 .lightbox-close:hover span:first-child {
     transform:
@@ -616,13 +513,11 @@ a {
         scaleX(1.15);
 }
 
-
 .lightbox-close:hover span:last-child {
     transform:
         rotate(-45deg)
         scaleX(1.15);
 }
-
 
 .lightbox-nav {
     position: absolute;
@@ -646,21 +541,17 @@ a {
         opacity 0.2s ease;
 }
 
-
 .lightbox-nav:hover {
     opacity: 1;
 }
-
 
 .lightbox-prev {
     left: 8px;
 }
 
-
 .lightbox-next {
     right: 8px;
 }
-
 
 .lightbox-nav span {
     position: absolute;
@@ -671,20 +562,15 @@ a {
     width: 18px;
     height: 18px;
 
-    border-top:
-        1px solid white;
-
-    border-left:
-        1px solid white;
+    border-top: 1px solid white;
+    border-left: 1px solid white;
 }
-
 
 .lightbox-prev span {
     transform:
         translate(-25%, -50%)
         rotate(-45deg);
 }
-
 
 .lightbox-next span {
     transform:
@@ -705,10 +591,8 @@ a {
 
     width: 100%;
 
-    padding:
-        18px 0 4px;
+    padding: 18px 0 4px;
 }
-
 
 .photo-counter {
     color:
@@ -719,14 +603,10 @@ a {
     letter-spacing: 0.12em;
 }
 
-
 .counter-divider {
-    margin:
-        0 7px;
-
+    margin: 0 7px;
     opacity: 0.35;
 }
-
 
 .download-actions {
     display: flex;
@@ -735,7 +615,6 @@ a {
 
     gap: 8px;
 }
-
 
 .download-button {
     display: inline-flex;
@@ -747,8 +626,7 @@ a {
 
     min-height: 38px;
 
-    padding:
-        0 15px;
+    padding: 0 15px;
 
     color:
         rgba(255, 255, 255, 0.85);
@@ -762,7 +640,6 @@ a {
     font-size: 9px;
 
     letter-spacing: 0.12em;
-
     text-transform: uppercase;
 
     transition:
@@ -770,7 +647,6 @@ a {
         color 0.2s ease,
         border-color 0.2s ease;
 }
-
 
 .download-button:hover {
     color: #302e2a;
@@ -780,16 +656,13 @@ a {
     border-color: white;
 }
 
-
 .download-primary {
     background:
         rgba(255, 255, 255, 0.1);
 }
 
-
 .download-icon {
     font-size: 16px;
-
     line-height: 1;
 }
 
@@ -799,30 +672,22 @@ a {
    ========================================================= */
 
 .gallery-footer {
-    padding:
-        0 24px 55px;
+    padding: 0 24px 55px;
 
     text-align: center;
 
     color: var(--text-light);
 }
 
-
 .footer-line {
-    width: min(
-        280px,
-        70%
-    );
+    width: min(280px, 70%);
 
     height: 1px;
 
-    margin:
-        0 auto 24px;
+    margin: 0 auto 24px;
 
-    background:
-        var(--border);
+    background: var(--border);
 }
-
 
 .gallery-footer p {
     margin: 0 0 7px;
@@ -833,10 +698,8 @@ a {
         serif;
 
     font-size: 21px;
-
     font-style: italic;
 }
-
 
 .gallery-footer span {
     font-size: 9px;
@@ -854,11 +717,7 @@ a {
 @media (max-width: 1000px) {
 
     .gallery {
-        grid-template-columns:
-            repeat(
-                3,
-                minmax(0, 1fr)
-            );
+        column-count: 3;
     }
 
 }
@@ -876,13 +735,10 @@ a {
             28px;
     }
 
-
     .eyebrow {
         font-size: 9px;
-
         letter-spacing: 0.28em;
     }
-
 
     .gallery-header h1 {
         font-size:
@@ -893,24 +749,18 @@ a {
             );
     }
 
-
     .subtitle {
         margin-top: 14px;
-
         font-size: 18px;
     }
-
 
     .header-line {
         margin-top: 22px;
     }
 
-
     .gallery {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-        gap: 8px;
+        column-count: 2;
+        column-gap: 8px;
 
         width:
             calc(100% - 20px);
@@ -918,11 +768,9 @@ a {
         padding-bottom: 40px;
     }
 
-
     .photo-card {
-        aspect-ratio: 1 / 1;
+        margin-bottom: 8px;
     }
-
 
     .lightbox {
         padding:
@@ -930,12 +778,10 @@ a {
             72px;
     }
 
-
     .lightbox-close {
         top: 12px;
         right: 10px;
     }
-
 
     .lightbox-nav {
         width: 44px;
@@ -944,16 +790,13 @@ a {
         margin-top: -30px;
     }
 
-
     .lightbox-prev {
         left: 0;
     }
 
-
     .lightbox-next {
         right: 0;
     }
-
 
     .lightbox-info {
         flex-direction: column;
@@ -963,28 +806,23 @@ a {
         padding-top: 12px;
     }
 
-
     .download-actions {
         width: 100%;
     }
-
 
     .download-button {
         flex: 1;
 
         min-height: 40px;
 
-        padding:
-            0 8px;
+        padding: 0 8px;
 
         font-size: 8px;
     }
 
-
     .gallery-footer {
         padding-bottom: 35px;
     }
-
 }
 
 
@@ -998,26 +836,25 @@ a {
         padding-top: 40px;
     }
 
-
     .gallery {
-        gap: 6px;
+        column-gap: 6px;
 
         width:
             calc(100% - 12px);
     }
 
+    .photo-card {
+        margin-bottom: 6px;
+    }
 
     .download-actions {
         gap: 5px;
     }
 
-
     .download-button {
         font-size: 7px;
-
         letter-spacing: 0.08em;
     }
-
 }
 
 
@@ -1032,11 +869,13 @@ a {
     *::after {
         scroll-behavior: auto !important;
 
-        animation-duration: 0.01ms !important;
+        animation-duration:
+            0.01ms !important;
 
-        animation-iteration-count: 1 !important;
+        animation-iteration-count:
+            1 !important;
 
-        transition-duration: 0.01ms !important;
+        transition-duration:
+            0.01ms !important;
     }
-
 }

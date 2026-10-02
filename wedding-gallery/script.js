@@ -105,6 +105,10 @@ function createGallery() {
                 "async";
 
 
+            /*
+             * Only SMALL image is loaded.
+             */
+
             image.src =
                 `${PHOTO_BASE_URL}/small/${encodeURIComponent(
                     filename
@@ -151,9 +155,17 @@ function openPhoto(index) {
         );
 
 
-    const bigUrl =
-        `${PHOTO_BASE_URL}/big/${encodeURIComponent(
-            bigFilename
+    /*
+     * IMPORTANT:
+     *
+     * Lightbox uses SMALL image.
+     *
+     * BIG image is NOT loaded here.
+     */
+
+    const smallUrl =
+        `${PHOTO_BASE_URL}/small/${encodeURIComponent(
+            smallFilename
         )}`;
 
 
@@ -174,7 +186,7 @@ function openPhoto(index) {
 
 
     lightboxImage.src =
-        bigUrl;
+        smallUrl;
 
     lightboxImage.alt =
         `Wedding photo ${index + 1}`;
@@ -203,7 +215,7 @@ function openPhoto(index) {
 
 
     /*
-     * Download full-size image
+     * BIG = download only.
      */
 
     downloadBig.href =
@@ -218,7 +230,7 @@ function openPhoto(index) {
 
 
     /*
-     * Download small image
+     * SMALL = download.
      */
 
     downloadSmall.href =
@@ -248,7 +260,7 @@ function openPhoto(index) {
 
 
 /* =========================================================
-   CLOSE LIGHTBOX
+   CLOSE
    ========================================================= */
 
 function closeLightbox() {
@@ -336,7 +348,7 @@ nextButton.addEventListener(
 
 
 /* =========================================================
-   CLICK OUTSIDE PHOTO
+   CLICK OUTSIDE
    ========================================================= */
 
 lightbox.addEventListener(
@@ -443,7 +455,7 @@ lightbox.addEventListener(
 
 
         /*
-         * Ignore mostly vertical gestures.
+         * Ignore vertical scrolling.
          */
 
         if (
@@ -455,7 +467,7 @@ lightbox.addEventListener(
 
 
         /*
-         * Ignore very short swipes.
+         * Ignore short gestures.
          */
 
         if (
