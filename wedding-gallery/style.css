@@ -398,7 +398,7 @@ a {
 
 .lightbox-nav::before {
     position: absolute;
-    inset: -12px;
+    inset: -20px;
     content: "";
     border-radius: 50%;
 }
@@ -600,7 +600,7 @@ a {
     }
 
     .lightbox-nav::before {
-        inset: -14px;
+        inset: -22px;
     }
 
     .lightbox-prev {
