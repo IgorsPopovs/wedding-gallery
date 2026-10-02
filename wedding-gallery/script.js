@@ -4,22 +4,12 @@ const photos = Array.from(
         `I+A_s_${String(i + 1).padStart(5, "0")}.jpg`
 );
 
-const photoBaseUrl =
-    "https://photos.aligor.us";
+const PHOTO_BASE_URL = "https://photos.aligor.us";
+const GALLERY_BASE_PATH = "/wedding-gallery";
 
-const galleryBasePath =
-    "/wedding-gallery";
+const gallery = document.getElementById("gallery");
 
-
-const gallery =
-    document.getElementById("gallery");
-
-const galleryLoading =
-    document.getElementById("gallery-loading");
-
-const lightbox =
-    document.getElementById("lightbox");
-
+const lightbox = document.getElementById("lightbox");
 const lightboxImage =
     document.getElementById("lightbox-image");
 
@@ -47,87 +37,79 @@ const previousButton =
 const nextButton =
     document.querySelector(".lightbox-next");
 
-
 let currentIndex = 0;
 
 let touchStartX = 0;
-let touchStartY = 0;
 
 
 /* =========================
    INITIALIZATION
    ========================= */
 
-totalPhotos.textContent =
-    photos.length;
+totalPhotos.textContent = photos.length;
 
 createGallery();
 
 
 /* =========================
-   CREATE GALLERY
+   GALLERY
    ========================= */
 
 function createGallery() {
+    photos.forEach((filename, index) => {
+        const card =
+            document.createElement("div");
 
-    photos.forEach(
-        (filename, index) => {
+        card.className = "photo-card";
 
-            const card =
-                document.createElement("div");
-
-            card.className =
-                "photo-card";
-
-            card.style.animationDelay =
-                `${Math.min(
-                    index * 0.035,
-                    0.7
-                )}s`;
+        card.style.animationDelay =
+            `${Math.min(index * 0.04, 0.7)}s`;
 
 
-            const img =
-                document.createElement("img");
+        const image =
+            document.createElement("img");
 
-            img.alt =
-                `Wedding photo ${index + 1}`;
+        image.className = "thumbnail";
 
-            img.loading =
-                index < 8
-                    ? "eager"
-                    : "lazy";
+        image.alt =
+            `Wedding photo ${index + 1}`;
 
-            img.decoding =
-                "async";
+        image.loading =
+            index < 6
+                ? "eager"
+                : "lazy";
 
-
-            const url =
-                `${photoBaseUrl}/small/${encodeURIComponent(
-                    filename
-                )}`;
+        image.decoding = "async";
 
 
-            img.src = url;
+        image.src =
+            `${PHOTO_BASE_URL}/small/${encodeURIComponent(
+                filename
+            )}`;
 
 
-            img.addEventListener(
-                "click",
-                () => {
-                    openPhoto(index);
-                }
-            );
+        image.addEventListener(
+            "click",
+            () => {
+                openPhoto(index);
+            }
+        );
 
 
-            card.appendChild(img);
+        card.appendChild(image);
 
-            gallery.appendChild(card);
-        }
-    );
+        gallery.appendChild(card);
+    });
 
 
-    galleryLoading.classList.add(
-        "hidden"
-    );
+    const loading =
+        document.getElementById(
+            "gallery-loading"
+        );
+
+    if (loading) {
+        loading.classList.add("hidden");
+    }
 }
 
 
@@ -136,17 +118,7 @@ function createGallery() {
    ========================= */
 
 function openPhoto(index) {
-
-    if (
-        index < 0 ||
-        index >= photos.length
-    ) {
-        return;
-    }
-
-
     currentIndex = index;
-
 
     const smallFilename =
         photos[index];
@@ -159,13 +131,14 @@ function openPhoto(index) {
 
 
     const bigUrl =
-        `${photoBaseUrl}/big/${encodeURIComponent(
+        `${PHOTO_BASE_URL}/big/${encodeURIComponent(
             bigFilename
         )}`;
 
 
     currentPhoto.textContent =
         index + 1;
+
 
     totalPhotos.textContent =
         photos.length;
@@ -175,6 +148,7 @@ function openPhoto(index) {
         "loaded"
     );
 
+
     lightboxLoader.classList.remove(
         "hidden"
     );
@@ -183,57 +157,61 @@ function openPhoto(index) {
     lightboxImage.src =
         bigUrl;
 
+
     lightboxImage.alt =
         `Wedding photo ${index + 1}`;
 
 
-    lightboxImage.onload =
-        () => {
+    lightboxImage.onload = () => {
+        lightboxLoader.classList.add(
+            "hidden"
+        );
 
-            lightboxLoader.classList.add(
-                "hidden"
-            );
-
-            lightboxImage.classList.add(
-                "loaded"
-            );
-        };
+        lightboxImage.classList.add(
+            "loaded"
+        );
+    };
 
 
-    lightboxImage.onerror =
-        () => {
-
-            lightboxLoader.classList.add(
-                "hidden"
-            );
-        };
+    lightboxImage.onerror = () => {
+        lightboxLoader.classList.add(
+            "hidden"
+        );
+    };
 
 
     /*
-     * Download through our Worker.
+     * Download through Worker.
      */
 
     downloadBig.href =
-        `${galleryBasePath}/download/big/${encodeURIComponent(
+        `${GALLERY_BASE_PATH}/download/big/${encodeURIComponent(
             bigFilename
         )}`;
 
-    downloadBig.download =
-        bigFilename;
+
+    downloadBig.setAttribute(
+        "download",
+        bigFilename
+    );
 
 
     downloadSmall.href =
-        `${galleryBasePath}/download/small/${encodeURIComponent(
+        `${GALLERY_BASE_PATH}/download/small/${encodeURIComponent(
             smallFilename
         )}`;
 
-    downloadSmall.download =
-        smallFilename;
+
+    downloadSmall.setAttribute(
+        "download",
+        smallFilename
+    );
 
 
     lightbox.classList.add(
         "active"
     );
+
 
     lightbox.setAttribute(
         "aria-hidden",
@@ -243,24 +221,14 @@ function openPhoto(index) {
 
     document.body.style.overflow =
         "hidden";
-
-
-    preloadPhoto(
-        getPreviousIndex()
-    );
-
-    preloadPhoto(
-        getNextIndex()
-    );
 }
 
 
 /* =========================
-   CLOSE LIGHTBOX
+   CLOSE
    ========================= */
 
 function closeLightbox() {
-
     lightbox.classList.remove(
         "active"
     );
@@ -281,69 +249,21 @@ function closeLightbox() {
    NAVIGATION
    ========================= */
 
-function getPreviousIndex() {
+function previousPhoto() {
+    currentIndex =
+        (currentIndex - 1 + photos.length) %
+        photos.length;
 
-    return (
-        currentIndex -
-        1 +
-        photos.length
-    ) % photos.length;
+    openPhoto(currentIndex);
 }
 
 
-function getNextIndex() {
+function nextPhoto() {
+    currentIndex =
+        (currentIndex + 1) %
+        photos.length;
 
-    return (
-        currentIndex + 1
-    ) % photos.length;
-}
-
-
-function showPrevious() {
-
-    openPhoto(
-        getPreviousIndex()
-    );
-}
-
-
-function showNext() {
-
-    openPhoto(
-        getNextIndex()
-    );
-}
-
-
-/* =========================
-   PRELOAD
-   ========================= */
-
-function preloadPhoto(index) {
-
-    const filename =
-        photos[index];
-
-    if (!filename) {
-        return;
-    }
-
-
-    const bigFilename =
-        filename.replace(
-            "_s_",
-            "_b_"
-        );
-
-
-    const image =
-        new Image();
-
-
-    image.src =
-        `${photoBaseUrl}/big/${encodeURIComponent(
-            bigFilename
-        )}`;
+    openPhoto(currentIndex);
 }
 
 
@@ -353,38 +273,41 @@ function preloadPhoto(index) {
 
 closeButton.addEventListener(
     "click",
-    closeLightbox
+    (event) => {
+        event.stopPropagation();
+
+        closeLightbox();
+    }
 );
+
 
 previousButton.addEventListener(
     "click",
     (event) => {
-
         event.stopPropagation();
 
-        showPrevious();
+        previousPhoto();
     }
 );
+
 
 nextButton.addEventListener(
     "click",
     (event) => {
-
         event.stopPropagation();
 
-        showNext();
+        nextPhoto();
     }
 );
 
 
 /* =========================
-   BACKGROUND CLICK
+   CLICK OUTSIDE
    ========================= */
 
 lightbox.addEventListener(
     "click",
     (event) => {
-
         if (
             event.target === lightbox
         ) {
@@ -411,23 +334,18 @@ document.addEventListener(
         }
 
 
-        if (
-            event.key === "Escape"
-        ) {
-
+        if (event.key === "Escape") {
             closeLightbox();
+        }
 
-        } else if (
-            event.key === "ArrowLeft"
-        ) {
 
-            showPrevious();
+        if (event.key === "ArrowLeft") {
+            previousPhoto();
+        }
 
-        } else if (
-            event.key === "ArrowRight"
-        ) {
 
-            showNext();
+        if (event.key === "ArrowRight") {
+            nextPhoto();
         }
     }
 );
@@ -441,14 +359,9 @@ lightbox.addEventListener(
     "touchstart",
     (event) => {
 
-        const touch =
-            event.changedTouches[0];
-
         touchStartX =
-            touch.clientX;
+            event.changedTouches[0].clientX;
 
-        touchStartY =
-            touch.clientY;
     },
     {
         passive: true
@@ -460,52 +373,27 @@ lightbox.addEventListener(
     "touchend",
     (event) => {
 
-        const touch =
-            event.changedTouches[0];
+        const touchEndX =
+            event.changedTouches[0].clientX;
 
-        const deltaX =
-            touch.clientX -
-            touchStartX;
-
-        const deltaY =
-            touch.clientY -
-            touchStartY;
+        const difference =
+            touchEndX - touchStartX;
 
 
         if (
-            Math.abs(deltaX) < 50
+            Math.abs(difference) < 50
         ) {
             return;
         }
 
 
-        if (
-            Math.abs(deltaX) <
-            Math.abs(deltaY)
-        ) {
-            return;
-        }
-
-
-        if (deltaX < 0) {
-            showNext();
+        if (difference < 0) {
+            nextPhoto();
         } else {
-            showPrevious();
+            previousPhoto();
         }
     },
     {
         passive: true
-    }
-);
-
-
-/* =========================
-   IMAGE DRAG
-   ========================= */
-
-lightboxImage.addEventListener(
-    "dragstart",
-    (event) => {
-        event.preventDefault();
     }
 );
