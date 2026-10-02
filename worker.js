@@ -1,33 +1,31 @@
-```js
+```javascript
 const BASE_PATH = "/wedding-gallery";
 const PHOTO_PREFIX = "small/";
 
 export default {
-    async fetch(request, env) {
+    fetch: async function (request, env) {
         const url = new URL(request.url);
 
         let path = url.pathname;
 
-        // Remove /wedding-gallery from the request path
-        if (
-            path === BASE_PATH ||
-            path === BASE_PATH + "/"
-        ) {
+        // Remove /wedding-gallery from the URL
+        if (path === BASE_PATH || path === BASE_PATH + "/") {
             path = "/";
-        } else if (
-            path.startsWith(BASE_PATH + "/")
-        ) {
-            path = path.slice(BASE_PATH.length);
+        } else if (path.indexOf(BASE_PATH + "/") === 0) {
+            path = path.substring(BASE_PATH.length);
         }
 
-        // Return the list of photos from R2
+        // ==========================================
+        // GET PHOTO LIST FROM R2
+        // ==========================================
+
         if (path === "/api/photos") {
             const photos = [];
 
-            let cursor = undefined;
-            let truncated = true;
+            let cursor = null;
+            let hasMore = true;
 
-            while (truncated) {
+            while (hasMore) {
                 const options = {
                     prefix: PHOTO_PREFIX,
                     limit: 1000
@@ -37,37 +35,38 @@ export default {
                     options.cursor = cursor;
                 }
 
-                const result =
-                    await env.GALLERY.list(options);
+                const result = await env.GALLERY.list(options);
 
-                for (const object of result.objects) {
+                for (let i = 0; i < result.objects.length; i++) {
+                    const object = result.objects[i];
+
                     if (
-                        object.key.startsWith(
-                            PHOTO_PREFIX
-                        ) &&
-                        object.key
-                            .toLowerCase()
-                            .endsWith(".jpg")
+                        object.key.indexOf(PHOTO_PREFIX) === 0 &&
+                        object.key.toLowerCase().endsWith(".jpg")
                     ) {
-                        photos.push(
-                            object.key.slice(
+                        const filename =
+                            object.key.substring(
                                 PHOTO_PREFIX.length
-                            )
-                        );
+                            );
+
+                        photos.push(filename);
                     }
                 }
 
-                truncated = result.truncated;
-
-                cursor = result.cursor;
+                if (result.truncated) {
+                    cursor = result.cursor;
+                } else {
+                    hasMore = false;
+                }
             }
 
             return new Response(
                 JSON.stringify(photos),
                 {
+                    status: 200,
                     headers: {
                         "Content-Type":
-                            "application/json; charset=utf-8",
+                            "application/json; charset=UTF-8",
 
                         "Cache-Control":
                             "public, max-age=300"
@@ -76,10 +75,13 @@ export default {
             );
         }
 
-        // R2 downloads
-        if (path.startsWith("/download/")) {
+        // ==========================================
+        // DOWNLOAD FROM R2
+        // ==========================================
+
+        if (path.indexOf("/download/") === 0) {
             const key = decodeURIComponent(
-                path.slice("/download/".length)
+                path.substring("/download/".length)
             );
 
             const object =
@@ -95,40 +97,59 @@ export default {
             }
 
             const filename =
-                key.split("/").pop();
+                key.substring(
+                    key.lastIndexOf("/") + 1
+                );
+
+            const headers = new Headers();
+
+            headers.set(
+                "Content-Type",
+                object.httpMetadata &&
+                object.httpMetadata.contentType
+                    ? object.httpMetadata.contentType
+                    : "application/octet-stream"
+            );
+
+            headers.set(
+                "Content-Disposition",
+                'attachment; filename="' +
+                    filename +
+                    '"'
+            );
+
+            headers.set(
+                "Content-Length",
+                String(object.size)
+            );
+
+            headers.set(
+                "Cache-Control",
+                "no-store"
+            );
 
             return new Response(
                 object.body,
                 {
-                    headers: {
-                        "Content-Type":
-                            object.httpMetadata
-                                ?.contentType ||
-                            "application/octet-stream",
-
-                        "Content-Disposition":
-                            'attachment; filename="' +
-                            filename +
-                            '"',
-
-                        "Content-Length":
-                            object.size.toString(),
-
-                        "Cache-Control":
-                            "no-store"
-                    }
+                    status: 200,
+                    headers: headers
                 }
             );
         }
 
-        // Static website
+        // ==========================================
+        // STATIC WEBSITE
+        // ==========================================
+
         const assetUrl =
             new URL(request.url);
 
-        assetUrl.pathname =
-            path === "/"
-                ? "/index.html"
-                : path;
+        if (path === "/") {
+            assetUrl.pathname =
+                "/index.html";
+        } else {
+            assetUrl.pathname = path;
+        }
 
         return env.ASSETS.fetch(
             new Request(
