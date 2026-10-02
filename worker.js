@@ -6,28 +6,43 @@ export default {
 
         let path = url.pathname;
 
-        // Remove the Worker route prefix.
+        /*
+         * Remove the /wedding-gallery prefix.
+         *
+         * Examples:
+         *
+         * /wedding-gallery/
+         *     -> /
+         *
+         * /wedding-gallery/style.css
+         *     -> /style.css
+         *
+         * /wedding-gallery/script.js
+         *     -> /script.js
+         *
+         * /wedding-gallery/download/big/...
+         *     -> /download/big/...
+         */
+
         if (path === BASE_PATH || path === `${BASE_PATH}/`) {
             path = "/";
         } else if (path.startsWith(`${BASE_PATH}/`)) {
             path = path.slice(BASE_PATH.length);
         }
 
-        // -------------------------
-        // R2 DOWNLOAD
-        // -------------------------
+        /*
+         * R2 DOWNLOAD
+         */
 
         if (path.startsWith("/download/")) {
             const key = decodeURIComponent(
                 path.slice("/download/".length)
             );
 
-            // Only allow our wedding image naming scheme.
-            const match = key.match(
-                /^(small|big)\/I\+A_[sb]_\d{5}\.jpg$/
-            );
+            const validFile =
+                /^(small|big)\/I\+A_[sb]_\d{5}\.jpg$/.test(key);
 
-            if (!match) {
+            if (!validFile) {
                 return new Response("Invalid image request", {
                     status: 400
                 });
@@ -58,15 +73,18 @@ export default {
             });
         }
 
-        // -------------------------
-        // STATIC WEBSITE
-        // -------------------------
+        /*
+         * STATIC ASSETS
+         */
 
         const assetUrl = new URL(request.url);
 
         assetUrl.pathname = path;
 
-        // Make sure / serves index.html.
+        /*
+         * Root of the gallery should load index.html.
+         */
+
         if (path === "/") {
             assetUrl.pathname = "/index.html";
         }
