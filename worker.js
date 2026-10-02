@@ -1,23 +1,24 @@
-const BASE_PATH = "/wedding-gallery";
-
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
 
-        let pathname = url.pathname;
+        const pathname = url.pathname;
 
         // Remove the /wedding-gallery prefix
-        // so Cloudflare Assets can find the actual file.
-        if (pathname === BASE_PATH) {
-            pathname = "/";
-        } else if (pathname.startsWith(`${BASE_PATH}/`)) {
-            pathname = pathname.slice(BASE_PATH.length);
+        let assetPath = pathname;
+
+        if (assetPath === "/wedding-gallery") {
+            assetPath = "/";
+        } else if (assetPath.startsWith("/wedding-gallery/")) {
+            assetPath = assetPath.substring(
+                "/wedding-gallery".length
+            );
         }
 
-        // Download file from R2
-        if (pathname.startsWith("/download/")) {
+        // Downloads from R2
+        if (assetPath.startsWith("/download/")) {
             const key = decodeURIComponent(
-                pathname.replace("/download/", "")
+                assetPath.substring("/download/".length)
             );
 
             const object = await env.GALLERY.get(key);
@@ -45,9 +46,13 @@ export default {
             });
         }
 
-        // Serve static website
+        // Serve static assets
         const assetUrl = new URL(request.url);
-        assetUrl.pathname = pathname;
+
+        assetUrl.pathname =
+            assetPath === "/"
+                ? "/index.html"
+                : assetPath;
 
         return env.ASSETS.fetch(
             new Request(assetUrl, request)
