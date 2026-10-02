@@ -25,6 +25,11 @@ let isLoadingBatch = false;
 let loadMoreObserver = null;
 
 async function init() {
+    if (!gallery) {
+        console.error("Gallery element not found");
+        return;
+    }
+
     try {
         setLoadingText("Loading memories...");
 
@@ -50,7 +55,9 @@ async function init() {
 
         photos = data;
 
-        totalPhotos.textContent = photos.length;
+        if (totalPhotos) {
+            totalPhotos.textContent = photos.length;
+        }
 
         if (photos.length === 0) {
             setLoadingText("No photos found.");
@@ -99,7 +106,7 @@ function getSmallDownloadUrl(smallFilename) {
 }
 
 async function renderNextBatch() {
-    if (isLoadingBatch) {
+    if (!gallery || isLoadingBatch) {
         return;
     }
 
@@ -191,7 +198,7 @@ function setupLoadMoreObserver() {
 }
 
 function observeLastPhoto() {
-    if (!loadMoreObserver) {
+    if (!loadMoreObserver || !gallery) {
         return;
     }
 
@@ -237,11 +244,9 @@ function setLoadingText(text) {
 }
 
 function finishLoading() {
-    if (!galleryLoading) {
-        return;
+    if (galleryLoading) {
+        galleryLoading.style.display = "none";
     }
-
-    galleryLoading.style.display = "none";
 
     if (loadMoreObserver) {
         loadMoreObserver.disconnect();
@@ -250,6 +255,8 @@ function finishLoading() {
 
 function openLightbox(index) {
     if (
+        !lightbox ||
+        !lightboxImage ||
         index < 0 ||
         index >= photos.length
     ) {
@@ -264,17 +271,25 @@ function openLightbox(index) {
     lightboxImage.alt =
         "Wedding photo " + (currentIndex + 1);
 
-    currentPhoto.textContent =
-        currentIndex + 1;
+    if (currentPhoto) {
+        currentPhoto.textContent =
+            currentIndex + 1;
+    }
 
-    totalPhotos.textContent =
-        photos.length;
+    if (totalPhotos) {
+        totalPhotos.textContent =
+            photos.length;
+    }
 
-    downloadBig.href =
-        getBigDownloadUrl(filename);
+    if (downloadBig) {
+        downloadBig.href =
+            getBigDownloadUrl(filename);
+    }
 
-    downloadSmall.href =
-        getSmallDownloadUrl(filename);
+    if (downloadSmall) {
+        downloadSmall.href =
+            getSmallDownloadUrl(filename);
+    }
 
     lightbox.classList.add("is-open");
     document.body.classList.add("lightbox-open");
@@ -283,9 +298,16 @@ function openLightbox(index) {
 }
 
 function closeLightbox() {
+    if (!lightbox) {
+        return;
+    }
+
     lightbox.classList.remove("is-open");
     document.body.classList.remove("lightbox-open");
-    lightboxImage.src = "";
+
+    if (lightboxImage) {
+        lightboxImage.src = "";
+    }
 }
 
 function showPrevious() {
@@ -313,6 +335,10 @@ function showNext() {
 }
 
 function updateLightbox() {
+    if (!lightboxImage) {
+        return;
+    }
+
     const filename =
         photos[currentIndex];
 
@@ -322,14 +348,20 @@ function updateLightbox() {
     lightboxImage.alt =
         "Wedding photo " + (currentIndex + 1);
 
-    currentPhoto.textContent =
-        currentIndex + 1;
+    if (currentPhoto) {
+        currentPhoto.textContent =
+            currentIndex + 1;
+    }
 
-    downloadBig.href =
-        getBigDownloadUrl(filename);
+    if (downloadBig) {
+        downloadBig.href =
+            getBigDownloadUrl(filename);
+    }
 
-    downloadSmall.href =
-        getSmallDownloadUrl(filename);
+    if (downloadSmall) {
+        downloadSmall.href =
+            getSmallDownloadUrl(filename);
+    }
 
     updateNavigation();
 }
@@ -338,17 +370,22 @@ function updateNavigation() {
     const hasMultiplePhotos =
         photos.length > 1;
 
-    previousButton.disabled =
-        !hasMultiplePhotos;
+    if (previousButton) {
+        previousButton.disabled =
+            !hasMultiplePhotos;
+    }
 
-    nextButton.disabled =
-        !hasMultiplePhotos;
+    if (nextButton) {
+        nextButton.disabled =
+            !hasMultiplePhotos;
+    }
 }
 
 document.addEventListener(
     "keydown",
     function (event) {
         if (
+            !lightbox ||
             !lightbox.classList.contains("is-open")
         ) {
             return;
@@ -368,66 +405,76 @@ document.addEventListener(
     }
 );
 
-closeButton.addEventListener(
-    "click",
-    closeLightbox
-);
+if (closeButton) {
+    closeButton.addEventListener(
+        "click",
+        closeLightbox
+    );
+}
 
-previousButton.addEventListener(
-    "click",
-    showPrevious
-);
+if (previousButton) {
+    previousButton.addEventListener(
+        "click",
+        showPrevious
+    );
+}
 
-nextButton.addEventListener(
-    "click",
-    showNext
-);
+if (nextButton) {
+    nextButton.addEventListener(
+        "click",
+        showNext
+    );
+}
 
-lightbox.addEventListener(
-    "click",
-    function (event) {
-        if (event.target === lightbox) {
-            closeLightbox();
+if (lightbox) {
+    lightbox.addEventListener(
+        "click",
+        function (event) {
+            if (event.target === lightbox) {
+                closeLightbox();
+            }
         }
-    }
-);
+    );
+}
 
 let touchStartX = 0;
 let touchEndX = 0;
 
-lightboxImage.addEventListener(
-    "touchstart",
-    function (event) {
-        touchStartX =
-            event.changedTouches[0].screenX;
-    },
-    {
-        passive: true
-    }
-);
-
-lightboxImage.addEventListener(
-    "touchend",
-    function (event) {
-        touchEndX =
-            event.changedTouches[0].screenX;
-
-        const difference =
-            touchStartX - touchEndX;
-
-        if (Math.abs(difference) < 50) {
-            return;
+if (lightboxImage) {
+    lightboxImage.addEventListener(
+        "touchstart",
+        function (event) {
+            touchStartX =
+                event.changedTouches[0].screenX;
+        },
+        {
+            passive: true
         }
+    );
 
-        if (difference > 0) {
-            showNext();
-        } else {
-            showPrevious();
+    lightboxImage.addEventListener(
+        "touchend",
+        function (event) {
+            touchEndX =
+                event.changedTouches[0].screenX;
+
+            const difference =
+                touchStartX - touchEndX;
+
+            if (Math.abs(difference) < 50) {
+                return;
+            }
+
+            if (difference > 0) {
+                showNext();
+            } else {
+                showPrevious();
+            }
+        },
+        {
+            passive: true
         }
-    },
-    {
-        passive: true
-    }
-);
+    );
+}
 
 init();
