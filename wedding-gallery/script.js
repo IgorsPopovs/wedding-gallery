@@ -2,6 +2,9 @@ const PHOTO_BASE_URL = "https://photos.aligor.us";
 const GALLERY_BASE_PATH = "/wedding-gallery";
 const BATCH_SIZE = 48;
 const FAVORITES_STORAGE_KEY = "wedding-gallery-favorites-v1";
+const GUEST_AVATARS = {
+    max: "images/guests/max.jpg"
+};
 const PEOPLE = [
     { id: "igor-zorya-groom", name: "Игорь Зоря (жених)" },
     { id: "alina-zorya-bride", name: "Алина Зоря (невеста)" },
@@ -275,6 +278,16 @@ function renderGuestFilters() {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "guest-filter";
+        if (GUEST_AVATARS[person.id]) {
+            button.classList.add("has-avatar");
+            const avatar = document.createElement("img");
+            avatar.className = "guest-filter-avatar";
+            avatar.src = GUEST_AVATARS[person.id];
+            avatar.alt = "";
+            avatar.loading = "lazy";
+            avatar.decoding = "async";
+            button.append(avatar);
+        }
         const name = document.createElement("span");
         name.className = "guest-filter-name";
         name.textContent = person.name;
