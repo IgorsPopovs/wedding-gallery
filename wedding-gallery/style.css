@@ -285,6 +285,15 @@ a {
     object-fit: cover;
 }
 
+.guest-filter[data-person-id="leonid"] {
+    overflow: hidden;
+}
+
+.guest-filter[data-person-id="leonid"] .guest-filter-avatar {
+    transform: scale(1.5);
+    transform-origin: 50% 30%;
+}
+
 .guest-filter.has-avatar {
     color: white;
 }

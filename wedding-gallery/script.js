@@ -303,6 +303,7 @@ function renderGuestFilters() {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "guest-filter";
+        button.dataset.personId = person.id;
         if (!guestFiltersExpanded) button.style.zIndex = String(index + 1);
         if (GUEST_AVATARS[person.id]) {
             button.classList.add("has-avatar");
