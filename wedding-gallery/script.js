@@ -1230,35 +1230,21 @@ async function closeLightbox() {
         lightboxImage.src = "";
     }
 
-    let returnPhotoIndex = currentIndex;
-    let returnPosition = visiblePhotoIndices.indexOf(currentIndex);
-    if (returnPosition < 0 && visiblePhotoIndices.length > 0) {
-        returnPosition = visiblePhotoIndices.findIndex(function (photoIndex) {
-            return photoIndex > currentIndex;
-        });
-        if (returnPosition < 0) returnPosition = visiblePhotoIndices.length - 1;
-        returnPhotoIndex = visiblePhotoIndices[returnPosition];
-    }
-
+    const currentPosition = visiblePhotoIndices.indexOf(currentIndex);
     while (
-        returnPosition >= 0 &&
-        renderedCount <= returnPosition &&
+        currentPosition >= 0 &&
+        renderedCount <= currentPosition &&
         renderedCount < visiblePhotoIndices.length
     ) {
         await renderNextBatch();
     }
 
-    const returnCard = gallery && gallery.querySelector(
-        '[data-photo-index="' + returnPhotoIndex + '"]'
+    const currentCard = gallery && gallery.querySelector(
+        '[data-photo-index="' + currentIndex + '"]'
     );
 
-    if (returnCard) {
-        returnCard.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
-    } else if (visiblePhotoIndices.length === 0 && galleryLoading?.classList.contains("empty")) {
-        galleryLoading.scrollIntoView({
+    if (currentCard) {
+        currentCard.scrollIntoView({
             behavior: "smooth",
             block: "center"
         });
