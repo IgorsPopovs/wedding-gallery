@@ -879,6 +879,7 @@ function createPhotoCard(filename, index) {
 
     favoriteButton.type = "button";
     favoriteButton.className = "favorite-button";
+    favoriteButton.hidden = true;
     favoriteButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.9c0 5-8.8 10-8.8 10s-8.8-5-8.8-10A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.8Z" /></svg>';
     updateFavoriteButton(favoriteButton, filename);
     favoriteButton.addEventListener("click", function (event) {
@@ -899,6 +900,7 @@ function createPhotoCard(filename, index) {
 
     image.decoding = "async";
     image.addEventListener("load", function () {
+        favoriteButton.hidden = false;
         nearbyLoadingImages.delete(image);
         updateMasonryCard(card);
         updateScrollPacingStatus();

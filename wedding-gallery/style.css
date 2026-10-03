@@ -280,6 +280,10 @@ a {
     -webkit-tap-highlight-color: transparent;
 }
 
+.favorite-button[hidden] {
+    display: none;
+}
+
 .photo-card:hover .favorite-button,
 .favorite-button[aria-pressed="true"],
 .favorite-button:focus-visible {
