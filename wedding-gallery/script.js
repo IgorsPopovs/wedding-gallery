@@ -306,12 +306,10 @@ function renderGuestFilters() {
     if (guestFiltersCollapse) guestFiltersCollapse.hidden = !guestFiltersExpanded;
     const guestPhotoCounts = getGuestPhotoCounts();
     const orderedPeople = [...PEOPLE].sort(function (a, b) {
+        if (guestFiltersExpanded) return 0;
         const selectedDifference = Number(selectedPeople.has(b.id)) - Number(selectedPeople.has(a.id));
         if (selectedDifference) return selectedDifference;
-        if (!guestFiltersExpanded) {
-            return Number(Boolean(GUEST_AVATARS[b.id])) - Number(Boolean(GUEST_AVATARS[a.id]));
-        }
-        return 0;
+        return Number(Boolean(GUEST_AVATARS[b.id])) - Number(Boolean(GUEST_AVATARS[a.id]));
     });
     const visiblePeople = guestFiltersExpanded ? orderedPeople : orderedPeople.slice(0, 3);
     visiblePeople.forEach(function (person, index) {
