@@ -64,15 +64,34 @@ a {
     margin: clamp(18px, 3vw, 36px) auto;
     padding: clamp(26px, 4vw, 58px) clamp(16px, 3vw, 48px) 0;
     overflow: hidden;
-    background: rgba(250, 247, 243, 0.78);
+    background: transparent;
 }
 
 .gallery-header {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 12px clamp(24px, 4vw, 42px);
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto clamp(28px, 4vw, 42px);
+    padding: 10px clamp(18px, 3vw, 34px) 12px;
+    border: 1px solid rgba(123, 31, 58, 0.28);
+    outline: 1px solid rgba(123, 31, 58, 0.12);
+    outline-offset: 5px;
     text-align: center;
+}
+
+.gallery-header::before {
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(123, 31, 58, 0.14);
+    content: "";
+    pointer-events: none;
+}
+
+#moments {
+    background: rgba(250, 247, 243, 0.78);
 }
 
 .gallery-header h1 {
@@ -93,7 +112,7 @@ a {
 }
 
 .wedding-date {
-    margin: 13px 0 0;
+    margin: 9px 0 0;
     color: var(--text-mid);
     font-size: 10px;
     font-weight: 400;
@@ -551,7 +570,8 @@ a {
     }
 
     .gallery-header {
-        padding: 0 3px 24px;
+        margin-bottom: 26px;
+        padding: 8px 12px 10px;
     }
 
     .gallery-header h1 {
