@@ -104,6 +104,13 @@ a {
     paint-order: stroke fill;
 }
 
+.gallery-photo-count {
+    margin: 8px 0 0;
+    color: var(--text-mid);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+}
+
 .footer-script {
     margin: 0;
     color: var(--fig);

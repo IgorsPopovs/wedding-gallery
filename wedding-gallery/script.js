@@ -5,6 +5,7 @@ const FAVORITES_STORAGE_KEY = "wedding-gallery-favorites-v1";
 
 const gallery = document.getElementById("gallery");
 const galleryLoading = document.getElementById("gallery-loading");
+const galleryPhotoCount = document.getElementById("gallery-photo-count");
 const favoritesToggle = document.getElementById("favorites-toggle");
 const favoritesCount = document.getElementById("favorites-count");
 
@@ -111,6 +112,10 @@ async function init() {
 
         if (totalPhotos) {
             totalPhotos.textContent = photos.length;
+        }
+        if (galleryPhotoCount) {
+            galleryPhotoCount.textContent =
+                "Всего фотографий: " + photos.length.toLocaleString("ru-RU");
         }
 
         if (photos.length === 0) {
