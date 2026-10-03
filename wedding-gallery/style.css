@@ -168,6 +168,18 @@ a {
     cursor: pointer;
 }
 
+.guest-filters-collapse {
+    padding: 4px 9px;
+    color: var(--fig);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.guest-filters-collapse[hidden] { display: none; }
+
 .untagged-photos-toggle {
     display: inline-flex;
     align-items: center;
@@ -202,6 +214,46 @@ a {
     padding: 5px 5px 11px;
     scrollbar-width: thin;
     scrollbar-color: rgba(123, 31, 58, 0.3) transparent;
+}
+
+.guest-filters.is-collapsed {
+    justify-content: center;
+    gap: 0;
+    overflow: visible;
+    padding: 5px 5px 11px;
+}
+
+.guest-filters.is-collapsed .guest-filter,
+.guest-filters-more {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    border: 2px solid rgba(255, 255, 255, 0.92);
+}
+
+.guest-filters.is-collapsed .guest-filter + .guest-filter,
+.guest-filters-more { margin-left: -15px; }
+
+.guest-filters-more {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    color: var(--text-mid);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.guest-filters-more:hover { background: #fff; transform: scale(1.05); }
+
+.guest-filters.is-expanded {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 76px);
+    justify-content: center;
+    gap: 8px;
+    overflow: visible;
 }
 
 .guest-filter {
@@ -1055,17 +1107,36 @@ a {
     .guest-filter-section { padding-bottom: 8px; }
     .guest-filters {
         display: flex;
-        gap: 8px;
-        overflow-x: auto;
+        gap: 0;
+        overflow: visible;
         padding: 5px 2px 11px;
-        scrollbar-width: thin;
-        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
     }
     .guest-filter {
         flex: 0 0 70px;
         width: 70px;
         height: 70px;
         font-size: 9px;
+    }
+    .guest-filters.is-collapsed .guest-filter,
+    .guest-filters-more {
+        flex-basis: min(60px, 17vw);
+        width: min(60px, 17vw);
+        height: auto;
+        aspect-ratio: 1;
+    }
+    .guest-filters.is-collapsed .guest-filter + .guest-filter,
+    .guest-filters-more { margin-left: -14px; }
+    .guest-filters.is-expanded {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        justify-items: center;
+        gap: 7px 5px;
+    }
+    .guest-filters.is-expanded .guest-filter {
+        flex: initial;
+        width: min(70px, 100%);
+        height: auto;
+        aspect-ratio: 1;
     }
 
     .gallery-header h1 {
