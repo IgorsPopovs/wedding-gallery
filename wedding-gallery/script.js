@@ -478,8 +478,20 @@ function renderPhotoPeopleChoices() {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "photo-person-choice";
-        button.textContent = person.name;
         button.setAttribute("aria-pressed", String(editablePhotoPeople.has(person.id)));
+        if (GUEST_AVATARS[person.id]) {
+            const avatar = document.createElement("img");
+            avatar.className = "photo-person-avatar";
+            avatar.src = GUEST_AVATARS[person.id];
+            avatar.alt = "";
+            avatar.loading = "lazy";
+            avatar.decoding = "async";
+            button.append(avatar);
+        }
+        const name = document.createElement("span");
+        name.className = "photo-person-name";
+        name.textContent = person.name;
+        button.append(name);
         button.addEventListener("click", function () {
             if (editablePhotoPeople.has(person.id)) editablePhotoPeople.delete(person.id);
             else editablePhotoPeople.add(person.id);

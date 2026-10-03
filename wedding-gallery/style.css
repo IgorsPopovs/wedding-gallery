@@ -1014,8 +1014,22 @@ a {
 .photo-person-choice {
     display: inline-flex;
     align-items: center;
+    gap: 6px;
     transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease,
         box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.photo-person-avatar {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 50%;
+}
+
+.photo-person-name {
+    line-height: 1.2;
 }
 
 .photo-person-choice[aria-pressed="true"] {
