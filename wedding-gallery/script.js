@@ -253,14 +253,39 @@ function getFavoriteCountForCurrentFilters() {
     }, 0);
 }
 
+function getGuestPhotoCounts() {
+    const counts = new Map(PEOPLE.map(function (person) {
+        return [person.id, 0];
+    }));
+
+    photos.forEach(function (filename) {
+        new Set(photoTags[filename] || []).forEach(function (personId) {
+            if (counts.has(personId)) counts.set(personId, counts.get(personId) + 1);
+        });
+    });
+
+    return counts;
+}
+
 function renderGuestFilters() {
     if (!guestFilters) return;
     guestFilters.replaceChildren();
+    const guestPhotoCounts = adminMode ? getGuestPhotoCounts() : null;
     PEOPLE.forEach(function (person) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "guest-filter";
-        button.textContent = person.name;
+        const name = document.createElement("span");
+        name.className = "guest-filter-name";
+        name.textContent = person.name;
+        button.append(name);
+        if (guestPhotoCounts) {
+            const count = document.createElement("span");
+            count.className = "guest-filter-count";
+            count.textContent = guestPhotoCounts.get(person.id).toLocaleString("ru-RU");
+            count.setAttribute("aria-label", guestPhotoCounts.get(person.id) + " фотографий");
+            button.append(count);
+        }
         button.setAttribute("aria-pressed", String(selectedPeople.has(person.id)));
         button.addEventListener("click", function () {
             if (selectedPeople.has(person.id)) selectedPeople.delete(person.id);
