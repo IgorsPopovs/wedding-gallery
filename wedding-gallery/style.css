@@ -262,6 +262,16 @@ a {
     pointer-events: auto;
 }
 
+.lightbox.active.swipe-closing {
+    opacity: 0.58;
+}
+
+.lightbox.active.swipe-closing #lightbox-image {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+    transition-duration: 0.18s;
+}
+
 .lightbox-content {
     display: flex;
     flex-direction: column;

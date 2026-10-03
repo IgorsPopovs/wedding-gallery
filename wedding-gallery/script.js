@@ -31,6 +31,7 @@ let downloadSizeRequestId = 0;
 let shareStatusTimeout = null;
 let isLoadingBatch = false;
 let loadMoreObserver = null;
+let swipeCloseTimeout = null;
 const shareImagePromises = new Map();
 
 async function init() {
@@ -572,6 +573,12 @@ function openLightbox(index) {
 
     currentIndex = index;
 
+    if (swipeCloseTimeout) {
+        clearTimeout(swipeCloseTimeout);
+        swipeCloseTimeout = null;
+    }
+    lightbox.classList.remove("swipe-closing");
+
     const filename =
         photos[currentIndex];
 
@@ -617,6 +624,12 @@ async function closeLightbox() {
     if (!lightbox) {
         return;
     }
+
+    if (swipeCloseTimeout) {
+        clearTimeout(swipeCloseTimeout);
+        swipeCloseTimeout = null;
+    }
+    lightbox.classList.remove("swipe-closing");
 
     lightbox.classList.remove(
         "active"
@@ -836,6 +849,12 @@ if (lightbox) {
     lightbox.addEventListener(
         "touchstart",
         function (event) {
+            if (lightbox.classList.contains("swipe-closing")) {
+                touchStartX = null;
+                touchStartY = null;
+                return;
+            }
+
             if (event.touches.length !== 1) {
                 touchStartX = null;
                 touchStartY = null;
@@ -871,7 +890,11 @@ if (lightbox) {
                 verticalDifference < -80 &&
                 -verticalDifference > Math.abs(difference)
             ) {
-                closeLightbox();
+                lightbox.classList.add("swipe-closing");
+                swipeCloseTimeout = setTimeout(function () {
+                    swipeCloseTimeout = null;
+                    closeLightbox();
+                }, 180);
                 return;
             }
 
