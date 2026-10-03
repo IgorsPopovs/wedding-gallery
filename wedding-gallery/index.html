@@ -52,6 +52,19 @@
         </button>
     </div>
 
+    <section class="guest-filter-section" aria-label="Фильтр по гостям">
+        <div class="guest-filter-heading">
+            <h2>Гости</h2>
+            <button id="clear-guest-filters" class="clear-guest-filters" type="button" hidden>
+                Сбросить
+            </button>
+        </div>
+        <div id="guest-filters" class="guest-filters" role="group" aria-label="Выбрать гостей"></div>
+        <p id="guest-filter-summary" class="guest-filter-summary" aria-live="polite">
+            Выбери гостя, чтобы найти фотографии
+        </p>
+    </section>
+
     <main id="moments">
         <section
                 id="gallery"
@@ -131,6 +144,19 @@
                     </span>
                 </a>
             </div>
+
+            <details id="photo-people-editor" class="photo-people-editor" hidden>
+                <summary>Отметить людей на этом фото</summary>
+                <label class="photo-people-search-label">
+                    <span class="visually-hidden">Найти гостя</span>
+                    <input id="photo-people-search" type="search" placeholder="Найти гостя">
+                </label>
+                <div id="photo-people-choices" class="photo-people-choices" role="group" aria-label="Люди на фотографии"></div>
+                <div class="photo-people-save-row">
+                    <button id="save-photo-people" class="photo-people-save" type="button">Сохранить отметки</button>
+                    <span id="photo-people-status" role="status" aria-live="polite"></span>
+                </div>
+            </details>
         </div>
     </div>
 

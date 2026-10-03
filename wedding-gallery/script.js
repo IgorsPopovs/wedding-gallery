@@ -2,12 +2,55 @@ const PHOTO_BASE_URL = "https://photos.aligor.us";
 const GALLERY_BASE_PATH = "/wedding-gallery";
 const BATCH_SIZE = 48;
 const FAVORITES_STORAGE_KEY = "wedding-gallery-favorites-v1";
+const PEOPLE = [
+    { id: "kristaps-kalns", name: "Kristaps Kalns" },
+    { id: "alexander-farbtukh", name: "Александр Фарбтух" },
+    { id: "alexandra-farbtukh", name: "Александра Фарбтух" },
+    { id: "alina-maf", name: "Алина Маф" },
+    { id: "zhenya", name: "Женя" },
+    { id: "alina-saf", name: "Алина Саф" },
+    { id: "valentin", name: "Валентин" },
+    { id: "artem", name: "Артем" },
+    { id: "anzhela", name: "Анжела" },
+    { id: "artur", name: "Артур" },
+    { id: "babushka-larisa", name: "Бабушка Лариса" },
+    { id: "babushka-valentina", name: "Бабушка Валентина" },
+    { id: "valeriy-farbtukh", name: "Валерий Фарбтух" },
+    { id: "alexandra-romanovskaya", name: "Александра Романовская" },
+    { id: "daniel-danika", name: "Даниель" },
+    { id: "darya-danika", name: "Дарья Даника" },
+    { id: "diana", name: "Диана" },
+    { id: "alexey", name: "Алексей" },
+    { id: "dmitry-leonov", name: "Дмитрий Леонов" },
+    { id: "dasha-leonova", name: "Даша Леонова" },
+    { id: "kristina-mogilevtseva", name: "Кристина Могилевцева" },
+    { id: "leonid", name: "Леонид" },
+    { id: "max", name: "Макс" },
+    { id: "valeria", name: "Валерия" },
+    { id: "mom-natalia-u", name: "Мама Наталья У" },
+    { id: "mom-natalia-p", name: "Мама Наталья П" },
+    { id: "olya", name: "Оля" },
+    { id: "misha", name: "Миша" },
+    { id: "papa", name: "Папа" },
+    { id: "kristina-papa", name: "Кристина папы" },
+    { id: "tatyana", name: "Татьяна" },
+    { id: "vladimir", name: "Владимир" },
+    { id: "filipp", name: "Филипп" },
+    { id: "kristina-filipp", name: "Кристина Филиппа" },
+    { id: "eduard", name: "Эдуард" },
+    { id: "alexandra-leonova", name: "Александра Леонова" },
+    { id: "igor-zorya-groom", name: "Игорь Зоря (жених)" },
+    { id: "alina-zorya-bride", name: "Алина Зоря (невеста)" }
+];
 
 const gallery = document.getElementById("gallery");
 const galleryLoading = document.getElementById("gallery-loading");
 const galleryPhotoCount = document.getElementById("gallery-photo-count");
 const favoritesToggle = document.getElementById("favorites-toggle");
 const favoritesCount = document.getElementById("favorites-count");
+const guestFilters = document.getElementById("guest-filters");
+const clearGuestFilters = document.getElementById("clear-guest-filters");
+const guestFilterSummary = document.getElementById("guest-filter-summary");
 
 const lightbox = document.getElementById("lightbox");
 const lightboxImage = document.getElementById("lightbox-image");
@@ -26,11 +69,19 @@ const shareButton = document.getElementById("share-photo");
 const lightboxFavoriteButton = document.getElementById("lightbox-favorite");
 const deletePhotoButton = document.getElementById("delete-photo");
 const shareStatus = document.getElementById("share-status");
+const photoPeopleEditor = document.getElementById("photo-people-editor");
+const photoPeopleSearch = document.getElementById("photo-people-search");
+const photoPeopleChoices = document.getElementById("photo-people-choices");
+const savePhotoPeopleButton = document.getElementById("save-photo-people");
+const photoPeopleStatus = document.getElementById("photo-people-status");
 
 const currentPhoto = document.getElementById("current-photo");
 const totalPhotos = document.getElementById("total-photos");
 
 let photos = [];
+let photoTags = {};
+let selectedPeople = new Set();
+let editablePhotoPeople = new Set();
 let favoritePhotos = loadFavoritePhotos();
 let visiblePhotoIndices = [];
 let favoritesOnly = false;
@@ -102,6 +153,17 @@ async function init() {
         }
 
         photos = data;
+        try {
+            const tagsResponse = await fetch(GALLERY_BASE_PATH + "/api/photo-tags", { cache: "no-store" });
+            if (tagsResponse.ok) {
+                const tags = await tagsResponse.json();
+                if (tags && typeof tags === "object" && !Array.isArray(tags)) photoTags = tags;
+            }
+        } catch (error) {
+            console.warn("Could not load guest photo tags", error);
+        }
+        renderGuestFilters();
+        if (photoPeopleEditor) photoPeopleEditor.hidden = !adminMode;
         favoritePhotos = new Set(
             [...favoritePhotos].filter(function (filename) {
                 return photos.includes(filename);
@@ -157,11 +219,114 @@ function loadFavoritePhotos() {
 function getVisiblePhotoIndices() {
     const indices = [];
     for (let index = 0; index < photos.length; index++) {
-        if (!favoritesOnly || favoritePhotos.has(photos[index])) {
+        const tags = photoTags[photos[index]] || [];
+        const matchesPeople = selectedPeople.size === 0 ||
+            [...selectedPeople].some(function (id) { return tags.includes(id); });
+        if ((!favoritesOnly || favoritePhotos.has(photos[index])) && matchesPeople) {
             indices.push(index);
         }
     }
     return indices;
+}
+
+function renderGuestFilters() {
+    if (!guestFilters) return;
+    guestFilters.replaceChildren();
+    PEOPLE.forEach(function (person) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "guest-filter";
+        button.textContent = person.name;
+        button.setAttribute("aria-pressed", String(selectedPeople.has(person.id)));
+        button.addEventListener("click", function () {
+            if (selectedPeople.has(person.id)) selectedPeople.delete(person.id);
+            else selectedPeople.add(person.id);
+            renderGuestFilters();
+            renderGalleryFromStart();
+        });
+        guestFilters.append(button);
+    });
+    if (clearGuestFilters) clearGuestFilters.hidden = selectedPeople.size === 0;
+    if (guestFilterSummary) {
+        const count = getVisiblePhotoIndices().length;
+        guestFilterSummary.textContent = selectedPeople.size
+            ? count.toLocaleString("ru-RU") + " фотографий с выбранными гостями"
+            : "Выбери гостя, чтобы найти фотографии";
+    }
+}
+
+function renderPhotoPeopleChoices() {
+    if (!photoPeopleChoices) return;
+    const query = (photoPeopleSearch?.value || "").trim().toLocaleLowerCase("ru");
+    photoPeopleChoices.replaceChildren();
+    PEOPLE.filter(function (person) {
+        return !query || person.name.toLocaleLowerCase("ru").includes(query);
+    }).forEach(function (person) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "photo-person-choice";
+        button.textContent = person.name;
+        button.setAttribute("aria-pressed", String(editablePhotoPeople.has(person.id)));
+        button.addEventListener("click", function () {
+            if (editablePhotoPeople.has(person.id)) editablePhotoPeople.delete(person.id);
+            else editablePhotoPeople.add(person.id);
+            renderPhotoPeopleChoices();
+        });
+        photoPeopleChoices.append(button);
+    });
+}
+
+function preparePhotoPeopleEditor() {
+    if (!photoPeopleEditor || !adminMode) return;
+    editablePhotoPeople = new Set(photoTags[photos[currentIndex]] || []);
+    if (photoPeopleStatus) photoPeopleStatus.textContent = "";
+    renderPhotoPeopleChoices();
+}
+
+async function savePhotoPeople() {
+    const filename = photos[currentIndex];
+    if (!filename || !adminMode) return;
+    const token = getAdminToken("отметки гостей");
+    if (!token) return;
+    savePhotoPeopleButton.disabled = true;
+    if (photoPeopleStatus) photoPeopleStatus.textContent = "Сохраняем…";
+    try {
+        const response = await fetch(GALLERY_BASE_PATH + "/api/photo-tags?filename=" + encodeURIComponent(filename), {
+            method: "PUT",
+            headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+            body: JSON.stringify({ personIds: [...editablePhotoPeople] })
+        });
+        if (response.status === 401) {
+            sessionStorage.removeItem("wedding-gallery-admin-token");
+            if (photoPeopleStatus) photoPeopleStatus.textContent = "Токен не принят. Обновите страницу и попробуйте снова.";
+            return;
+        }
+        if (response.status === 503) {
+            if (photoPeopleStatus) photoPeopleStatus.textContent = "Не настроен GALLERY_ADMIN_TOKEN.";
+            return;
+        }
+        if (!response.ok) throw new Error("Save failed: " + response.status);
+        if (editablePhotoPeople.size) photoTags[filename] = [...editablePhotoPeople];
+        else delete photoTags[filename];
+        if (photoPeopleStatus) photoPeopleStatus.textContent = "Отметки сохранены";
+        renderGuestFilters();
+        await renderGalleryFromStart();
+    } catch (error) {
+        console.error(error);
+        if (photoPeopleStatus) photoPeopleStatus.textContent = "Не удалось сохранить отметки.";
+    } finally {
+        savePhotoPeopleButton.disabled = false;
+    }
+}
+
+function getAdminToken(action) {
+    let token = sessionStorage.getItem("wedding-gallery-admin-token");
+    if (!token) {
+        token = window.prompt("Введите временный токен администратора для " + action + ":");
+        if (!token) return null;
+        sessionStorage.setItem("wedding-gallery-admin-token", token);
+    }
+    return token;
 }
 
 function updateFavoritesControls() {
@@ -256,14 +421,8 @@ async function deleteCurrentPhoto() {
         return;
     }
 
-    let token = sessionStorage.getItem("wedding-gallery-admin-token");
-    if (!token) {
-        token = window.prompt("Введите временный токен администратора для удаления:");
-        if (!token) {
-            return;
-        }
-        sessionStorage.setItem("wedding-gallery-admin-token", token);
-    }
+    const token = getAdminToken("удаления");
+    if (!token) return;
 
     try {
         const response = await fetch(
@@ -291,8 +450,10 @@ async function deleteCurrentPhoto() {
         photos = photos.filter(function (photo) {
             return photo !== filename;
         });
+        delete photoTags[filename];
         favoritePhotos.delete(filename);
         saveFavoritePhotos();
+        renderGuestFilters();
         updateFavoritesControls();
         await renderGalleryFromStart();
         showShareStatus("Фото и обе версии удалены");
@@ -316,7 +477,9 @@ async function renderGalleryFromStart() {
 
     if (visiblePhotoIndices.length === 0) {
         setLoadingText(
-            favoritesOnly
+            selectedPeople.size
+                ? "Для выбранных гостей пока нет отмеченных фотографий."
+                : favoritesOnly
                 ? "Пока нет избранных фотографий. Нажмите на сердечко у понравившегося кадра."
                 : "Фотографии скоро появятся."
         );
@@ -981,6 +1144,7 @@ function openLightbox(index) {
 
     currentIndex = index;
     updateFavoritesControls();
+    preparePhotoPeopleEditor();
 
     if (swipeCloseTimeout) {
         clearTimeout(swipeCloseTimeout);
@@ -989,7 +1153,7 @@ function openLightbox(index) {
     clearSwipeVisual();
 
     const filename =
-        photos[currentIndex];
+    photos[currentIndex];
 
     loadLightboxImage(filename);
 
@@ -1089,6 +1253,8 @@ async function closeLightbox() {
 function updateLightboxImage() {
     const filename =
         photos[currentIndex];
+
+    preparePhotoPeopleEditor();
 
     loadLightboxImage(filename);
     updateFavoritesControls();
@@ -1211,6 +1377,17 @@ if (favoritesToggle) {
         renderGalleryFromStart();
     });
 }
+
+if (clearGuestFilters) {
+    clearGuestFilters.addEventListener("click", function () {
+        selectedPeople.clear();
+        renderGuestFilters();
+        renderGalleryFromStart();
+    });
+}
+
+if (photoPeopleSearch) photoPeopleSearch.addEventListener("input", renderPhotoPeopleChoices);
+if (savePhotoPeopleButton) savePhotoPeopleButton.addEventListener("click", savePhotoPeople);
 
 if (lightboxFavoriteButton) {
     lightboxFavoriteButton.addEventListener("click", function () {
