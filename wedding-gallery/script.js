@@ -3,6 +3,8 @@ const GALLERY_BASE_PATH = "/wedding-gallery";
 const BATCH_SIZE = 48;
 const FAVORITES_STORAGE_KEY = "wedding-gallery-favorites-v1";
 const PEOPLE = [
+    { id: "igor-zorya-groom", name: "Игорь Зоря (жених)" },
+    { id: "alina-zorya-bride", name: "Алина Зоря (невеста)" },
     { id: "kristaps-kalns", name: "Kristaps Kalns" },
     { id: "alexander-farbtukh", name: "Александр Фарбтух" },
     { id: "alexandra-farbtukh", name: "Александра Фарбтух" },
@@ -38,9 +40,7 @@ const PEOPLE = [
     { id: "filipp", name: "Филипп" },
     { id: "kristina-filipp", name: "Кристина Филиппа" },
     { id: "eduard", name: "Эдуард" },
-    { id: "alexandra-leonova", name: "Александра Леонова" },
-    { id: "igor-zorya-groom", name: "Игорь Зоря (жених)" },
-    { id: "alina-zorya-bride", name: "Алина Зоря (невеста)" }
+    { id: "alexandra-leonova", name: "Александра Леонова" }
 ];
 
 const gallery = document.getElementById("gallery");
