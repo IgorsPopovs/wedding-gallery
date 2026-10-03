@@ -93,11 +93,12 @@ let downloadSizeRequestId = 0;
 let shareStatusTimeout = null;
 let isLoadingBatch = false;
 let loadMoreObserver = null;
-let scrollReadinessObserver = null;
-let touchScrollPoint = null;
+let isWaitingForMorePhotos = false;
+let isFinishingGalleryVersion = null;
+let galleryRenderVersion = 0;
+let cancelPendingImageWait = null;
 let swipeCloseTimeout = null;
 const shareImagePromises = new Map();
-const nearbyLoadingImages = new Set();
 
 if (deletePhotoButton && adminMode) {
     deletePhotoButton.hidden = false;
@@ -186,7 +187,6 @@ async function init() {
             return;
         }
 
-        setupScrollPacing();
         await renderNextBatch();
         setupLoadMoreObserver();
         openSharedPhoto();
@@ -469,11 +469,13 @@ async function renderGalleryFromStart() {
         return;
     }
 
+    galleryRenderVersion += 1;
+    cancelPendingImageWait?.();
+    isWaitingForMorePhotos = false;
+    isFinishingGalleryVersion = null;
     if (loadMoreObserver) {
         loadMoreObserver.disconnect();
     }
-    scrollReadinessObserver?.disconnect();
-    nearbyLoadingImages.clear();
     gallery.replaceChildren();
     if (galleryLoading) galleryLoading.style.display = "";
     renderedCount = 0;
@@ -856,14 +858,15 @@ async function renderNextBatch() {
     isLoadingBatch = false;
 
     if (renderedCount >= visiblePhotoIndices.length) {
-        finishLoading();
+        setLoadingText("Загружаем последние фотографии…");
+        observeGalleryLoader();
     } else {
         setLoadingText(
             favoritesOnly
-                ? "Листайте дальше — в избранном есть ещё фотографии."
-                : "Листайте дальше — впереди ещё фотографии."
+                ? "Дальше — ещё избранные фотографии."
+                : "Дальше — ещё фотографии."
         );
-        observeLastPhoto();
+        observeGalleryLoader();
     }
 }
 
@@ -915,13 +918,7 @@ function createPhotoCard(filename, index) {
     image.addEventListener("load", function () {
         favoriteButton.hidden = false;
         if (guestTagIndicator) guestTagIndicator.hidden = false;
-        nearbyLoadingImages.delete(image);
         updateMasonryCard(card);
-        updateScrollPacingStatus();
-    });
-    image.addEventListener("error", function () {
-        nearbyLoadingImages.delete(image);
-        updateScrollPacingStatus();
     });
 
     card.addEventListener(
@@ -935,7 +932,6 @@ function createPhotoCard(filename, index) {
     if (guestTagIndicator) card.appendChild(guestTagIndicator);
     card.appendChild(favoriteButton);
     image.src = getSmallUrl(filename);
-    scrollReadinessObserver?.observe(image);
 
     return card;
 }
@@ -963,145 +959,6 @@ window.addEventListener("resize", function () {
     gallery.querySelectorAll(".photo-card").forEach(updateMasonryCard);
 });
 
-function setupScrollPacing() {
-    if (!gallery) {
-        return;
-    }
-
-    if ("IntersectionObserver" in window) {
-        scrollReadinessObserver = new IntersectionObserver(
-            function (entries) {
-                for (const entry of entries) {
-                    if (entry.isIntersecting && !entry.target.complete) {
-                        nearbyLoadingImages.add(entry.target);
-                    } else {
-                        nearbyLoadingImages.delete(entry.target);
-                    }
-                }
-                updateScrollPacingStatus();
-            },
-            {
-                rootMargin: "0px 0px 100% 0px",
-                threshold: 0
-            }
-        );
-    }
-
-    window.addEventListener("wheel", paceGalleryWheel, { passive: false });
-    window.addEventListener("scroll", enforceGalleryScrollLimit, { passive: true });
-    document.addEventListener("touchstart", rememberTouchScrollPoint, { passive: true });
-    document.addEventListener("touchmove", paceGalleryTouch, { passive: false });
-    document.addEventListener("touchend", clearTouchScrollPoint, { passive: true });
-    document.addEventListener("touchcancel", clearTouchScrollPoint, { passive: true });
-}
-
-function getGalleryScrollLimitY() {
-    if (!gallery) return Infinity;
-
-    const firstPendingImage = [...gallery.querySelectorAll(".thumbnail")].find(function (image) {
-        return !image.complete;
-    });
-    if (firstPendingImage) {
-        const imageTop = firstPendingImage.getBoundingClientRect().top + window.scrollY;
-        return Math.max(0, imageTop - window.innerHeight * 0.72);
-    }
-
-    if (renderedCount < visiblePhotoIndices.length) {
-        const lastCard = gallery.lastElementChild;
-        if (lastCard) {
-            const cardBottom = lastCard.getBoundingClientRect().bottom + window.scrollY;
-            return Math.max(0, cardBottom - window.innerHeight * 0.8);
-        }
-    }
-
-    return Infinity;
-}
-
-function enforceGalleryScrollLimit() {
-    if (lightbox?.classList.contains("active")) return;
-    const limit = getGalleryScrollLimitY();
-    if (window.scrollY > limit + 2) {
-        scrollPageImmediately(limit - window.scrollY);
-    }
-}
-
-function updateScrollPacingStatus() {
-    if (!galleryLoading || galleryLoading.classList.contains("empty")) return;
-    if (nearbyLoadingImages.size) {
-        galleryLoading.style.display = "flex";
-        setLoadingText("Загружаем фотографии перед прокруткой…");
-    } else if (renderedCount < visiblePhotoIndices.length) {
-        galleryLoading.style.display = "flex";
-        setLoadingText(favoritesOnly
-            ? "Листайте дальше — в избранном есть ещё фотографии."
-            : "Листайте дальше — впереди ещё фотографии.");
-    } else {
-        galleryLoading.style.display = "none";
-    }
-}
-
-function paceGalleryWheel(event) {
-    if (event.deltaY <= 0 || event.ctrlKey || lightbox?.classList.contains("active")) {
-        return;
-    }
-
-    const limit = getGalleryScrollLimitY();
-    const remaining = limit - window.scrollY;
-    if (event.deltaY <= remaining) {
-        return;
-    }
-
-    if (event.cancelable) event.preventDefault();
-    if (remaining > 0) scrollPageImmediately(remaining);
-}
-
-function rememberTouchScrollPoint(event) {
-    if (event.touches.length !== 1 || lightbox?.classList.contains("active")) {
-        touchScrollPoint = null;
-        return;
-    }
-
-    const touch = event.touches[0];
-    touchScrollPoint = { x: touch.clientX, y: touch.clientY };
-}
-
-function paceGalleryTouch(event) {
-    if (event.touches.length !== 1 || !touchScrollPoint || lightbox?.classList.contains("active")) {
-        touchScrollPoint = null;
-        return;
-    }
-
-    const touch = event.touches[0];
-    const deltaY = touchScrollPoint.y - touch.clientY;
-    const deltaX = touchScrollPoint.x - touch.clientX;
-    touchScrollPoint = { x: touch.clientX, y: touch.clientY };
-
-    if (deltaY <= 0 || Math.abs(deltaY) <= Math.abs(deltaX)) {
-        return;
-    }
-
-    const limit = getGalleryScrollLimitY();
-    const remaining = limit - window.scrollY;
-    if (deltaY <= remaining) {
-        return;
-    }
-
-    if (event.cancelable) event.preventDefault();
-    if (remaining > 0) scrollPageImmediately(remaining);
-}
-
-function clearTouchScrollPoint() {
-    touchScrollPoint = null;
-}
-
-function scrollPageImmediately(distance) {
-    const root = document.documentElement;
-    const previousBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = "auto";
-    window.scrollTo(0, window.scrollY + distance);
-    root.style.scrollBehavior = previousBehavior;
-}
-
 function setupLoadMoreObserver() {
     if (
         !("IntersectionObserver" in window)
@@ -1113,57 +970,86 @@ function setupLoadMoreObserver() {
         new IntersectionObserver(
             function (entries) {
                 for (const entry of entries) {
-                    if (
-                        entry.isIntersecting &&
-                        renderedCount < visiblePhotoIndices.length
-                    ) {
-                        loadMorePhotos();
+                    if (entry.isIntersecting) {
+                        if (renderedCount < visiblePhotoIndices.length) {
+                            loadMorePhotos();
+                        } else {
+                            finishLoading();
+                        }
                     }
                 }
             },
             {
                 root: null,
-                rootMargin: "1200px 0px",
+                rootMargin: "0px",
                 threshold: 0
             }
         );
 
-    observeLastPhoto();
+    observeGalleryLoader();
 }
 
-function observeLastPhoto() {
+function observeGalleryLoader() {
     if (
         !loadMoreObserver ||
-        !gallery
+        !galleryLoading
     ) {
         return;
     }
 
-    const cards =
-        gallery.querySelectorAll(
-            ".photo-card"
-        );
-
-    if (cards.length === 0) {
-        return;
-    }
-
-    const lastCard =
-        cards[cards.length - 1];
-
     loadMoreObserver.disconnect();
-
-    loadMoreObserver.observe(
-        lastCard
-    );
+    loadMoreObserver.observe(galleryLoading);
 }
 
 async function loadMorePhotos() {
-    if (isLoadingBatch) {
-        return;
-    }
+    if (isLoadingBatch || isWaitingForMorePhotos) return;
 
-    await renderNextBatch();
+    isWaitingForMorePhotos = true;
+    const renderVersion = galleryRenderVersion;
+    setLoadingText("Загружаем фотографии…");
+    try {
+        await waitForGalleryImages();
+        if (renderVersion === galleryRenderVersion) {
+            await renderNextBatch();
+        }
+    } finally {
+        if (renderVersion === galleryRenderVersion) {
+            isWaitingForMorePhotos = false;
+        }
+    }
+}
+
+function waitForGalleryImages() {
+    if (!gallery) return Promise.resolve();
+
+    const pendingImages = [...gallery.querySelectorAll(".thumbnail")].filter(function (image) {
+        return !image.complete;
+    });
+    if (pendingImages.length === 0) return Promise.resolve();
+
+    return new Promise(function (resolve) {
+        let resolved = false;
+        function finishIfReady() {
+            if (resolved || !pendingImages.every(function (image) { return image.complete; })) return;
+            resolved = true;
+            cancelPendingImageWait = null;
+            resolve();
+        }
+
+        cancelPendingImageWait = function () {
+            if (resolved) return;
+            resolved = true;
+            cancelPendingImageWait = null;
+            resolve();
+        };
+
+        pendingImages.forEach(function (image) {
+            image.addEventListener("load", finishIfReady, { once: true });
+            image.addEventListener("error", finishIfReady, { once: true });
+            image.loading = "eager";
+        });
+        finishIfReady();
+    });
 }
 
 function setLoadingText(text) {
@@ -1182,12 +1068,23 @@ function setLoadingText(text) {
     galleryLoading.style.display = "";
 }
 
-function finishLoading() {
-    if (loadMoreObserver) {
-        loadMoreObserver.disconnect();
+async function finishLoading() {
+    const renderVersion = galleryRenderVersion;
+    if (isFinishingGalleryVersion === renderVersion) return;
+    isFinishingGalleryVersion = renderVersion;
+    loadMoreObserver?.disconnect();
+    setLoadingText("Загружаем последние фотографии…");
+    try {
+        await waitForGalleryImages();
+        if (renderVersion === galleryRenderVersion && galleryLoading) {
+            galleryLoading.style.display = "none";
+            galleryLoading.classList.remove("empty");
+        }
+    } finally {
+        if (isFinishingGalleryVersion === renderVersion) {
+            isFinishingGalleryVersion = null;
+        }
     }
-    galleryLoading?.classList.remove("empty");
-    updateScrollPacingStatus();
 }
 
 function openLightbox(index) {
