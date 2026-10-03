@@ -94,6 +94,7 @@ const guestPhotosJump = document.getElementById("guest-photos-jump");
 const clearGuestFilters = document.getElementById("clear-guest-filters");
 const guestFilterSummary = document.getElementById("guest-filter-summary");
 let guestFiltersExpanded = false;
+let guestFiltersOpenAnimationTimer = null;
 const untaggedPhotosToggle = document.getElementById("untagged-photos-toggle");
 
 const lightbox = document.getElementById("lightbox");
@@ -326,6 +327,20 @@ function getGuestPhotoCounts() {
     return counts;
 }
 
+function expandGuestFilters() {
+    if (guestFiltersExpanded) return;
+    guestFiltersExpanded = true;
+    guestFilters?.classList.add("is-opening");
+    window.clearTimeout(guestFiltersOpenAnimationTimer);
+    guestFiltersOpenAnimationTimer = window.setTimeout(function () {
+        guestFilters?.classList.remove("is-opening");
+        guestFilters?.querySelectorAll(".guest-filter").forEach(function (button) {
+            button.style.removeProperty("animation-delay");
+        });
+    }, 1200);
+    renderGuestFilters();
+}
+
 function renderGuestFilters() {
     if (!guestFilters) return;
     guestFilters.classList.toggle("is-collapsed", !guestFiltersExpanded);
@@ -368,8 +383,7 @@ function renderGuestFilters() {
             button.append(name);
             button.addEventListener("click", function () {
                 if (!guestFiltersExpanded) {
-                    guestFiltersExpanded = true;
-                    renderGuestFilters();
+                    expandGuestFilters();
                     return;
                 }
                 if (selectedPeople.has(person.id)) selectedPeople.delete(person.id);
@@ -380,6 +394,9 @@ function renderGuestFilters() {
             });
         }
         if (!guestFiltersExpanded) button.style.zIndex = String(index + 1);
+        if (guestFilters.classList.contains("is-opening")) {
+            button.style.animationDelay = Math.min(index * 24, 500) + "ms";
+        }
         button.setAttribute("aria-pressed", String(selectedPeople.has(person.id)));
         if (adminMode || selectedPeople.has(person.id)) {
             let count = button.querySelector(".guest-filter-count");
@@ -406,8 +423,7 @@ function renderGuestFilters() {
             expand.setAttribute("aria-label", "Показать всех гостей");
             expand.setAttribute("aria-expanded", "false");
             expand.addEventListener("click", function () {
-                guestFiltersExpanded = true;
-                renderGuestFilters();
+                expandGuestFilters();
             });
         }
         expand.textContent = "+" + (PEOPLE.length - visiblePeople.length);
@@ -425,6 +441,11 @@ function renderGuestFilters() {
     if (guestFiltersCollapse) {
         guestFiltersCollapse.onclick = function () {
             guestFiltersExpanded = false;
+            guestFilters?.classList.remove("is-opening");
+            window.clearTimeout(guestFiltersOpenAnimationTimer);
+            guestFilters?.querySelectorAll(".guest-filter").forEach(function (button) {
+                button.style.removeProperty("animation-delay");
+            });
             renderGuestFilters();
         };
     }
