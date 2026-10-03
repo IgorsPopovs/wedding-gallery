@@ -72,6 +72,7 @@ const deletePhotoButton = document.getElementById("delete-photo");
 const shareStatus = document.getElementById("share-status");
 const photoPeopleEditor = document.getElementById("photo-people-editor");
 const photoPeopleBackdrop = document.querySelector(".photo-people-backdrop");
+const photoPeoplePopup = document.querySelector(".photo-people-popup");
 const photoPeopleSearch = document.getElementById("photo-people-search");
 const photoPeopleChoices = document.getElementById("photo-people-choices");
 const savePhotoPeopleButton = document.getElementById("save-photo-people");
@@ -312,6 +313,7 @@ function renderPhotoPeopleChoices() {
 
 function preparePhotoPeopleEditor() {
     if (!photoPeopleEditor || !adminMode) return;
+    photoPeoplePopup?.classList.remove("is-saved");
     editablePhotoPeople = new Set(photoTags[photos[currentIndex]] || []);
     if (photoPeopleStatus) photoPeopleStatus.textContent = "";
     renderPhotoPeopleChoices();
@@ -342,9 +344,17 @@ async function savePhotoPeople() {
         if (!response.ok) throw new Error("Save failed: " + response.status);
         if (editablePhotoPeople.size) photoTags[filename] = [...editablePhotoPeople];
         else delete photoTags[filename];
-        if (photoPeopleStatus) photoPeopleStatus.textContent = "Отметки сохранены";
+        if (photoPeopleStatus) photoPeopleStatus.textContent = "Сохранено ✓";
+        if (photoPeoplePopup) {
+            photoPeoplePopup.classList.remove("is-saved");
+            void photoPeoplePopup.offsetWidth;
+            photoPeoplePopup.classList.add("is-saved");
+        }
         renderGuestFilters();
         await renderGalleryFromStart();
+        await new Promise(function (resolve) { window.setTimeout(resolve, 420); });
+        if (photoPeopleEditor) photoPeopleEditor.open = false;
+        photoPeoplePopup?.classList.remove("is-saved");
     } catch (error) {
         console.error(error);
         if (photoPeopleStatus) photoPeopleStatus.textContent = "Не удалось сохранить отметки.";
