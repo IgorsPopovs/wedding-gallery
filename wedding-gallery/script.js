@@ -180,10 +180,7 @@ async function init() {
         if (totalPhotos) {
             totalPhotos.textContent = photos.length;
         }
-        if (galleryPhotoCount) {
-            galleryPhotoCount.textContent =
-                "Всего фотографий: " + photos.length.toLocaleString("ru-RU");
-        }
+        updateGalleryPhotoCount();
 
         if (photos.length === 0) {
             setLoadingText("Фотографии скоро появятся.");
@@ -234,6 +231,16 @@ function getVisiblePhotoIndices() {
     return indices;
 }
 
+function updateGalleryPhotoCount() {
+    if (!galleryPhotoCount) return;
+
+    const formattedTotal = photos.length.toLocaleString("ru-RU");
+    const hasActiveFilter = selectedPeople.size > 0 || favoritesOnly || untaggedPhotosOnly;
+    galleryPhotoCount.textContent = hasActiveFilter
+        ? "Фотографий: " + getVisiblePhotoIndices().length.toLocaleString("ru-RU") + " из " + formattedTotal
+        : "Всего фотографий: " + formattedTotal;
+}
+
 function renderGuestFilters() {
     if (!guestFilters) return;
     guestFilters.replaceChildren();
@@ -264,6 +271,7 @@ function renderGuestFilters() {
             ? count.toLocaleString("ru-RU") + " фотографий с выбранными гостями"
             : "Выбери гостя, чтобы найти фотографии";
     }
+    updateGalleryPhotoCount();
 }
 
 function renderPhotoPeopleChoices() {
@@ -351,6 +359,7 @@ function updateFavoritesControls() {
             favoritesOnly ? "Показать все фотографии" : "Показать избранные фотографии"
         );
     }
+    updateGalleryPhotoCount();
     if (lightboxFavoriteButton && photos[currentIndex]) {
         const isFavorite = favoritePhotos.has(photos[currentIndex]);
         lightboxFavoriteButton.setAttribute("aria-pressed", String(isFavorite));
@@ -490,6 +499,7 @@ async function renderGalleryFromStart() {
     if (galleryLoading) galleryLoading.style.display = "";
     renderedCount = 0;
     visiblePhotoIndices = getVisiblePhotoIndices();
+    updateGalleryPhotoCount();
 
     if (visiblePhotoIndices.length === 0) {
         setLoadingText(
