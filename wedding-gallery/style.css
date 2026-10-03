@@ -77,11 +77,11 @@ a {
 
 .gallery-header h1 {
     margin: 20px 0 9px;
-    font-family: "Parisienne", cursive;
-    font-size: clamp(72px, 10vw, 128px);
+    font-family: "Bodoni Moda", Georgia, serif;
+    font-size: clamp(72px, 10vw, 120px);
     font-weight: 400;
     line-height: 1.05;
-    letter-spacing: 0;
+    letter-spacing: -0.025em;
 }
 
 .gallery-header h1 span {
@@ -544,7 +544,7 @@ a {
 
     .gallery-header h1 {
         margin-top: 17px;
-        font-size: clamp(64px, 16vw, 90px);
+        font-size: clamp(50px, 13vw, 72px);
     }
 
     .wedding-date {
