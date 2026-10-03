@@ -90,6 +90,7 @@ const favoritesToggle = document.getElementById("favorites-toggle");
 const favoritesCount = document.getElementById("favorites-count");
 const guestFilters = document.getElementById("guest-filters");
 const guestFiltersCollapse = document.getElementById("guest-filters-collapse");
+const guestPhotosJump = document.getElementById("guest-photos-jump");
 const clearGuestFilters = document.getElementById("clear-guest-filters");
 const guestFilterSummary = document.getElementById("guest-filter-summary");
 let guestFiltersExpanded = false;
@@ -283,6 +284,22 @@ function updateGalleryPhotoCount() {
         : "Всего фотографий: " + formattedTotal;
 }
 
+function updateGuestPhotosJump() {
+    if (!guestPhotosJump) return;
+    const firstPhoto = gallery?.querySelector(".photo-card");
+    const firstPhotoRect = firstPhoto?.getBoundingClientRect();
+    const firstPhotoIsBelowScreen = Boolean(firstPhotoRect && firstPhotoRect.top >= window.innerHeight);
+    guestPhotosJump.hidden = !(
+        guestFiltersExpanded && selectedPeople.size > 0 && visiblePhotoIndices.length > 0 && firstPhotoIsBelowScreen
+    );
+}
+
+guestPhotosJump?.addEventListener("click", function () {
+    gallery?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+window.addEventListener("scroll", updateGuestPhotosJump, { passive: true });
+window.addEventListener("resize", updateGuestPhotosJump);
+
 function getFavoriteCountForCurrentFilters() {
     return photos.reduce(function (count, filename) {
         if (!favoritePhotos.has(filename)) return count;
@@ -419,6 +436,7 @@ function renderGuestFilters() {
             : "Выбери гостя, чтобы найти фотографии";
     }
     updateGalleryPhotoCount();
+    updateGuestPhotosJump();
     if (favoritesCount) {
         favoritesCount.textContent = getFavoriteCountForCurrentFilters();
     }
@@ -710,6 +728,7 @@ async function renderGalleryFromStart() {
     renderedCount = 0;
     visiblePhotoIndices = getVisiblePhotoIndices();
     updateGalleryPhotoCount();
+    updateGuestPhotosJump();
 
     if (visiblePhotoIndices.length === 0) {
         setLoadingText(
@@ -1083,6 +1102,7 @@ async function renderNextBatch() {
 
     gallery.appendChild(fragment);
     batchCards.forEach(updateMasonryCard);
+    updateGuestPhotosJump();
 
     renderedCount = end;
     isLoadingBatch = false;
