@@ -55,8 +55,10 @@ const galleryPhotoCount = document.getElementById("gallery-photo-count");
 const favoritesToggle = document.getElementById("favorites-toggle");
 const favoritesCount = document.getElementById("favorites-count");
 const guestFilters = document.getElementById("guest-filters");
+const guestFiltersCollapse = document.getElementById("guest-filters-collapse");
 const clearGuestFilters = document.getElementById("clear-guest-filters");
 const guestFilterSummary = document.getElementById("guest-filter-summary");
+let guestFiltersExpanded = false;
 const untaggedPhotosToggle = document.getElementById("untagged-photos-toggle");
 
 const lightbox = document.getElementById("lightbox");
@@ -276,8 +278,14 @@ function getGuestPhotoCounts() {
 function renderGuestFilters() {
     if (!guestFilters) return;
     guestFilters.replaceChildren();
+    guestFilters.classList.toggle("is-collapsed", !guestFiltersExpanded);
+    if (guestFiltersCollapse) guestFiltersCollapse.hidden = !guestFiltersExpanded;
     const guestPhotoCounts = adminMode ? getGuestPhotoCounts() : null;
-    PEOPLE.forEach(function (person) {
+    const orderedPeople = [...PEOPLE].sort(function (a, b) {
+        return Number(selectedPeople.has(b.id)) - Number(selectedPeople.has(a.id));
+    });
+    const visiblePeople = guestFiltersExpanded ? orderedPeople : orderedPeople.slice(0, 3);
+    visiblePeople.forEach(function (person) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "guest-filter";
@@ -313,6 +321,25 @@ function renderGuestFilters() {
         });
         guestFilters.append(button);
     });
+    if (!guestFiltersExpanded && PEOPLE.length > visiblePeople.length) {
+        const expand = document.createElement("button");
+        expand.type = "button";
+        expand.className = "guest-filters-more";
+        expand.textContent = "+" + (PEOPLE.length - visiblePeople.length);
+        expand.setAttribute("aria-label", "Показать всех гостей");
+        expand.setAttribute("aria-expanded", "false");
+        expand.addEventListener("click", function () {
+            guestFiltersExpanded = true;
+            renderGuestFilters();
+        });
+        guestFilters.append(expand);
+    }
+    if (guestFiltersCollapse) {
+        guestFiltersCollapse.onclick = function () {
+            guestFiltersExpanded = false;
+            renderGuestFilters();
+        };
+    }
     if (untaggedPhotosToggle) {
         untaggedPhotosToggle.setAttribute("aria-pressed", String(untaggedPhotosOnly));
     }
