@@ -8,6 +8,7 @@ const GUEST_AVATARS = {
     "alina-saf": "images/guests/alina-saf.jpg",
     alexey: "images/guests/alexey.jpg",
     "alexandra-romanovskaya": "images/guests/alexandra-romanovskaya.jpg",
+    "alexandra-farbtukh": "images/guests/alexandra-farbtukh.jpg",
     anzhela: "images/guests/anzhela.jpg",
     artem: "images/guests/artem.jpg",
     artur: "images/guests/artur.jpg",
