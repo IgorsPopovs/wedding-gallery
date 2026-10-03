@@ -304,7 +304,7 @@ function renderGuestFilters() {
     guestFilters.classList.toggle("is-collapsed", !guestFiltersExpanded);
     guestFilters.classList.toggle("is-expanded", guestFiltersExpanded);
     if (guestFiltersCollapse) guestFiltersCollapse.hidden = !guestFiltersExpanded;
-    const guestPhotoCounts = adminMode ? getGuestPhotoCounts() : null;
+    const guestPhotoCounts = getGuestPhotoCounts();
     const orderedPeople = [...PEOPLE].sort(function (a, b) {
         const selectedDifference = Number(selectedPeople.has(b.id)) - Number(selectedPeople.has(a.id));
         if (selectedDifference) return selectedDifference;
@@ -335,7 +335,7 @@ function renderGuestFilters() {
         name.className = "guest-filter-name";
         name.textContent = person.name;
         button.append(name);
-        if (guestPhotoCounts) {
+        if (adminMode || selectedPeople.has(person.id)) {
             const count = document.createElement("span");
             count.className = "guest-filter-count";
             count.textContent = guestPhotoCounts.get(person.id).toLocaleString("ru-RU");
