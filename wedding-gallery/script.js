@@ -51,6 +51,7 @@ const favoritesCount = document.getElementById("favorites-count");
 const guestFilters = document.getElementById("guest-filters");
 const clearGuestFilters = document.getElementById("clear-guest-filters");
 const guestFilterSummary = document.getElementById("guest-filter-summary");
+const untaggedPhotosToggle = document.getElementById("untagged-photos-toggle");
 
 const lightbox = document.getElementById("lightbox");
 const lightboxImage = document.getElementById("lightbox-image");
@@ -86,6 +87,7 @@ let editablePhotoPeople = new Set();
 let favoritePhotos = loadFavoritePhotos();
 let visiblePhotoIndices = [];
 let favoritesOnly = false;
+let untaggedPhotosOnly = false;
 const adminMode = new URLSearchParams(window.location.search).get("admin") === "1";
 let renderedCount = 0;
 let currentIndex = 0;
@@ -165,6 +167,7 @@ async function init() {
             console.warn("Could not load guest photo tags", error);
         }
         renderGuestFilters();
+        if (untaggedPhotosToggle) untaggedPhotosToggle.hidden = !adminMode;
         if (photoPeopleEditor) photoPeopleEditor.hidden = !adminMode;
         favoritePhotos = new Set(
             [...favoritePhotos].filter(function (filename) {
@@ -223,7 +226,8 @@ function getVisiblePhotoIndices() {
         const tags = photoTags[photos[index]] || [];
         const matchesPeople = selectedPeople.size === 0 ||
             [...selectedPeople].some(function (id) { return tags.includes(id); });
-        if ((!favoritesOnly || favoritePhotos.has(photos[index])) && matchesPeople) {
+        const matchesUntagged = !untaggedPhotosOnly || tags.length === 0;
+        if ((!favoritesOnly || favoritePhotos.has(photos[index])) && matchesPeople && matchesUntagged) {
             indices.push(index);
         }
     }
@@ -242,15 +246,21 @@ function renderGuestFilters() {
         button.addEventListener("click", function () {
             if (selectedPeople.has(person.id)) selectedPeople.delete(person.id);
             else selectedPeople.add(person.id);
+            untaggedPhotosOnly = false;
             renderGuestFilters();
             renderGalleryFromStart();
         });
         guestFilters.append(button);
     });
-    if (clearGuestFilters) clearGuestFilters.hidden = selectedPeople.size === 0;
+    if (untaggedPhotosToggle) {
+        untaggedPhotosToggle.setAttribute("aria-pressed", String(untaggedPhotosOnly));
+    }
+    if (clearGuestFilters) clearGuestFilters.hidden = selectedPeople.size === 0 && !untaggedPhotosOnly;
     if (guestFilterSummary) {
         const count = getVisiblePhotoIndices().length;
-        guestFilterSummary.textContent = selectedPeople.size
+        guestFilterSummary.textContent = untaggedPhotosOnly
+            ? count.toLocaleString("ru-RU") + " фотографий без отметок гостей"
+            : selectedPeople.size
             ? count.toLocaleString("ru-RU") + " фотографий с выбранными гостями"
             : "Выбери гостя, чтобы найти фотографии";
     }
@@ -1337,6 +1347,16 @@ if (favoritesToggle) {
 if (clearGuestFilters) {
     clearGuestFilters.addEventListener("click", function () {
         selectedPeople.clear();
+        untaggedPhotosOnly = false;
+        renderGuestFilters();
+        renderGalleryFromStart();
+    });
+}
+
+if (untaggedPhotosToggle) {
+    untaggedPhotosToggle.addEventListener("click", function () {
+        untaggedPhotosOnly = !untaggedPhotosOnly;
+        if (untaggedPhotosOnly) selectedPeople.clear();
         renderGuestFilters();
         renderGalleryFromStart();
     });

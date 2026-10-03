@@ -168,6 +168,33 @@ a {
     cursor: pointer;
 }
 
+.untagged-photos-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    color: white;
+    background: var(--admin-blue);
+    border: 1px solid rgba(40, 107, 152, 0.6);
+    border-radius: 999px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.untagged-photos-toggle:hover {
+    background: var(--admin-blue-hover);
+}
+
+.untagged-photos-toggle[aria-pressed="true"] {
+    background: #174766;
+    box-shadow: 0 0 0 2px rgba(40, 107, 152, 0.2);
+}
+
+.untagged-photos-toggle[hidden] {
+    display: none;
+}
+
 .guest-filters {
     display: flex;
     gap: 10px;
