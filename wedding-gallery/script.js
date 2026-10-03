@@ -111,10 +111,12 @@ function showLightboxImage() {
 }
 
 function showLightboxImageError() {
-    if (lightboxImage) {
-        console.error("Не удалось загрузить фотографию:", lightboxImage.src);
-        lightboxImage.classList.remove("loaded");
+    if (!lightboxImage || !lightboxImage.getAttribute("src")) {
+        return;
     }
+
+    console.error("Не удалось загрузить фотографию:", lightboxImage.src);
+    lightboxImage.classList.remove("loaded");
 
     if (lightboxLoader) {
         lightboxLoader.classList.add("hidden");
