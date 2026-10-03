@@ -280,6 +280,27 @@ a {
     -webkit-tap-highlight-color: transparent;
 }
 
+.guest-tag-indicator {
+    position: absolute;
+    z-index: 2;
+    top: 8px;
+    left: 8px;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    color: white;
+    background: rgba(42, 26, 31, 0.58);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    font-size: 13px;
+    pointer-events: none;
+}
+
+.guest-tag-indicator[hidden] {
+    display: none;
+}
+
 .favorite-button[hidden] {
     display: none;
 }
@@ -887,6 +908,13 @@ a {
         width: 30px;
         height: 30px;
         opacity: 1;
+    }
+
+    .guest-tag-indicator {
+        top: 6px;
+        left: 6px;
+        width: 28px;
+        height: 28px;
     }
 
     .share-status {

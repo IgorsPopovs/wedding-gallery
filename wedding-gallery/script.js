@@ -873,6 +873,10 @@ function createPhotoCard(filename, index) {
     const image =
         document.createElement("img");
     const favoriteButton = document.createElement("button");
+    const taggedPeople = photoTags[filename];
+    const guestTagIndicator = adminMode && Array.isArray(taggedPeople) && taggedPeople.length
+        ? document.createElement("span")
+        : null;
 
     card.className = "photo-card";
     card.dataset.photoIndex = index;
@@ -886,6 +890,14 @@ function createPhotoCard(filename, index) {
         event.stopPropagation();
         toggleFavorite(filename);
     });
+
+    if (guestTagIndicator) {
+        guestTagIndicator.className = "guest-tag-indicator";
+        guestTagIndicator.hidden = true;
+        guestTagIndicator.title = "Отмечено гостей: " + taggedPeople.length;
+        guestTagIndicator.setAttribute("aria-label", guestTagIndicator.title);
+        guestTagIndicator.innerHTML = '<i class="fa-solid fa-user" aria-hidden="true"></i>';
+    }
 
     image.className = "thumbnail";
 
@@ -901,6 +913,7 @@ function createPhotoCard(filename, index) {
     image.decoding = "async";
     image.addEventListener("load", function () {
         favoriteButton.hidden = false;
+        if (guestTagIndicator) guestTagIndicator.hidden = false;
         nearbyLoadingImages.delete(image);
         updateMasonryCard(card);
         updateScrollPacingStatus();
@@ -918,6 +931,7 @@ function createPhotoCard(filename, index) {
     );
 
     card.appendChild(image);
+    if (guestTagIndicator) card.appendChild(guestTagIndicator);
     card.appendChild(favoriteButton);
     image.src = getSmallUrl(filename);
     scrollReadinessObserver?.observe(image);
