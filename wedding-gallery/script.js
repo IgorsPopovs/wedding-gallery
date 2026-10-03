@@ -311,11 +311,15 @@ function getGuestPhotoCounts() {
 
 function renderGuestFilters() {
     if (!guestFilters) return;
-    guestFilters.replaceChildren();
     guestFilters.classList.toggle("is-collapsed", !guestFiltersExpanded);
     guestFilters.classList.toggle("is-expanded", guestFiltersExpanded);
     if (guestFiltersCollapse) guestFiltersCollapse.hidden = !guestFiltersExpanded;
     const guestPhotoCounts = getGuestPhotoCounts();
+    const existingButtons = new Map(
+        [...guestFilters.querySelectorAll(".guest-filter")].map(function (button) {
+            return [button.dataset.personId, button];
+        })
+    );
     const orderedPeople = [...PEOPLE].sort(function (a, b) {
         if (guestFiltersExpanded) return 0;
         const selectedDifference = Number(selectedPeople.has(b.id)) - Number(selectedPeople.has(a.id));
@@ -323,58 +327,78 @@ function renderGuestFilters() {
         return Number(Boolean(GUEST_AVATARS[b.id])) - Number(Boolean(GUEST_AVATARS[a.id]));
     });
     const visiblePeople = guestFiltersExpanded ? orderedPeople : orderedPeople.slice(0, 3);
-    visiblePeople.forEach(function (person, index) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "guest-filter";
-        button.dataset.personId = person.id;
-        if (!guestFiltersExpanded) button.style.zIndex = String(index + 1);
-        if (GUEST_AVATARS[person.id]) {
-            button.classList.add("has-avatar");
-            button.setAttribute("aria-label", person.name);
-            const avatar = document.createElement("img");
-            avatar.className = "guest-filter-avatar";
-            avatar.src = GUEST_AVATARS[person.id];
-            avatar.alt = "";
-            avatar.loading = "lazy";
-            avatar.decoding = "async";
-            button.append(avatar);
+    const desiredNodes = visiblePeople.map(function (person, index) {
+        let button = existingButtons.get(person.id);
+        if (!button) {
+            button = document.createElement("button");
+            button.type = "button";
+            button.className = "guest-filter";
+            button.dataset.personId = person.id;
+            if (GUEST_AVATARS[person.id]) {
+                button.classList.add("has-avatar");
+                button.setAttribute("aria-label", person.name);
+                const avatar = document.createElement("img");
+                avatar.className = "guest-filter-avatar";
+                avatar.src = GUEST_AVATARS[person.id];
+                avatar.alt = "";
+                avatar.loading = "lazy";
+                avatar.decoding = "async";
+                button.append(avatar);
+            }
+            const name = document.createElement("span");
+            name.className = "guest-filter-name";
+            name.textContent = person.name;
+            button.append(name);
+            button.addEventListener("click", function () {
+                if (selectedPeople.has(person.id)) selectedPeople.delete(person.id);
+                else selectedPeople.add(person.id);
+                untaggedPhotosOnly = false;
+                renderGuestFilters();
+                renderGalleryFromStart();
+            });
         }
-        const name = document.createElement("span");
-        name.className = "guest-filter-name";
-        name.textContent = person.name;
-        button.append(name);
+        if (!guestFiltersExpanded) button.style.zIndex = String(index + 1);
+        button.setAttribute("aria-pressed", String(selectedPeople.has(person.id)));
         if (adminMode || selectedPeople.has(person.id)) {
-            const count = document.createElement("span");
-            count.className = "guest-filter-count";
-            if (!adminMode) count.classList.add("guest-filter-count-user");
+            let count = button.querySelector(".guest-filter-count");
+            if (!count) {
+                count = document.createElement("span");
+                count.className = "guest-filter-count";
+                if (!adminMode) count.classList.add("guest-filter-count-user");
+                button.append(count);
+            }
             count.textContent = guestPhotoCounts.get(person.id).toLocaleString("ru-RU");
             count.setAttribute("aria-label", guestPhotoCounts.get(person.id) + " фотографий");
-            button.append(count);
+        } else {
+            const count = button.querySelector(".guest-filter-count");
+            if (count) count.remove();
         }
-        button.setAttribute("aria-pressed", String(selectedPeople.has(person.id)));
-        button.addEventListener("click", function () {
-            if (selectedPeople.has(person.id)) selectedPeople.delete(person.id);
-            else selectedPeople.add(person.id);
-            untaggedPhotosOnly = false;
-            renderGuestFilters();
-            renderGalleryFromStart();
-        });
-        guestFilters.append(button);
+        return button;
     });
     if (!guestFiltersExpanded && PEOPLE.length > visiblePeople.length) {
-        const expand = document.createElement("button");
-        expand.type = "button";
-        expand.className = "guest-filters-more";
+        let expand = guestFilters.querySelector(".guest-filters-more");
+        if (!expand) {
+            expand = document.createElement("button");
+            expand.type = "button";
+            expand.className = "guest-filters-more";
+            expand.setAttribute("aria-label", "Показать всех гостей");
+            expand.setAttribute("aria-expanded", "false");
+            expand.addEventListener("click", function () {
+                guestFiltersExpanded = true;
+                renderGuestFilters();
+            });
+        }
         expand.textContent = "+" + (PEOPLE.length - visiblePeople.length);
-        expand.setAttribute("aria-label", "Показать всех гостей");
-        expand.setAttribute("aria-expanded", "false");
         expand.style.zIndex = String(visiblePeople.length + 1);
-        expand.addEventListener("click", function () {
-            guestFiltersExpanded = true;
-            renderGuestFilters();
-        });
-        guestFilters.append(expand);
+        desiredNodes.push(expand);
+    }
+    desiredNodes.forEach(function (node, index) {
+        if (guestFilters.children[index] !== node) {
+            guestFilters.insertBefore(node, guestFilters.children[index] || null);
+        }
+    });
+    while (guestFilters.children.length > desiredNodes.length) {
+        guestFilters.lastElementChild.remove();
     }
     if (guestFiltersCollapse) {
         guestFiltersCollapse.onclick = function () {
