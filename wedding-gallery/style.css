@@ -719,10 +719,32 @@ a {
 }
 
 .photo-people-editor summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
     width: fit-content;
-    margin: 3px auto 10px;
-    color: #f0dbe0;
+    min-height: 40px;
+    margin: 0 auto 12px;
+    padding: 9px 17px;
+    color: white;
+    background: rgba(123, 31, 58, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.52);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.025em;
+    list-style: none;
     cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+.photo-people-editor summary::-webkit-details-marker {
+    display: none;
+}
+
+.photo-people-editor summary:hover {
+    background: rgba(168, 56, 90, 0.94);
 }
 
 .photo-people-search-label input {
@@ -1021,6 +1043,13 @@ a {
 
     .download-size {
         font-size: 6px;
+    }
+
+    .photo-people-editor summary {
+        max-width: 100%;
+        min-height: 42px;
+        padding: 10px 15px;
+        font-size: 11px;
     }
 }
 

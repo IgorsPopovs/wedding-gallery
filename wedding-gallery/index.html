@@ -128,6 +128,19 @@
                 <span id="total-photos">…</span>
             </div>
 
+            <details id="photo-people-editor" class="photo-people-editor" hidden>
+                <summary><i class="fa-solid fa-user" aria-hidden="true"></i> Отметить людей на этом фото</summary>
+                <label class="photo-people-search-label">
+                    <span class="visually-hidden">Найти гостя</span>
+                    <input id="photo-people-search" type="search" placeholder="Найти гостя">
+                </label>
+                <div id="photo-people-choices" class="photo-people-choices" role="group" aria-label="Люди на фотографии"></div>
+                <div class="photo-people-save-row">
+                    <button id="save-photo-people" class="photo-people-save" type="button">Сохранить отметки</button>
+                    <span id="photo-people-status" role="status" aria-live="polite"></span>
+                </div>
+            </details>
+
             <div class="download-actions">
                 <a id="download-big" class="download-button download-primary" href="#">
                     <i class="fa-solid fa-download download-icon" aria-hidden="true"></i>
@@ -145,18 +158,6 @@
                 </a>
             </div>
 
-            <details id="photo-people-editor" class="photo-people-editor" hidden>
-                <summary>Отметить людей на этом фото</summary>
-                <label class="photo-people-search-label">
-                    <span class="visually-hidden">Найти гостя</span>
-                    <input id="photo-people-search" type="search" placeholder="Найти гостя">
-                </label>
-                <div id="photo-people-choices" class="photo-people-choices" role="group" aria-label="Люди на фотографии"></div>
-                <div class="photo-people-save-row">
-                    <button id="save-photo-people" class="photo-people-save" type="button">Сохранить отметки</button>
-                    <span id="photo-people-status" role="status" aria-live="polite"></span>
-                </div>
-            </details>
         </div>
     </div>
 
