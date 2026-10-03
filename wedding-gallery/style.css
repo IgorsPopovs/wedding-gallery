@@ -1050,7 +1050,21 @@ a {
     }
 
     .guest-filter-section { padding-bottom: 8px; }
-    .guest-filter { flex-basis: 70px; width: 70px; height: 70px; font-size: 9px; }
+    .guest-filters {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        justify-items: center;
+        gap: 8px 6px;
+        overflow: visible;
+        scrollbar-width: none;
+    }
+    .guest-filter {
+        flex: initial;
+        width: min(70px, 100%);
+        height: auto;
+        aspect-ratio: 1;
+        font-size: 9px;
+    }
 
     .gallery-header h1 {
         margin-top: 17px;
