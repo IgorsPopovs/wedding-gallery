@@ -77,9 +77,9 @@ a {
 
 .gallery-header h1 {
     margin: 20px 0 9px;
-    font-family: "Bodoni Moda", Georgia, serif;
+    font-family: "Cormorant Garamond", Georgia, serif;
     font-size: clamp(72px, 10vw, 120px);
-    font-weight: 400;
+    font-weight: 600;
     line-height: 1.05;
     letter-spacing: -0.025em;
     -webkit-text-stroke: 0.55px rgba(123, 31, 58, 0.48);
