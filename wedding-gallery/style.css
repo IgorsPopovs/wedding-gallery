@@ -292,8 +292,8 @@ a {
 
 .guest-filter[data-person-id="leonid"] .guest-filter-avatar,
 .guest-filter[data-person-id="artur"] .guest-filter-avatar {
-    transform: scale(1.5);
-    transform-origin: 50% 30%;
+    transform: translateY(24%) scale(1.2);
+    transform-origin: center;
 }
 
 .guest-filter.has-avatar {
