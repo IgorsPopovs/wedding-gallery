@@ -337,7 +337,7 @@ function expandGuestFilters() {
         guestFilters?.querySelectorAll(".guest-filter").forEach(function (button) {
             button.style.removeProperty("animation-delay");
         });
-    }, 1200);
+    }, 700);
     renderGuestFilters();
 }
 
@@ -395,7 +395,7 @@ function renderGuestFilters() {
         }
         if (!guestFiltersExpanded) button.style.zIndex = String(index + 1);
         if (guestFilters.classList.contains("is-opening")) {
-            button.style.animationDelay = Math.min(index * 24, 500) + "ms";
+            button.style.animationDelay = Math.min(index * 18, 320) + "ms";
         }
         button.setAttribute("aria-pressed", String(selectedPeople.has(person.id)));
         if (adminMode || selectedPeople.has(person.id)) {
