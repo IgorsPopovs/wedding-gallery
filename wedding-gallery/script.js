@@ -417,6 +417,7 @@ function createPhotoCard(filename, index) {
         document.createElement("img");
 
     card.className = "photo-card";
+    card.dataset.photoIndex = index;
 
     image.className = "thumbnail";
 
@@ -612,7 +613,7 @@ function openLightbox(index) {
     updateNavigation();
 }
 
-function closeLightbox() {
+async function closeLightbox() {
     if (!lightbox) {
         return;
     }
@@ -646,6 +647,24 @@ function closeLightbox() {
         );
 
         lightboxImage.src = "";
+    }
+
+    while (
+        renderedCount <= currentIndex &&
+        renderedCount < photos.length
+    ) {
+        await renderNextBatch();
+    }
+
+    const currentCard = gallery && gallery.querySelector(
+        '[data-photo-index="' + currentIndex + '"]'
+    );
+
+    if (currentCard) {
+        currentCard.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
     }
 }
 
