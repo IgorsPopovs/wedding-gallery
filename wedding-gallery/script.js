@@ -37,7 +37,8 @@ const GUEST_AVATARS = {
     "alexandra-leonova": "images/guests/alexandra-leonova.jpg",
     zhenya: "images/guests/zhenya.jpg",
     olya: "images/guests/olya.jpg",
-    "alexander-farbtukh": "images/guests/alexander-farbtukh.jpg"
+    "alexander-farbtukh": "images/guests/alexander-farbtukh.jpg",
+    papa: "images/guests/papa.jpg"
 };
 const PEOPLE = [
     { id: "igor-zorya-groom", name: "Игорь Зоря (жених)" },
