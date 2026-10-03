@@ -76,7 +76,18 @@ a {
 }
 
 #moments {
+    position: relative;
+    isolation: isolate;
+}
+
+#moments::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
     background: rgba(250, 247, 243, 0.78);
+    content: "";
+    filter: blur(12px);
+    pointer-events: none;
 }
 
 .gallery-header h1 {
@@ -86,25 +97,28 @@ a {
     font-weight: 400;
     line-height: 1.05;
     letter-spacing: -0.025em;
-    -webkit-text-stroke: 0.55px rgba(123, 31, 58, 0.48);
+    color: #fff;
+    -webkit-text-fill-color: #fff;
+    -webkit-text-stroke: 1px #000;
     paint-order: stroke fill;
 }
 
 .gallery-header h1 span {
     display: inline-block;
     padding: 0 0.08em;
-    color: var(--fig);
+    color: #fff;
     font-size: 0.78em;
     font-weight: 400;
 }
 
 .wedding-date {
     margin: 9px 0 0;
-    color: var(--text-mid);
+    color: #fff;
     font-size: 10px;
     font-weight: 400;
     letter-spacing: 0.31em;
-    -webkit-text-stroke: 0.22px rgba(123, 31, 58, 0.45);
+    -webkit-text-fill-color: #fff;
+    -webkit-text-stroke: 0.65px #000;
     paint-order: stroke fill;
 }
 
