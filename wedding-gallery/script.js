@@ -471,7 +471,10 @@ async function renderGalleryFromStart() {
     if (loadMoreObserver) {
         loadMoreObserver.disconnect();
     }
+    scrollReadinessObserver?.disconnect();
+    nearbyLoadingImages.clear();
     gallery.replaceChildren();
+    if (galleryLoading) galleryLoading.style.display = "";
     renderedCount = 0;
     visiblePhotoIndices = getVisiblePhotoIndices();
 
@@ -898,9 +901,11 @@ function createPhotoCard(filename, index) {
     image.addEventListener("load", function () {
         nearbyLoadingImages.delete(image);
         updateMasonryCard(card);
+        updateScrollPacingStatus();
     });
     image.addEventListener("error", function () {
         nearbyLoadingImages.delete(image);
+        updateScrollPacingStatus();
     });
 
     card.addEventListener(
@@ -955,6 +960,7 @@ function setupScrollPacing() {
                     nearbyLoadingImages.delete(entry.target);
                 }
             }
+            updateScrollPacingStatus();
         },
         {
             rootMargin: "0px 0px 100% 0px",
@@ -969,16 +975,23 @@ function setupScrollPacing() {
     document.addEventListener("touchcancel", clearTouchScrollPoint, { passive: true });
 }
 
-function getScrollPacingFactor() {
-    if (!nearbyLoadingImages.size) {
-        return 1;
-    }
+function hasUnloadedNearbyPhotos() {
+    return nearbyLoadingImages.size > 0;
+}
 
-    if (nearbyLoadingImages.size >= 6) {
-        return 0.5;
+function updateScrollPacingStatus() {
+    if (!galleryLoading || galleryLoading.classList.contains("empty")) return;
+    if (nearbyLoadingImages.size) {
+        galleryLoading.style.display = "flex";
+        setLoadingText("Загружаем фотографии перед прокруткой…");
+    } else if (renderedCount < visiblePhotoIndices.length) {
+        galleryLoading.style.display = "flex";
+        setLoadingText(favoritesOnly
+            ? "Листайте дальше — в избранном есть ещё фотографии."
+            : "Листайте дальше — впереди ещё фотографии.");
+    } else {
+        galleryLoading.style.display = "none";
     }
-
-    return nearbyLoadingImages.size >= 2 ? 0.65 : 0.8;
 }
 
 function paceGalleryWheel(event) {
@@ -986,13 +999,11 @@ function paceGalleryWheel(event) {
         return;
     }
 
-    const factor = getScrollPacingFactor();
-    if (factor === 1 || !event.cancelable) {
+    if (!hasUnloadedNearbyPhotos() || !event.cancelable) {
         return;
     }
 
     event.preventDefault();
-    scrollPageImmediately(event.deltaY * factor);
 }
 
 function rememberTouchScrollPoint(event) {
@@ -1020,25 +1031,15 @@ function paceGalleryTouch(event) {
         return;
     }
 
-    const factor = getScrollPacingFactor();
-    if (factor === 1 || !event.cancelable) {
+    if (!hasUnloadedNearbyPhotos() || !event.cancelable) {
         return;
     }
 
     event.preventDefault();
-    scrollPageImmediately(deltaY * factor);
 }
 
 function clearTouchScrollPoint() {
     touchScrollPoint = null;
-}
-
-function scrollPageImmediately(distance) {
-    const root = document.documentElement;
-    const previousBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = "auto";
-    window.scrollBy(0, distance);
-    root.style.scrollBehavior = previousBehavior;
 }
 
 function setupLoadMoreObserver() {
@@ -1122,14 +1123,11 @@ function setLoadingText(text) {
 }
 
 function finishLoading() {
-    if (galleryLoading) {
-        galleryLoading.style.display = "none";
-    }
-
     if (loadMoreObserver) {
         loadMoreObserver.disconnect();
     }
     galleryLoading?.classList.remove("empty");
+    updateScrollPacingStatus();
 }
 
 function openLightbox(index) {
