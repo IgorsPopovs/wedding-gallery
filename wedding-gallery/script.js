@@ -40,8 +40,11 @@ let downloadSizeRequestId = 0;
 let shareStatusTimeout = null;
 let isLoadingBatch = false;
 let loadMoreObserver = null;
+let scrollReadinessObserver = null;
+let touchScrollPoint = null;
 let swipeCloseTimeout = null;
 const shareImagePromises = new Map();
+const nearbyLoadingImages = new Set();
 
 if (deletePhotoButton && adminMode) {
     deletePhotoButton.hidden = false;
@@ -115,6 +118,7 @@ async function init() {
             return;
         }
 
+        setupScrollPacing();
         await renderNextBatch();
         setupLoadMoreObserver();
         openSharedPhoto();
@@ -699,7 +703,11 @@ function createPhotoCard(filename, index) {
 
     image.decoding = "async";
     image.addEventListener("load", function () {
+        nearbyLoadingImages.delete(image);
         updateMasonryCard(card);
+    });
+    image.addEventListener("error", function () {
+        nearbyLoadingImages.delete(image);
     });
 
     card.addEventListener(
@@ -712,6 +720,7 @@ function createPhotoCard(filename, index) {
     card.appendChild(image);
     card.appendChild(favoriteButton);
     image.src = getSmallUrl(filename);
+    scrollReadinessObserver?.observe(image);
 
     return card;
 }
@@ -738,6 +747,106 @@ window.addEventListener("resize", function () {
 
     gallery.querySelectorAll(".photo-card").forEach(updateMasonryCard);
 });
+
+function setupScrollPacing() {
+    if (!("IntersectionObserver" in window) || !gallery) {
+        return;
+    }
+
+    scrollReadinessObserver = new IntersectionObserver(
+        function (entries) {
+            for (const entry of entries) {
+                if (entry.isIntersecting && !entry.target.complete) {
+                    nearbyLoadingImages.add(entry.target);
+                } else {
+                    nearbyLoadingImages.delete(entry.target);
+                }
+            }
+        },
+        {
+            rootMargin: "0px 0px 100% 0px",
+            threshold: 0
+        }
+    );
+
+    window.addEventListener("wheel", paceGalleryWheel, { passive: false });
+    document.addEventListener("touchstart", rememberTouchScrollPoint, { passive: true });
+    document.addEventListener("touchmove", paceGalleryTouch, { passive: false });
+    document.addEventListener("touchend", clearTouchScrollPoint, { passive: true });
+    document.addEventListener("touchcancel", clearTouchScrollPoint, { passive: true });
+}
+
+function getScrollPacingFactor() {
+    if (!nearbyLoadingImages.size) {
+        return 1;
+    }
+
+    if (nearbyLoadingImages.size >= 6) {
+        return 0.5;
+    }
+
+    return nearbyLoadingImages.size >= 2 ? 0.65 : 0.8;
+}
+
+function paceGalleryWheel(event) {
+    if (event.deltaY <= 0 || event.ctrlKey || lightbox?.classList.contains("active")) {
+        return;
+    }
+
+    const factor = getScrollPacingFactor();
+    if (factor === 1 || !event.cancelable) {
+        return;
+    }
+
+    event.preventDefault();
+    scrollPageImmediately(event.deltaY * factor);
+}
+
+function rememberTouchScrollPoint(event) {
+    if (event.touches.length !== 1 || lightbox?.classList.contains("active")) {
+        touchScrollPoint = null;
+        return;
+    }
+
+    const touch = event.touches[0];
+    touchScrollPoint = { x: touch.clientX, y: touch.clientY };
+}
+
+function paceGalleryTouch(event) {
+    if (event.touches.length !== 1 || !touchScrollPoint || lightbox?.classList.contains("active")) {
+        touchScrollPoint = null;
+        return;
+    }
+
+    const touch = event.touches[0];
+    const deltaY = touchScrollPoint.y - touch.clientY;
+    const deltaX = touchScrollPoint.x - touch.clientX;
+    touchScrollPoint = { x: touch.clientX, y: touch.clientY };
+
+    if (deltaY <= 0 || Math.abs(deltaY) <= Math.abs(deltaX)) {
+        return;
+    }
+
+    const factor = getScrollPacingFactor();
+    if (factor === 1 || !event.cancelable) {
+        return;
+    }
+
+    event.preventDefault();
+    scrollPageImmediately(deltaY * factor);
+}
+
+function clearTouchScrollPoint() {
+    touchScrollPoint = null;
+}
+
+function scrollPageImmediately(distance) {
+    const root = document.documentElement;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollBy(0, distance);
+    root.style.scrollBehavior = previousBehavior;
+}
 
 function setupLoadMoreObserver() {
     if (
