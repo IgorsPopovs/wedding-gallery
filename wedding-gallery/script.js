@@ -527,6 +527,14 @@ function updatePhotoPeopleIndicator() {
 async function savePhotoPeople() {
     const filename = photos[currentIndex];
     if (!filename || !adminMode) return;
+    const editedPhotoIndex = photos.indexOf(filename);
+    const scrollTopBeforeSave = window.scrollY;
+    const scrollAnchor = [...(gallery?.querySelectorAll(".photo-card") || [])].find(function (card) {
+        if (Number(card.dataset.photoIndex) === editedPhotoIndex) return false;
+        const rect = card.getBoundingClientRect();
+        return rect.bottom > 0 && rect.top < window.innerHeight;
+    });
+    const scrollAnchorTop = scrollAnchor?.getBoundingClientRect().top;
     const token = getAdminToken("отметки гостей");
     if (!token) return;
     savePhotoPeopleButton.disabled = true;
@@ -558,6 +566,13 @@ async function savePhotoPeople() {
         }
         renderGuestFilters();
         updateGalleryAfterTagSave(filename);
+        window.requestAnimationFrame(function () {
+            if (scrollAnchor?.isConnected && scrollAnchorTop !== undefined) {
+                window.scrollBy(0, scrollAnchor.getBoundingClientRect().top - scrollAnchorTop);
+            } else {
+                window.scrollTo(0, scrollTopBeforeSave);
+            }
+        });
         await new Promise(function (resolve) { window.setTimeout(resolve, 420); });
         if (photoPeopleEditor) photoPeopleEditor.open = false;
         photoPeoplePopup?.classList.remove("is-saved");
