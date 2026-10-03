@@ -199,7 +199,7 @@ a {
     display: flex;
     gap: 10px;
     overflow-x: auto;
-    padding: 2px 2px 8px;
+    padding: 5px 5px 11px;
     scrollbar-width: thin;
     scrollbar-color: rgba(123, 31, 58, 0.3) transparent;
 }
@@ -280,6 +280,9 @@ a {
     color: white;
     background: var(--fig);
     border-color: var(--fig);
+    outline: 2px solid var(--fig-light);
+    outline-offset: 1px;
+    box-shadow: 0 4px 12px rgba(123, 31, 58, 0.32);
     transform: translateY(-2px);
 }
 
