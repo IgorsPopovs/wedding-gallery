@@ -116,6 +116,14 @@ function getSmallUrl(filename) {
     );
 }
 
+function getShareImageUrl(filename) {
+    return (
+        GALLERY_BASE_PATH +
+        "/api/share-photo?filename=" +
+        encodeURIComponent(filename)
+    );
+}
+
 function showLightboxImage() {
     if (!lightboxImage) {
         return;
@@ -191,7 +199,7 @@ function prepareShareImage(filename) {
         return;
     }
 
-    const imagePromise = fetch(getSmallUrl(filename))
+    const imagePromise = fetch(getShareImageUrl(filename))
         .then(function (response) {
             if (!response.ok) {
                 throw new Error("Could not load the photo for sharing");
@@ -334,13 +342,14 @@ async function sharePhoto(filename) {
     const shareUrl = new URL(window.location.href);
     shareUrl.hash = "photo=" + encodeURIComponent(filename);
     const photoNumber = filename.match(/(\d+)(?=\.[^.]+$)/);
+    const shareText = "Игорь и Алина: фотография №" +
+        (photoNumber ? Number(photoNumber[1]) : "");
 
     if (navigator.share) {
         try {
-            const shareData = {
+            let shareData = {
                 title: "Игорь и Алина",
-                text: "Игорь и Алина: фотография №" +
-                    (photoNumber ? Number(photoNumber[1]) : ""),
+                text: shareText,
                 url: shareUrl.toString()
             };
             const imagePromise = shareImagePromises.get(filename);
@@ -348,8 +357,13 @@ async function sharePhoto(filename) {
             if (imagePromise) {
                 try {
                     const file = await imagePromise;
-                    if (navigator.canShare({ files: [file] })) {
-                        shareData.files = [file];
+                    const imageShareData = {
+                        title: "Игорь и Алина",
+                        text: shareText + "\n" + shareUrl.toString(),
+                        files: [file]
+                    };
+                    if (navigator.canShare(imageShareData)) {
+                        shareData = imageShareData;
                     }
                 } catch (error) {
                     // Keep text-and-link sharing available if the image cannot be loaded.

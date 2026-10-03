@@ -59,6 +59,38 @@ export default {
             );
         }
 
+        if (path === "/api/share-photo") {
+            const filename = url.searchParams.get("filename");
+
+            if (
+                !filename ||
+                filename.includes("/") ||
+                filename.includes("\\") ||
+                !filename.includes("_s_") ||
+                !filename.toLowerCase().endsWith(".jpg")
+            ) {
+                return new Response("Invalid photo filename", {
+                    status: 400
+                });
+            }
+
+            const object = await env.GALLERY.get("small/" + filename);
+
+            if (!object) {
+                return new Response("File not found", {
+                    status: 404
+                });
+            }
+
+            return new Response(object.body, {
+                headers: {
+                    "Content-Type": object.httpMetadata?.contentType || "image/jpeg",
+                    "Content-Length": String(object.size),
+                    "Cache-Control": "private, max-age=3600"
+                }
+            });
+        }
+
         if (path === "/api/photo-sizes") {
             const filename =
                 url.searchParams.get("filename");
