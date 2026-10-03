@@ -963,36 +963,65 @@ window.addEventListener("resize", function () {
 });
 
 function setupScrollPacing() {
-    if (!("IntersectionObserver" in window) || !gallery) {
+    if (!gallery) {
         return;
     }
 
-    scrollReadinessObserver = new IntersectionObserver(
-        function (entries) {
-            for (const entry of entries) {
-                if (entry.isIntersecting && !entry.target.complete) {
-                    nearbyLoadingImages.add(entry.target);
-                } else {
-                    nearbyLoadingImages.delete(entry.target);
+    if ("IntersectionObserver" in window) {
+        scrollReadinessObserver = new IntersectionObserver(
+            function (entries) {
+                for (const entry of entries) {
+                    if (entry.isIntersecting && !entry.target.complete) {
+                        nearbyLoadingImages.add(entry.target);
+                    } else {
+                        nearbyLoadingImages.delete(entry.target);
+                    }
                 }
+                updateScrollPacingStatus();
+            },
+            {
+                rootMargin: "0px 0px 100% 0px",
+                threshold: 0
             }
-            updateScrollPacingStatus();
-        },
-        {
-            rootMargin: "0px 0px 100% 0px",
-            threshold: 0
-        }
-    );
+        );
+    }
 
     window.addEventListener("wheel", paceGalleryWheel, { passive: false });
+    window.addEventListener("scroll", enforceGalleryScrollLimit, { passive: true });
     document.addEventListener("touchstart", rememberTouchScrollPoint, { passive: true });
     document.addEventListener("touchmove", paceGalleryTouch, { passive: false });
     document.addEventListener("touchend", clearTouchScrollPoint, { passive: true });
     document.addEventListener("touchcancel", clearTouchScrollPoint, { passive: true });
 }
 
-function hasUnloadedNearbyPhotos() {
-    return nearbyLoadingImages.size > 0;
+function getGalleryScrollLimitY() {
+    if (!gallery) return Infinity;
+
+    const firstPendingImage = [...gallery.querySelectorAll(".thumbnail")].find(function (image) {
+        return !image.complete;
+    });
+    if (firstPendingImage) {
+        const imageTop = firstPendingImage.getBoundingClientRect().top + window.scrollY;
+        return Math.max(0, imageTop - window.innerHeight * 0.72);
+    }
+
+    if (renderedCount < visiblePhotoIndices.length) {
+        const lastCard = gallery.lastElementChild;
+        if (lastCard) {
+            const cardBottom = lastCard.getBoundingClientRect().bottom + window.scrollY;
+            return Math.max(0, cardBottom - window.innerHeight * 0.8);
+        }
+    }
+
+    return Infinity;
+}
+
+function enforceGalleryScrollLimit() {
+    if (lightbox?.classList.contains("active")) return;
+    const limit = getGalleryScrollLimitY();
+    if (window.scrollY > limit + 2) {
+        scrollPageImmediately(limit - window.scrollY);
+    }
 }
 
 function updateScrollPacingStatus() {
@@ -1015,11 +1044,14 @@ function paceGalleryWheel(event) {
         return;
     }
 
-    if (!hasUnloadedNearbyPhotos() || !event.cancelable) {
+    const limit = getGalleryScrollLimitY();
+    const remaining = limit - window.scrollY;
+    if (event.deltaY <= remaining) {
         return;
     }
 
-    event.preventDefault();
+    if (event.cancelable) event.preventDefault();
+    if (remaining > 0) scrollPageImmediately(remaining);
 }
 
 function rememberTouchScrollPoint(event) {
@@ -1047,15 +1079,26 @@ function paceGalleryTouch(event) {
         return;
     }
 
-    if (!hasUnloadedNearbyPhotos() || !event.cancelable) {
+    const limit = getGalleryScrollLimitY();
+    const remaining = limit - window.scrollY;
+    if (deltaY <= remaining) {
         return;
     }
 
-    event.preventDefault();
+    if (event.cancelable) event.preventDefault();
+    if (remaining > 0) scrollPageImmediately(remaining);
 }
 
 function clearTouchScrollPoint() {
     touchScrollPoint = null;
+}
+
+function scrollPageImmediately(distance) {
+    const root = document.documentElement;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollTo(0, window.scrollY + distance);
+    root.style.scrollBehavior = previousBehavior;
 }
 
 function setupLoadMoreObserver() {
