@@ -70,6 +70,7 @@ const lightboxFavoriteButton = document.getElementById("lightbox-favorite");
 const deletePhotoButton = document.getElementById("delete-photo");
 const shareStatus = document.getElementById("share-status");
 const photoPeopleEditor = document.getElementById("photo-people-editor");
+const photoPeopleBackdrop = document.querySelector(".photo-people-backdrop");
 const photoPeopleSearch = document.getElementById("photo-people-search");
 const photoPeopleChoices = document.getElementById("photo-people-choices");
 const savePhotoPeopleButton = document.getElementById("save-photo-people");
@@ -1254,6 +1255,7 @@ async function closeLightbox() {
         swipeCloseTimeout = null;
     }
     clearSwipeVisual();
+    if (photoPeopleEditor) photoPeopleEditor.open = false;
 
     lightbox.classList.remove(
         "active"
@@ -1445,6 +1447,11 @@ if (clearGuestFilters) {
 
 if (photoPeopleSearch) photoPeopleSearch.addEventListener("input", renderPhotoPeopleChoices);
 if (savePhotoPeopleButton) savePhotoPeopleButton.addEventListener("click", savePhotoPeople);
+if (photoPeopleBackdrop) {
+    photoPeopleBackdrop.addEventListener("click", function () {
+        if (photoPeopleEditor) photoPeopleEditor.open = false;
+    });
+}
 
 if (lightboxFavoriteButton) {
     lightboxFavoriteButton.addEventListener("click", function () {
@@ -1485,7 +1492,16 @@ document.addEventListener(
         }
 
         if (event.key === "Escape") {
+            if (photoPeopleEditor?.open) {
+                photoPeopleEditor.open = false;
+                return;
+            }
             closeLightbox();
+            return;
+        }
+
+        if (photoPeopleEditor?.open) {
+            return;
         }
 
         if (event.key === "ArrowLeft") {
@@ -1505,6 +1521,12 @@ if (lightbox) {
     lightbox.addEventListener(
         "touchstart",
         function (event) {
+            if (photoPeopleEditor?.open) {
+                touchStartX = null;
+                touchStartY = null;
+                return;
+            }
+
             if (lightbox.classList.contains("swipe-closing")) {
                 touchStartX = null;
                 touchStartY = null;
