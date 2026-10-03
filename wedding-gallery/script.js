@@ -34,6 +34,28 @@ let loadMoreObserver = null;
 let swipeCloseTimeout = null;
 const shareImagePromises = new Map();
 
+function clearSwipeVisual() {
+    if (!lightbox) {
+        return;
+    }
+
+    lightbox.classList.remove("swipe-following", "swipe-closing");
+    lightbox.style.removeProperty("--swipe-offset-y");
+    lightbox.style.removeProperty("--swipe-scale");
+    lightbox.style.removeProperty("--swipe-image-opacity");
+    lightbox.style.removeProperty("--swipe-overlay-opacity");
+}
+
+function updateSwipeVisual(distance) {
+    const progress = Math.min(distance / 220, 1);
+
+    lightbox.style.setProperty("--swipe-offset-y", distance + "px");
+    lightbox.style.setProperty("--swipe-scale", 1 - progress * 0.035);
+    lightbox.style.setProperty("--swipe-image-opacity", 1 - progress * 0.65);
+    lightbox.style.setProperty("--swipe-overlay-opacity", 1 - progress * 0.3);
+    lightbox.classList.add("swipe-following");
+}
+
 async function init() {
     if (!gallery) {
         return;
@@ -579,7 +601,7 @@ function openLightbox(index) {
         clearTimeout(swipeCloseTimeout);
         swipeCloseTimeout = null;
     }
-    lightbox.classList.remove("swipe-closing");
+    clearSwipeVisual();
 
     const filename =
         photos[currentIndex];
@@ -631,7 +653,7 @@ async function closeLightbox() {
         clearTimeout(swipeCloseTimeout);
         swipeCloseTimeout = null;
     }
-    lightbox.classList.remove("swipe-closing");
+    clearSwipeVisual();
 
     lightbox.classList.remove(
         "active"
@@ -860,11 +882,35 @@ if (lightbox) {
             if (event.touches.length !== 1) {
                 touchStartX = null;
                 touchStartY = null;
+                clearSwipeVisual();
                 return;
             }
 
             touchStartX = event.touches[0].clientX;
             touchStartY = event.touches[0].clientY;
+        },
+        { passive: true }
+    );
+
+    lightbox.addEventListener(
+        "touchmove",
+        function (event) {
+            if (
+                touchStartX === null ||
+                event.touches.length !== 1 ||
+                !window.matchMedia("(max-width: 680px)").matches
+            ) {
+                return;
+            }
+
+            const deltaX = event.touches[0].clientX - touchStartX;
+            const deltaY = event.touches[0].clientY - touchStartY;
+
+            if (deltaY > 0 && deltaY > Math.abs(deltaX)) {
+                updateSwipeVisual(deltaY);
+            } else if (lightbox.classList.contains("swipe-following")) {
+                clearSwipeVisual();
+            }
         },
         { passive: true }
     );
@@ -892,6 +938,8 @@ if (lightbox) {
                 verticalDifference < -80 &&
                 -verticalDifference > Math.abs(difference)
             ) {
+                updateSwipeVisual(-verticalDifference);
+                lightbox.classList.remove("swipe-following");
                 lightbox.classList.add("swipe-closing");
                 swipeCloseTimeout = setTimeout(function () {
                     swipeCloseTimeout = null;
@@ -899,6 +947,8 @@ if (lightbox) {
                 }, 180);
                 return;
             }
+
+            clearSwipeVisual();
 
             if (
                 Math.abs(difference) < 50 ||
@@ -921,6 +971,7 @@ if (lightbox) {
         function () {
             touchStartX = null;
             touchStartY = null;
+            clearSwipeVisual();
         },
         { passive: true }
     );

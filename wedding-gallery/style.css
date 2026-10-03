@@ -263,13 +263,25 @@ a {
 }
 
 .lightbox.active.swipe-closing {
-    opacity: 0.58;
+    opacity: 0;
+    transition-duration: 0.18s;
+}
+
+.lightbox.active.swipe-following {
+    opacity: var(--swipe-overlay-opacity, 1);
+    transition: none;
+}
+
+.lightbox.active.swipe-following #lightbox-image.loaded {
+    opacity: var(--swipe-image-opacity, 1);
+    transform: translateY(var(--swipe-offset-y, 0px)) scale(var(--swipe-scale, 1));
+    transition: none;
 }
 
 .lightbox.active.swipe-closing #lightbox-image {
     opacity: 0;
-    transform: translateY(22px) scale(0.985);
-    transition-duration: 0.18s;
+    transform: translateY(calc(var(--swipe-offset-y, 0px) + 24px)) scale(0.98);
+    transition: transform 0.18s ease-out, opacity 0.18s ease-out;
 }
 
 .lightbox-content {
