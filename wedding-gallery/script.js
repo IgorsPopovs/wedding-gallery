@@ -23,6 +23,7 @@ const downloadBigSize = document.getElementById("download-big-size");
 const downloadSmallSize = document.getElementById("download-small-size");
 const shareButton = document.getElementById("share-photo");
 const lightboxFavoriteButton = document.getElementById("lightbox-favorite");
+const deletePhotoButton = document.getElementById("delete-photo");
 const shareStatus = document.getElementById("share-status");
 
 const currentPhoto = document.getElementById("current-photo");
@@ -32,6 +33,7 @@ let photos = [];
 let favoritePhotos = loadFavoritePhotos();
 let visiblePhotoIndices = [];
 let favoritesOnly = false;
+const adminMode = new URLSearchParams(window.location.search).get("admin") === "1";
 let renderedCount = 0;
 let currentIndex = 0;
 let downloadSizeRequestId = 0;
@@ -40,6 +42,10 @@ let isLoadingBatch = false;
 let loadMoreObserver = null;
 let swipeCloseTimeout = null;
 const shareImagePromises = new Map();
+
+if (deletePhotoButton && adminMode) {
+    deletePhotoButton.hidden = false;
+}
 
 function clearSwipeVisual() {
     if (!lightbox) {
@@ -214,6 +220,77 @@ function toggleFavorite(filename) {
             updateFavoriteButton(button, photos[index]);
         }
     });
+}
+
+function saveFavoritePhotos() {
+    try {
+        localStorage.setItem(
+            FAVORITES_STORAGE_KEY,
+            JSON.stringify([...favoritePhotos])
+        );
+    } catch (error) {
+        showShareStatus("Не удалось сохранить избранное в этом браузере");
+    }
+}
+
+async function deleteCurrentPhoto() {
+    const filename = photos[currentIndex];
+    if (!filename || !adminMode) {
+        return;
+    }
+
+    const number = filename.match(/(\d+)(?=\.[^.]+$)/);
+    const photoLabel = number ? "№" + Number(number[1]) : filename;
+    if (!window.confirm(
+        "Удалить фотографию " + photoLabel + " из галереи?\n\nБудут удалены и маленькая, и большая версии. Это действие нельзя отменить."
+    )) {
+        return;
+    }
+
+    let token = sessionStorage.getItem("wedding-gallery-admin-token");
+    if (!token) {
+        token = window.prompt("Введите временный токен администратора для удаления:");
+        if (!token) {
+            return;
+        }
+        sessionStorage.setItem("wedding-gallery-admin-token", token);
+    }
+
+    try {
+        const response = await fetch(
+            GALLERY_BASE_PATH + "/api/delete-photo?filename=" + encodeURIComponent(filename),
+            {
+                method: "DELETE",
+                headers: { "Authorization": "Bearer " + token }
+            }
+        );
+
+        if (response.status === 401) {
+            sessionStorage.removeItem("wedding-gallery-admin-token");
+            showShareStatus("Токен не принят. Обновите страницу и попробуйте снова.");
+            return;
+        }
+        if (response.status === 503) {
+            showShareStatus("Сначала настройте секрет GALLERY_ADMIN_TOKEN у Worker");
+            return;
+        }
+        if (!response.ok) {
+            throw new Error("Delete failed: " + response.status);
+        }
+
+        await closeLightbox();
+        photos = photos.filter(function (photo) {
+            return photo !== filename;
+        });
+        favoritePhotos.delete(filename);
+        saveFavoritePhotos();
+        updateFavoritesControls();
+        await renderGalleryFromStart();
+        showShareStatus("Фото и обе версии удалены");
+    } catch (error) {
+        console.error(error);
+        showShareStatus("Не удалось удалить фото. Попробуйте ещё раз.");
+    }
 }
 
 async function renderGalleryFromStart() {
@@ -1013,6 +1090,10 @@ if (lightboxFavoriteButton) {
             toggleFavorite(filename);
         }
     });
+}
+
+if (deletePhotoButton) {
+    deletePhotoButton.addEventListener("click", deleteCurrentPhoto);
 }
 
 if (lightbox) {

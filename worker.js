@@ -91,6 +91,48 @@ export default {
             });
         }
 
+        if (path === "/api/delete-photo") {
+            if (request.method !== "DELETE") {
+                return new Response("Method not allowed", {
+                    status: 405,
+                    headers: { "Allow": "DELETE" }
+                });
+            }
+
+            if (!env.GALLERY_ADMIN_TOKEN) {
+                return new Response("Admin token is not configured", {
+                    status: 503
+                });
+            }
+
+            if (request.headers.get("Authorization") !== "Bearer " + env.GALLERY_ADMIN_TOKEN) {
+                return new Response("Unauthorized", {
+                    status: 401
+                });
+            }
+
+            const filename = url.searchParams.get("filename");
+
+            if (
+                !filename ||
+                filename.includes("/") ||
+                filename.includes("\\") ||
+                !filename.includes("_s_") ||
+                !filename.toLowerCase().endsWith(".jpg")
+            ) {
+                return new Response("Invalid photo filename", {
+                    status: 400
+                });
+            }
+
+            await env.GALLERY.delete([
+                "small/" + filename,
+                "big/" + filename.replace("_s_", "_b_")
+            ]);
+
+            return new Response(null, { status: 204 });
+        }
+
         if (path === "/api/photo-sizes") {
             const filename =
                 url.searchParams.get("filename");

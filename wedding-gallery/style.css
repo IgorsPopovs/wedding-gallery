@@ -446,7 +446,8 @@ a {
 .lightbox-close,
 .lightbox-nav,
 .lightbox-share,
-.lightbox-favorite {
+.lightbox-favorite,
+.lightbox-delete {
     position: absolute;
     z-index: 10;
     display: grid;
@@ -473,6 +474,16 @@ a {
     transform: scale(1.05);
 }
 
+.lightbox-delete:hover {
+    color: white;
+    background: rgba(123, 31, 58, 0.82);
+    transform: scale(1.05);
+}
+
+.lightbox-delete[hidden] {
+    display: none;
+}
+
 .lightbox-close {
     top: 22px;
     right: 24px;
@@ -490,6 +501,13 @@ a {
 .lightbox-favorite {
     top: 22px;
     left: 80px;
+    width: 44px;
+    height: 44px;
+}
+
+.lightbox-delete {
+    top: 22px;
+    left: 136px;
     width: 44px;
     height: 44px;
 }
@@ -750,6 +768,13 @@ a {
     .lightbox-favorite {
         top: 9px;
         left: 56px;
+        width: 38px;
+        height: 38px;
+    }
+
+    .lightbox-delete {
+        top: 9px;
+        left: 102px;
         width: 38px;
         height: 38px;
     }
