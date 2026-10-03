@@ -68,26 +68,11 @@ a {
 }
 
 .gallery-header {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: fit-content;
-    max-width: 100%;
-    margin: 0 auto clamp(28px, 4vw, 42px);
-    padding: 10px clamp(18px, 3vw, 34px) 12px;
-    border: 1px solid rgba(123, 31, 58, 0.28);
-    outline: 1px solid rgba(123, 31, 58, 0.12);
-    outline-offset: 5px;
+    padding: 0 12px clamp(24px, 4vw, 42px);
     text-align: center;
-}
-
-.gallery-header::before {
-    position: absolute;
-    inset: 5px;
-    border: 1px solid rgba(123, 31, 58, 0.14);
-    content: "";
-    pointer-events: none;
 }
 
 #moments {
@@ -101,6 +86,8 @@ a {
     font-weight: 400;
     line-height: 1.05;
     letter-spacing: -0.025em;
+    -webkit-text-stroke: 0.55px rgba(123, 31, 58, 0.48);
+    paint-order: stroke fill;
 }
 
 .gallery-header h1 span {
@@ -117,6 +104,8 @@ a {
     font-size: 10px;
     font-weight: 400;
     letter-spacing: 0.31em;
+    -webkit-text-stroke: 0.22px rgba(123, 31, 58, 0.45);
+    paint-order: stroke fill;
 }
 
 .footer-script {
@@ -570,8 +559,7 @@ a {
     }
 
     .gallery-header {
-        margin-bottom: 26px;
-        padding: 8px 12px 10px;
+        padding: 0 3px 24px;
     }
 
     .gallery-header h1 {
