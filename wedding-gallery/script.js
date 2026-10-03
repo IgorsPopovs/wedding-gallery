@@ -344,7 +344,7 @@ async function savePhotoPeople() {
         if (!response.ok) throw new Error("Save failed: " + response.status);
         if (editablePhotoPeople.size) photoTags[filename] = [...editablePhotoPeople];
         else delete photoTags[filename];
-        if (photoPeopleStatus) photoPeopleStatus.textContent = "Сохранено ✓";
+        if (photoPeopleStatus) photoPeopleStatus.textContent = "Сохранено";
         if (photoPeoplePopup) {
             photoPeoplePopup.classList.remove("is-saved");
             void photoPeoplePopup.offsetWidth;
