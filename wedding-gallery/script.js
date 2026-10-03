@@ -73,7 +73,6 @@ const shareStatus = document.getElementById("share-status");
 const photoPeopleEditor = document.getElementById("photo-people-editor");
 const photoPeopleBackdrop = document.querySelector(".photo-people-backdrop");
 const photoPeoplePopup = document.querySelector(".photo-people-popup");
-const photoPeopleSearch = document.getElementById("photo-people-search");
 const photoPeopleChoices = document.getElementById("photo-people-choices");
 const savePhotoPeopleButton = document.getElementById("save-photo-people");
 const photoPeopleStatus = document.getElementById("photo-people-status");
@@ -292,11 +291,8 @@ function renderGuestFilters() {
 
 function renderPhotoPeopleChoices() {
     if (!photoPeopleChoices) return;
-    const query = (photoPeopleSearch?.value || "").trim().toLocaleLowerCase("ru");
     photoPeopleChoices.replaceChildren();
-    PEOPLE.filter(function (person) {
-        return !query || person.name.toLocaleLowerCase("ru").includes(query);
-    }).forEach(function (person) {
+    PEOPLE.forEach(function (person) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "photo-person-choice";
@@ -1452,7 +1448,6 @@ if (untaggedPhotosToggle) {
     });
 }
 
-if (photoPeopleSearch) photoPeopleSearch.addEventListener("input", renderPhotoPeopleChoices);
 if (savePhotoPeopleButton) savePhotoPeopleButton.addEventListener("click", savePhotoPeople);
 if (photoPeopleBackdrop) {
     photoPeopleBackdrop.addEventListener("click", function () {
