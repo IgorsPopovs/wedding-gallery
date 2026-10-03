@@ -343,7 +343,7 @@ function renderGuestFilters() {
         if (selectedDifference) return selectedDifference;
         return Number(Boolean(GUEST_AVATARS[b.id])) - Number(Boolean(GUEST_AVATARS[a.id]));
     });
-    const visiblePeople = guestFiltersExpanded ? orderedPeople : orderedPeople.slice(0, 3);
+    const visiblePeople = guestFiltersExpanded ? orderedPeople : orderedPeople.slice(0, 4);
     const desiredNodes = visiblePeople.map(function (person, index) {
         let button = existingButtons.get(person.id);
         if (!button) {
@@ -367,6 +367,11 @@ function renderGuestFilters() {
             name.textContent = person.name;
             button.append(name);
             button.addEventListener("click", function () {
+                if (!guestFiltersExpanded) {
+                    guestFiltersExpanded = true;
+                    renderGuestFilters();
+                    return;
+                }
                 if (selectedPeople.has(person.id)) selectedPeople.delete(person.id);
                 else selectedPeople.add(person.id);
                 untaggedPhotosOnly = false;
