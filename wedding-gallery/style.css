@@ -86,7 +86,20 @@ a {
     inset: 0;
     background: rgba(250, 247, 243, 0.78);
     content: "";
-    filter: blur(12px);
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        #000 46px,
+        #000 calc(100% - 50px),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0,
+        #000 46px,
+        #000 calc(100% - 50px),
+        transparent 100%
+    );
     pointer-events: none;
 }
 
@@ -97,16 +110,16 @@ a {
     font-weight: 400;
     line-height: 1.05;
     letter-spacing: -0.025em;
-    color: #fff;
-    -webkit-text-fill-color: #fff;
-    -webkit-text-stroke: 1px #000;
+    color: #fff6f0;
+    -webkit-text-fill-color: #fff6f0;
+    -webkit-text-stroke: 1.6px var(--fig-light);
     paint-order: stroke fill;
 }
 
 .gallery-header h1 span {
     display: inline-block;
     padding: 0 0.08em;
-    color: #fff;
+    color: #fff6f0;
     font-size: 0.78em;
     font-weight: 400;
 }
@@ -117,8 +130,8 @@ a {
     font-size: 10px;
     font-weight: 400;
     letter-spacing: 0.31em;
-    -webkit-text-fill-color: #fff;
-    -webkit-text-stroke: 0.65px #000;
+    -webkit-text-fill-color: #fff6f0;
+    -webkit-text-stroke: 0.9px var(--fig-light);
     paint-order: stroke fill;
 }
 
