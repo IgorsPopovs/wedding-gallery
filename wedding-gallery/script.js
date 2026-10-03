@@ -688,7 +688,13 @@ function toggleFavorite(filename) {
     updateFavoritesControls();
 
     if (favoritesOnly) {
-        renderGalleryFromStart();
+        if (favoritePhotos.has(filename)) {
+            renderGalleryFromStart();
+        } else {
+            updateGalleryAfterTagSave(filename);
+            if (totalPhotos) totalPhotos.textContent = visiblePhotoIndices.length;
+            updateFavoritesControls();
+        }
         return;
     }
 
