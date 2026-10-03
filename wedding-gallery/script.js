@@ -5,6 +5,7 @@ const FAVORITES_STORAGE_KEY = "wedding-gallery-favorites-v1";
 const GUEST_AVATARS = {
     "kristaps-kalns": "images/guests/kristaps-kalns.jpg",
     "alina-maf": "images/guests/alina-maf.jpg",
+    "alina-saf": "images/guests/alina-saf.jpg",
     artem: "images/guests/artem.jpg",
     artur: "images/guests/artur.jpg",
     "kristina-filipp": "images/guests/kristina-filipp.jpg",
@@ -12,7 +13,8 @@ const GUEST_AVATARS = {
     max: "images/guests/max.jpg",
     "daniel-danika": "images/guests/daniel-danika.jpg",
     "babushka-valentina": "images/guests/babushka-valentina.jpg",
-    "dmitry-leonov": "images/guests/dmitry-leonov.jpg"
+    "dmitry-leonov": "images/guests/dmitry-leonov.jpg",
+    valentin: "images/guests/valentin.jpg"
 };
 const PEOPLE = [
     { id: "igor-zorya-groom", name: "Игорь Зоря (жених)" },
