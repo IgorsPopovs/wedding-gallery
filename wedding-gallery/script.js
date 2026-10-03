@@ -488,10 +488,22 @@ function renderPhotoPeopleChoices() {
 
 function preparePhotoPeopleEditor() {
     if (!photoPeopleEditor || !adminMode) return;
+    updatePhotoPeopleIndicator();
     photoPeoplePopup?.classList.remove("is-saved");
     editablePhotoPeople = new Set(photoTags[photos[currentIndex]] || []);
     if (photoPeopleStatus) photoPeopleStatus.textContent = "";
     renderPhotoPeopleChoices();
+}
+
+function updatePhotoPeopleIndicator() {
+    const summary = photoPeopleEditor?.querySelector("summary");
+    if (!summary) return;
+
+    const taggedPeople = photoTags[photos[currentIndex]];
+    summary.classList.toggle(
+        "has-guest-tags",
+        adminMode && Array.isArray(taggedPeople) && taggedPeople.length > 0
+    );
 }
 
 async function savePhotoPeople() {
@@ -519,6 +531,7 @@ async function savePhotoPeople() {
         if (!response.ok) throw new Error("Save failed: " + response.status);
         if (editablePhotoPeople.size) photoTags[filename] = [...editablePhotoPeople];
         else delete photoTags[filename];
+        updatePhotoPeopleIndicator();
         if (photoPeopleStatus) photoPeopleStatus.textContent = "Сохранено";
         if (photoPeoplePopup) {
             photoPeoplePopup.classList.remove("is-saved");
