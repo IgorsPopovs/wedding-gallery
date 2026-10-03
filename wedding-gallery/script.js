@@ -347,6 +347,7 @@ function renderGuestFilters() {
         if (adminMode || selectedPeople.has(person.id)) {
             const count = document.createElement("span");
             count.className = "guest-filter-count";
+            if (!adminMode) count.classList.add("guest-filter-count-user");
             count.textContent = guestPhotoCounts.get(person.id).toLocaleString("ru-RU");
             count.setAttribute("aria-label", guestPhotoCounts.get(person.id) + " фотографий");
             button.append(count);
