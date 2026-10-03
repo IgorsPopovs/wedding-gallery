@@ -1,6 +1,8 @@
 :root {
     --fig: #7b1f3a;
     --fig-light: #a8385a;
+    --admin-blue: #286b98;
+    --admin-blue-hover: #3688b8;
     --cream: #faf7f3;
     --paper: #f5ece8;
     --text-dark: #2a1a1f;
@@ -290,7 +292,7 @@ a {
     width: 30px;
     height: 30px;
     color: white;
-    background: rgba(42, 26, 31, 0.58);
+    background: rgba(40, 107, 152, 0.88);
     border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: 50%;
     font-size: 13px;
@@ -581,8 +583,13 @@ a {
 
 .lightbox-delete:hover {
     color: white;
-    background: rgba(123, 31, 58, 0.82);
+    background: var(--admin-blue-hover);
     transform: scale(1.05);
+}
+
+.lightbox-delete {
+    background: rgba(40, 107, 152, 0.8);
+    border-color: rgba(255, 255, 255, 0.45);
 }
 
 .lightbox-delete[hidden] {
@@ -728,7 +735,7 @@ a {
     margin: 0 auto 12px;
     padding: 9px 17px;
     color: white;
-    background: rgba(123, 31, 58, 0.82);
+    background: var(--admin-blue);
     border: 1px solid rgba(255, 255, 255, 0.52);
     border-radius: 999px;
     font-size: 12px;
@@ -744,7 +751,7 @@ a {
 }
 
 .photo-people-editor summary:hover {
-    background: rgba(168, 56, 90, 0.94);
+    background: var(--admin-blue-hover);
 }
 
 .photo-people-search-label input {
@@ -753,8 +760,8 @@ a {
     margin: 0 auto 9px;
     padding: 8px 11px;
     color: white;
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(40, 107, 152, 0.32);
+    border: 1px solid rgba(132, 195, 235, 0.48);
     border-radius: 999px;
 }
 
@@ -772,8 +779,8 @@ a {
 .photo-people-save {
     padding: 6px 10px;
     color: rgba(255, 255, 255, 0.85);
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(40, 107, 152, 0.42);
+    border: 1px solid rgba(132, 195, 235, 0.48);
     border-radius: 999px;
     font-size: 10px;
     cursor: pointer;
@@ -782,7 +789,7 @@ a {
 .photo-person-choice[aria-pressed="true"],
 .photo-people-save {
     color: white;
-    background: var(--fig-light);
+    background: var(--admin-blue);
     border-color: rgba(255, 255, 255, 0.3);
 }
 
