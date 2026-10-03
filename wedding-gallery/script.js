@@ -5,7 +5,8 @@ const FAVORITES_STORAGE_KEY = "wedding-gallery-favorites-v1";
 const GUEST_AVATARS = {
     "kristaps-kalns": "images/guests/kristaps-kalns.jpg",
     max: "images/guests/max.jpg",
-    "babushka-valentina": "images/guests/babushka-valentina.jpg"
+    "babushka-valentina": "images/guests/babushka-valentina.jpg",
+    "dmitry-leonov": "images/guests/dmitry-leonov.jpg"
 };
 const PEOPLE = [
     { id: "igor-zorya-groom", name: "Игорь Зоря (жених)" },
