@@ -4,6 +4,7 @@ const BATCH_SIZE = 48;
 const FAVORITES_STORAGE_KEY = "wedding-gallery-favorites-v1";
 const GUEST_AVATARS = {
     "kristaps-kalns": "images/guests/kristaps-kalns.jpg",
+    "alina-maf": "images/guests/alina-maf.jpg",
     max: "images/guests/max.jpg",
     "daniel-danika": "images/guests/daniel-danika.jpg",
     "babushka-valentina": "images/guests/babushka-valentina.jpg",
