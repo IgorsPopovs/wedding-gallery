@@ -19,6 +19,7 @@ const GUEST_AVATARS = {
     "dmitry-leonov": "images/guests/dmitry-leonov.jpg",
     "dasha-leonova": "images/guests/dasha-leonova.jpg",
     "babushka-larisa": "images/guests/babushka-larisa.jpg",
+    misha: "images/guests/misha.jpg",
     valentin: "images/guests/valentin.jpg",
     valeria: "images/guests/valeria.jpg"
 };
