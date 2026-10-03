@@ -3,7 +3,8 @@ const GALLERY_BASE_PATH = "/wedding-gallery";
 const BATCH_SIZE = 48;
 const FAVORITES_STORAGE_KEY = "wedding-gallery-favorites-v1";
 const GUEST_AVATARS = {
-    max: "images/guests/max.jpg"
+    max: "images/guests/max.jpg",
+    "babushka-valentina": "images/guests/babushka-valentina.jpg"
 };
 const PEOPLE = [
     { id: "igor-zorya-groom", name: "Игорь Зоря (жених)" },
