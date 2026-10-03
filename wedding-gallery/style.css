@@ -285,11 +285,13 @@ a {
     object-fit: cover;
 }
 
-.guest-filter[data-person-id="leonid"] {
+.guest-filter[data-person-id="leonid"],
+.guest-filter[data-person-id="artur"] {
     overflow: hidden;
 }
 
-.guest-filter[data-person-id="leonid"] .guest-filter-avatar {
+.guest-filter[data-person-id="leonid"] .guest-filter-avatar,
+.guest-filter[data-person-id="artur"] .guest-filter-avatar {
     transform: scale(1.5);
     transform-origin: 50% 30%;
 }
