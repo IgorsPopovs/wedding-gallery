@@ -1,9 +1,12 @@
 const PHOTO_BASE_URL = "https://photos.aligor.us";
 const GALLERY_BASE_PATH = "/wedding-gallery";
 const BATCH_SIZE = 48;
+const FAVORITES_STORAGE_KEY = "wedding-gallery-favorites-v1";
 
 const gallery = document.getElementById("gallery");
 const galleryLoading = document.getElementById("gallery-loading");
+const favoritesToggle = document.getElementById("favorites-toggle");
+const favoritesCount = document.getElementById("favorites-count");
 
 const lightbox = document.getElementById("lightbox");
 const lightboxImage = document.getElementById("lightbox-image");
@@ -19,12 +22,16 @@ const downloadSmall = document.getElementById("download-small");
 const downloadBigSize = document.getElementById("download-big-size");
 const downloadSmallSize = document.getElementById("download-small-size");
 const shareButton = document.getElementById("share-photo");
+const lightboxFavoriteButton = document.getElementById("lightbox-favorite");
 const shareStatus = document.getElementById("share-status");
 
 const currentPhoto = document.getElementById("current-photo");
 const totalPhotos = document.getElementById("total-photos");
 
 let photos = [];
+let favoritePhotos = loadFavoritePhotos();
+let visiblePhotoIndices = [];
+let favoritesOnly = false;
 let renderedCount = 0;
 let currentIndex = 0;
 let downloadSizeRequestId = 0;
@@ -85,6 +92,13 @@ async function init() {
         }
 
         photos = data;
+        favoritePhotos = new Set(
+            [...favoritePhotos].filter(function (filename) {
+                return photos.includes(filename);
+            })
+        );
+        visiblePhotoIndices = getVisiblePhotoIndices();
+        updateFavoritesControls();
 
         if (totalPhotos) {
             totalPhotos.textContent = photos.length;
@@ -106,6 +120,127 @@ async function init() {
             "Не удалось загрузить фотографии. Попробуйте обновить страницу."
         );
     }
+}
+
+function loadFavoritePhotos() {
+    try {
+        const saved = JSON.parse(
+            localStorage.getItem(FAVORITES_STORAGE_KEY) || "[]"
+        );
+        return new Set(
+            Array.isArray(saved)
+                ? saved.filter(function (filename) {
+                    return typeof filename === "string";
+                })
+                : []
+        );
+    } catch (error) {
+        return new Set();
+    }
+}
+
+function getVisiblePhotoIndices() {
+    const indices = [];
+    for (let index = 0; index < photos.length; index++) {
+        if (!favoritesOnly || favoritePhotos.has(photos[index])) {
+            indices.push(index);
+        }
+    }
+    return indices;
+}
+
+function updateFavoritesControls() {
+    if (favoritesCount) {
+        favoritesCount.textContent = favoritePhotos.size;
+    }
+    if (favoritesToggle) {
+        favoritesToggle.setAttribute("aria-pressed", String(favoritesOnly));
+        favoritesToggle.setAttribute(
+            "aria-label",
+            favoritesOnly ? "Показать все фотографии" : "Показать избранные фотографии"
+        );
+    }
+    if (lightboxFavoriteButton && photos[currentIndex]) {
+        const isFavorite = favoritePhotos.has(photos[currentIndex]);
+        lightboxFavoriteButton.setAttribute("aria-pressed", String(isFavorite));
+        lightboxFavoriteButton.setAttribute(
+            "aria-label",
+            isFavorite ? "Убрать из избранного" : "Добавить в избранное"
+        );
+        lightboxFavoriteButton.title = isFavorite ? "Убрать из избранного" : "В избранное";
+    }
+    if (lightbox?.classList.contains("active")) {
+        updateNavigation();
+    }
+}
+
+function updateFavoriteButton(button, filename) {
+    const isFavorite = favoritePhotos.has(filename);
+    button.setAttribute("aria-pressed", String(isFavorite));
+    button.setAttribute(
+        "aria-label",
+        isFavorite ? "Убрать из избранного" : "Добавить в избранное"
+    );
+    button.title = isFavorite ? "Убрать из избранного" : "В избранное";
+}
+
+function toggleFavorite(filename) {
+    if (favoritePhotos.has(filename)) {
+        favoritePhotos.delete(filename);
+    } else {
+        favoritePhotos.add(filename);
+    }
+
+    try {
+        localStorage.setItem(
+            FAVORITES_STORAGE_KEY,
+            JSON.stringify([...favoritePhotos])
+        );
+    } catch (error) {
+        showShareStatus("Не удалось сохранить избранное в этом браузере");
+    }
+
+    updateFavoritesControls();
+
+    if (favoritesOnly) {
+        renderGalleryFromStart();
+        return;
+    }
+
+    gallery?.querySelectorAll(".favorite-button").forEach(function (button) {
+        const card = button.closest(".photo-card");
+        const index = Number(card?.dataset.photoIndex);
+        if (Number.isInteger(index) && photos[index]) {
+            updateFavoriteButton(button, photos[index]);
+        }
+    });
+}
+
+async function renderGalleryFromStart() {
+    if (!gallery) {
+        return;
+    }
+
+    if (loadMoreObserver) {
+        loadMoreObserver.disconnect();
+    }
+    gallery.replaceChildren();
+    renderedCount = 0;
+    visiblePhotoIndices = getVisiblePhotoIndices();
+
+    if (visiblePhotoIndices.length === 0) {
+        setLoadingText(
+            favoritesOnly
+                ? "Пока нет избранных фотографий. Нажмите на сердечко у понравившегося кадра."
+                : "Фотографии скоро появятся."
+        );
+        galleryLoading?.classList.add("empty");
+        return;
+    }
+
+    galleryLoading?.classList.remove("empty");
+    await renderNextBatch();
+    setupLoadMoreObserver();
 }
 
 function getSmallUrl(filename) {
@@ -406,27 +541,31 @@ async function renderNextBatch() {
     if (
         !gallery ||
         isLoadingBatch ||
-        renderedCount >= photos.length
+        renderedCount >= visiblePhotoIndices.length
     ) {
         return;
     }
 
     isLoadingBatch = true;
 
-    setLoadingText("Собираем наши воспоминания…");
+    setLoadingText(
+        favoritesOnly ? "Показываем избранное…" : "Собираем наши воспоминания…"
+    );
+    galleryLoading?.classList.remove("empty");
 
     const start = renderedCount;
 
     const end = Math.min(
         renderedCount + BATCH_SIZE,
-        photos.length
+        visiblePhotoIndices.length
     );
 
     const fragment =
         document.createDocumentFragment();
     const batchCards = [];
 
-    for (let index = start; index < end; index++) {
+    for (let position = start; position < end; position++) {
+        const index = visiblePhotoIndices[position];
         const card = createPhotoCard(photos[index], index);
         batchCards.push(card);
         fragment.appendChild(card);
@@ -438,11 +577,13 @@ async function renderNextBatch() {
     renderedCount = end;
     isLoadingBatch = false;
 
-    if (renderedCount >= photos.length) {
+    if (renderedCount >= visiblePhotoIndices.length) {
         finishLoading();
     } else {
         setLoadingText(
-            "Листайте дальше — впереди ещё фотографии."
+            favoritesOnly
+                ? "Листайте дальше — в избранном есть ещё фотографии."
+                : "Листайте дальше — впереди ещё фотографии."
         );
         observeLastPhoto();
     }
@@ -454,9 +595,19 @@ function createPhotoCard(filename, index) {
 
     const image =
         document.createElement("img");
+    const favoriteButton = document.createElement("button");
 
     card.className = "photo-card";
     card.dataset.photoIndex = index;
+
+    favoriteButton.type = "button";
+    favoriteButton.className = "favorite-button";
+    favoriteButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.9c0 5-8.8 10-8.8 10s-8.8-5-8.8-10A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.8Z" /></svg>';
+    updateFavoriteButton(favoriteButton, filename);
+    favoriteButton.addEventListener("click", function (event) {
+        event.stopPropagation();
+        toggleFavorite(filename);
+    });
 
     image.className = "thumbnail";
 
@@ -482,6 +633,7 @@ function createPhotoCard(filename, index) {
     );
 
     card.appendChild(image);
+    card.appendChild(favoriteButton);
     image.src = getSmallUrl(filename);
 
     return card;
@@ -523,7 +675,7 @@ function setupLoadMoreObserver() {
                 for (const entry of entries) {
                     if (
                         entry.isIntersecting &&
-                        renderedCount < photos.length
+                        renderedCount < visiblePhotoIndices.length
                     ) {
                         loadMorePhotos();
                     }
@@ -585,6 +737,7 @@ function setLoadingText(text) {
     if (textElement) {
         textElement.textContent = text;
     }
+    galleryLoading.classList.toggle("empty", text.startsWith("Пока нет избранных"));
 
     galleryLoading.style.display = "";
 }
@@ -597,6 +750,7 @@ function finishLoading() {
     if (loadMoreObserver) {
         loadMoreObserver.disconnect();
     }
+    galleryLoading?.classList.remove("empty");
 }
 
 function openLightbox(index) {
@@ -610,6 +764,7 @@ function openLightbox(index) {
     }
 
     currentIndex = index;
+    updateFavoritesControls();
 
     if (swipeCloseTimeout) {
         clearTimeout(swipeCloseTimeout);
@@ -623,13 +778,12 @@ function openLightbox(index) {
     loadLightboxImage(filename);
 
     if (currentPhoto) {
-        currentPhoto.textContent =
-            currentIndex + 1;
+        const position = visiblePhotoIndices.indexOf(currentIndex);
+        currentPhoto.textContent = position >= 0 ? position + 1 : currentIndex + 1;
     }
 
     if (totalPhotos) {
-        totalPhotos.textContent =
-            photos.length;
+        totalPhotos.textContent = visiblePhotoIndices.length;
     }
 
     if (downloadBig) {
@@ -700,9 +854,11 @@ async function closeLightbox() {
         lightboxImage.src = "";
     }
 
+    const currentPosition = visiblePhotoIndices.indexOf(currentIndex);
     while (
-        renderedCount <= currentIndex &&
-        renderedCount < photos.length
+        currentPosition >= 0 &&
+        renderedCount <= currentPosition &&
+        renderedCount < visiblePhotoIndices.length
     ) {
         await renderNextBatch();
     }
@@ -724,10 +880,14 @@ function updateLightboxImage() {
         photos[currentIndex];
 
     loadLightboxImage(filename);
+    updateFavoritesControls();
 
     if (currentPhoto) {
-        currentPhoto.textContent =
-            currentIndex + 1;
+        const position = visiblePhotoIndices.indexOf(currentIndex);
+        currentPhoto.textContent = position >= 0 ? position + 1 : currentIndex + 1;
+    }
+    if (totalPhotos) {
+        totalPhotos.textContent = visiblePhotoIndices.length;
     }
 
     if (downloadBig) {
@@ -744,39 +904,36 @@ function updateLightboxImage() {
 }
 
 function showPrevious() {
-    if (photos.length === 0) {
+    if (visiblePhotoIndices.length === 0) {
         return;
     }
 
-    currentIndex =
-        (
-            currentIndex -
-            1 +
-            photos.length
-        ) %
-        photos.length;
+    const position = visiblePhotoIndices.indexOf(currentIndex);
+    const previousPosition = position < 0
+        ? visiblePhotoIndices.length - 1
+        : (position - 1 + visiblePhotoIndices.length) % visiblePhotoIndices.length;
+    currentIndex = visiblePhotoIndices[previousPosition];
 
     updateLightboxImage();
 }
 
 function showNext() {
-    if (photos.length === 0) {
+    if (visiblePhotoIndices.length === 0) {
         return;
     }
 
-    currentIndex =
-        (
-            currentIndex +
-            1
-        ) %
-        photos.length;
+    const position = visiblePhotoIndices.indexOf(currentIndex);
+    const nextPosition = position < 0
+        ? 0
+        : (position + 1) % visiblePhotoIndices.length;
+    currentIndex = visiblePhotoIndices[nextPosition];
 
     updateLightboxImage();
 }
 
 function updateNavigation() {
     const enabled =
-        photos.length > 1;
+        visiblePhotoIndices.length > 1;
 
     if (previousButton) {
         previousButton.disabled =
@@ -839,6 +996,23 @@ if (shareButton) {
             }
         }
     );
+}
+
+if (favoritesToggle) {
+    favoritesToggle.addEventListener("click", function () {
+        favoritesOnly = !favoritesOnly;
+        updateFavoritesControls();
+        renderGalleryFromStart();
+    });
+}
+
+if (lightboxFavoriteButton) {
+    lightboxFavoriteButton.addEventListener("click", function () {
+        const filename = photos[currentIndex];
+        if (filename) {
+            toggleFavorite(filename);
+        }
+    });
 }
 
 if (lightbox) {

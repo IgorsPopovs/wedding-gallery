@@ -42,6 +42,14 @@
 
     </header>
 
+    <div class="gallery-toolbar">
+        <button id="favorites-toggle" class="favorites-toggle" type="button" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.9c0 5-8.8 10-8.8 10s-8.8-5-8.8-10A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.8Z" /></svg>
+            <span>Избранное</span>
+            <span id="favorites-count" class="favorites-count">0</span>
+        </button>
+    </div>
+
     <main id="moments">
         <section
                 id="gallery"
@@ -72,6 +80,10 @@
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 16V4m-5 5 5-5 5 5M5 13v6h14v-6" />
         </svg>
+    </button>
+
+    <button id="lightbox-favorite" class="lightbox-favorite" type="button" aria-label="Добавить в избранное" aria-pressed="false" title="В избранное">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.9c0 5-8.8 10-8.8 10s-8.8-5-8.8-10A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.8Z" /></svg>
     </button>
 
     <button class="lightbox-nav lightbox-prev" type="button" aria-label="Предыдущее фото">
