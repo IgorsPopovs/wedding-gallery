@@ -493,10 +493,6 @@ a {
     display: none;
 }
 
-.guest-tag-indicator i {
-    color: #7ee6a0;
-}
-
 .favorite-button[hidden] {
     display: none;
 }
@@ -955,10 +951,6 @@ a {
 
 .photo-people-editor summary:hover {
     background: var(--admin-blue-hover);
-}
-
-.photo-people-editor summary.has-guest-tags i {
-    color: #7ee6a0;
 }
 
 .photo-people-backdrop {

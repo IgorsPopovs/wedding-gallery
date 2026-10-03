@@ -126,6 +126,7 @@ const totalPhotos = document.getElementById("total-photos");
 
 let photos = [];
 let photoTags = {};
+const deletedPhotos = new Set();
 let selectedPeople = new Set();
 let editablePhotoPeople = new Set();
 let favoritePhotos = loadFavoritePhotos();
@@ -222,7 +223,7 @@ async function init() {
         updateFavoritesControls();
 
         if (totalPhotos) {
-            totalPhotos.textContent = photos.length;
+            totalPhotos.textContent = photos.length - deletedPhotos.size;
         }
         updateGalleryPhotoCount();
 
@@ -264,6 +265,7 @@ function loadFavoritePhotos() {
 function getVisiblePhotoIndices() {
     const indices = [];
     for (let index = 0; index < photos.length; index++) {
+        if (deletedPhotos.has(photos[index])) continue;
         const tags = photoTags[photos[index]] || [];
         const matchesPeople = selectedPeople.size === 0 ||
             [...selectedPeople].some(function (id) { return tags.includes(id); });
@@ -278,7 +280,8 @@ function getVisiblePhotoIndices() {
 function updateGalleryPhotoCount() {
     if (!galleryPhotoCount) return;
 
-    const formattedTotal = photos.length.toLocaleString("ru-RU");
+    const availablePhotoCount = photos.length - deletedPhotos.size;
+    const formattedTotal = availablePhotoCount.toLocaleString("ru-RU");
     const hasActiveFilter = selectedPeople.size > 0 || favoritesOnly || untaggedPhotosOnly;
     galleryPhotoCount.textContent = hasActiveFilter
         ? "Фотографий: " + getVisiblePhotoIndices().length.toLocaleString("ru-RU") + " из " + formattedTotal
@@ -500,10 +503,13 @@ function updatePhotoPeopleIndicator() {
     if (!summary) return;
 
     const taggedPeople = photoTags[photos[currentIndex]];
+    const icon = summary.querySelector("i");
+    const hasGuestTags = adminMode && Array.isArray(taggedPeople) && taggedPeople.length > 0;
     summary.classList.toggle(
         "has-guest-tags",
-        adminMode && Array.isArray(taggedPeople) && taggedPeople.length > 0
+        hasGuestTags
     );
+    if (icon) icon.className = "fa-solid " + (hasGuestTags ? "fa-user-check" : "fa-user");
 }
 
 async function savePhotoPeople() {
@@ -565,7 +571,7 @@ function updateGalleryAfterTagSave(filename) {
             if (!indicator) {
                 indicator = document.createElement("span");
                 indicator.className = "guest-tag-indicator";
-                indicator.innerHTML = '<i class="fa-solid fa-user" aria-hidden="true"></i>';
+                indicator.innerHTML = '<i class="fa-solid fa-user-check" aria-hidden="true"></i>';
                 card.insertBefore(indicator, card.querySelector(".favorite-button"));
             }
             indicator.title = "Отмечено гостей: " + tags.length;
@@ -733,16 +739,43 @@ async function deleteCurrentPhoto() {
             throw new Error("Delete failed: " + response.status);
         }
 
+        const photoIndex = currentIndex;
+        const renderedCard = gallery?.querySelector('[data-photo-index="' + photoIndex + '"]');
+        const removedPosition = visiblePhotoIndices.indexOf(photoIndex);
         await closeLightbox();
-        photos = photos.filter(function (photo) {
-            return photo !== filename;
-        });
+        deletedPhotos.add(filename);
+        renderedCard?.remove();
         delete photoTags[filename];
         favoritePhotos.delete(filename);
         saveFavoritePhotos();
+        visiblePhotoIndices = getVisiblePhotoIndices();
+        if (removedPosition >= 0 && removedPosition < renderedCount) {
+            renderedCount = Math.max(0, renderedCount - 1);
+        }
         renderGuestFilters();
         updateFavoritesControls();
-        await renderGalleryFromStart();
+        updateGalleryPhotoCount();
+        if (totalPhotos) totalPhotos.textContent = photos.length - deletedPhotos.size;
+        if (visiblePhotoIndices.length === 0) {
+            setLoadingText(
+                selectedPeople.size
+                    ? "Для выбранных гостей пока нет отмеченных фотографий."
+                    : favoritesOnly
+                    ? "Пока нет избранных фотографий. Нажмите на сердечко у понравившегося кадра."
+                    : "Фотографии скоро появятся."
+            );
+            galleryLoading?.classList.add("empty");
+            loadMoreObserver?.disconnect();
+        } else {
+            galleryLoading?.classList.remove("empty");
+            setLoadingText(renderedCount >= visiblePhotoIndices.length
+                ? "Загружаем последние фотографии…"
+                : favoritesOnly
+                ? "Дальше — ещё избранные фотографии."
+                : "Дальше — ещё фотографии.");
+            observeGalleryLoader();
+        }
+        updateGuestPhotosJump();
         showShareStatus("Фото и обе версии удалены");
     } catch (error) {
         console.error(error);
@@ -1189,7 +1222,7 @@ function createPhotoCard(filename, index) {
         guestTagIndicator.hidden = true;
         guestTagIndicator.title = "Отмечено гостей: " + taggedPeople.length;
         guestTagIndicator.setAttribute("aria-label", guestTagIndicator.title);
-        guestTagIndicator.innerHTML = '<i class="fa-solid fa-user" aria-hidden="true"></i>';
+        guestTagIndicator.innerHTML = '<i class="fa-solid fa-user-check" aria-hidden="true"></i>';
     }
 
     image.className = "thumbnail";
