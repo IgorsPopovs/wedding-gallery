@@ -680,6 +680,15 @@ a {
     background: rgba(255, 255, 255, 0.09);
 }
 
+.download-button.is-disabled,
+.download-button.is-disabled:hover {
+    color: rgba(255, 255, 255, 0.48);
+    background: rgba(18, 12, 14, 0.88);
+    border-color: rgba(255, 255, 255, 0.12);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .download-icon {
     justify-self: start;
     margin-left: 3px;

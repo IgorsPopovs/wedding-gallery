@@ -480,8 +480,28 @@ function formatFileSize(bytes) {
     );
 }
 
+function setBigDownloadAvailability(available, filename) {
+    if (!downloadBig) {
+        return;
+    }
+
+    if (available) {
+        downloadBig.href = getBigDownloadUrl(filename);
+        downloadBig.classList.remove("is-disabled");
+        downloadBig.removeAttribute("aria-disabled");
+        downloadBig.removeAttribute("tabindex");
+        return;
+    }
+
+    downloadBig.removeAttribute("href");
+    downloadBig.classList.add("is-disabled");
+    downloadBig.setAttribute("aria-disabled", "true");
+    downloadBig.setAttribute("tabindex", "-1");
+}
+
 async function loadDownloadSizes(filename) {
     const requestId = ++downloadSizeRequestId;
+    setBigDownloadAvailability(false, filename);
 
     if (downloadBigSize) {
         downloadBigSize.textContent = "\u00a0";
@@ -511,16 +531,19 @@ async function loadDownloadSizes(filename) {
             return;
         }
 
+        const bigAvailable = Number.isFinite(sizes.big) && sizes.big >= 0;
+        setBigDownloadAvailability(bigAvailable, filename);
+
         if (downloadBigSize) {
             downloadBigSize.textContent =
-                sizes.big === null
+                !bigAvailable
                     ? "размер недоступен"
                     : formatFileSize(sizes.big);
         }
 
         if (downloadSmallSize) {
             downloadSmallSize.textContent =
-                sizes.small === null
+                !Number.isFinite(sizes.small) || sizes.small < 0
                     ? "размер недоступен"
                     : formatFileSize(sizes.small);
         }
@@ -528,6 +551,8 @@ async function loadDownloadSizes(filename) {
         if (requestId !== downloadSizeRequestId) {
             return;
         }
+
+        setBigDownloadAvailability(false, filename);
 
         if (downloadBigSize) {
             downloadBigSize.textContent = "размер недоступен";
@@ -977,11 +1002,6 @@ function openLightbox(index) {
         totalPhotos.textContent = visiblePhotoIndices.length;
     }
 
-    if (downloadBig) {
-        downloadBig.href =
-            getBigDownloadUrl(filename);
-    }
-
     if (downloadSmall) {
         downloadSmall.href =
             getSmallDownloadUrl(filename);
@@ -1079,11 +1099,6 @@ function updateLightboxImage() {
     }
     if (totalPhotos) {
         totalPhotos.textContent = visiblePhotoIndices.length;
-    }
-
-    if (downloadBig) {
-        downloadBig.href =
-            getBigDownloadUrl(filename);
     }
 
     if (downloadSmall) {
