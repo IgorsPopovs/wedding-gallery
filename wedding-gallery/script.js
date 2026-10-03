@@ -283,6 +283,7 @@ function renderGuestFilters() {
         button.className = "guest-filter";
         if (GUEST_AVATARS[person.id]) {
             button.classList.add("has-avatar");
+            button.setAttribute("aria-label", person.name);
             const avatar = document.createElement("img");
             avatar.className = "guest-filter-avatar";
             avatar.src = GUEST_AVATARS[person.id];
