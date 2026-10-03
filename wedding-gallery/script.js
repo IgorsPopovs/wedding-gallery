@@ -241,6 +241,18 @@ function updateGalleryPhotoCount() {
         : "Всего фотографий: " + formattedTotal;
 }
 
+function getFavoriteCountForCurrentFilters() {
+    return photos.reduce(function (count, filename) {
+        if (!favoritePhotos.has(filename)) return count;
+
+        const tags = photoTags[filename] || [];
+        const matchesPeople = selectedPeople.size === 0 ||
+            [...selectedPeople].some(function (id) { return tags.includes(id); });
+        const matchesUntagged = !untaggedPhotosOnly || tags.length === 0;
+        return matchesPeople && matchesUntagged ? count + 1 : count;
+    }, 0);
+}
+
 function renderGuestFilters() {
     if (!guestFilters) return;
     guestFilters.replaceChildren();
@@ -272,6 +284,9 @@ function renderGuestFilters() {
             : "Выбери гостя, чтобы найти фотографии";
     }
     updateGalleryPhotoCount();
+    if (favoritesCount) {
+        favoritesCount.textContent = getFavoriteCountForCurrentFilters();
+    }
 }
 
 function renderPhotoPeopleChoices() {
@@ -350,7 +365,7 @@ function getAdminToken(action) {
 
 function updateFavoritesControls() {
     if (favoritesCount) {
-        favoritesCount.textContent = favoritePhotos.size;
+        favoritesCount.textContent = getFavoriteCountForCurrentFilters();
     }
     if (favoritesToggle) {
         favoritesToggle.setAttribute("aria-pressed", String(favoritesOnly));
