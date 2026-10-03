@@ -834,7 +834,7 @@ a {
         min-height: 44px;
         gap: 4px;
         padding: 0 8px;
-        font-size: 6px;
+        font-size: 7.5px;
         letter-spacing: 0.07em;
         text-align: center;
     }
@@ -860,7 +860,7 @@ a {
     }
 
     .download-button {
-        font-size: 5.5px;
+        font-size: 7px;
     }
 }
 
