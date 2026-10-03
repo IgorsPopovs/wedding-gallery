@@ -27,6 +27,7 @@ const GUEST_AVATARS = {
     "babushka-larisa": "images/guests/babushka-larisa.jpg",
     misha: "images/guests/misha.jpg",
     "mom-natalia-u": "images/guests/mom-natalia-u.jpg",
+    "mom-natalia-p": "images/guests/mom-natalia-p.jpg",
     tatyana: "images/guests/tatyana.jpg",
     valentin: "images/guests/valentin.jpg",
     valeria: "images/guests/valeria.jpg"
