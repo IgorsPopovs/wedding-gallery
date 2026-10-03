@@ -479,13 +479,13 @@ async function sharePhoto(filename) {
     const photoNumber = filename.match(/(\d+)(?=\.[^.]+$)/);
     const shareText = "Игорь и Алина: фотография №" +
         (photoNumber ? Number(photoNumber[1]) : "");
+    const shareMessage = shareText + " " + shareUrl.toString();
 
     if (navigator.share) {
         try {
             let shareData = {
                 title: "Игорь и Алина",
-                text: shareText,
-                url: shareUrl.toString()
+                text: shareMessage
             };
             const imagePromise = shareImagePromises.get(filename);
 
@@ -494,7 +494,7 @@ async function sharePhoto(filename) {
                     const file = await imagePromise;
                     const imageShareData = {
                         title: "Игорь и Алина",
-                        text: shareText + "\n" + shareUrl.toString(),
+                        text: shareMessage,
                         files: [file]
                     };
                     if (navigator.canShare(imageShareData)) {
@@ -515,8 +515,8 @@ async function sharePhoto(filename) {
     }
 
     try {
-        await navigator.clipboard.writeText(shareUrl.toString());
-        showShareStatus("Ссылка на фото скопирована");
+        await navigator.clipboard.writeText(shareMessage);
+        showShareStatus("Текст и ссылка скопированы");
     } catch (error) {
         showShareStatus("Не удалось скопировать ссылку");
     }
