@@ -351,7 +351,7 @@ async function savePhotoPeople() {
             photoPeoplePopup.classList.add("is-saved");
         }
         renderGuestFilters();
-        await renderGalleryFromStart();
+        updateGalleryAfterTagSave(filename);
         await new Promise(function (resolve) { window.setTimeout(resolve, 420); });
         if (photoPeopleEditor) photoPeopleEditor.open = false;
         photoPeoplePopup?.classList.remove("is-saved");
@@ -361,6 +361,60 @@ async function savePhotoPeople() {
     } finally {
         savePhotoPeopleButton.disabled = false;
     }
+}
+
+function updateGalleryAfterTagSave(filename) {
+    if (!gallery) return;
+
+    const photoIndex = photos.indexOf(filename);
+    if (photoIndex < 0) return;
+
+    const card = gallery.querySelector('[data-photo-index="' + photoIndex + '"]');
+    if (card) {
+        const tags = photoTags[filename] || [];
+        let indicator = card.querySelector(".guest-tag-indicator");
+        if (adminMode && tags.length > 0) {
+            if (!indicator) {
+                indicator = document.createElement("span");
+                indicator.className = "guest-tag-indicator";
+                indicator.innerHTML = '<i class="fa-solid fa-user" aria-hidden="true"></i>';
+                card.insertBefore(indicator, card.querySelector(".favorite-button"));
+            }
+            indicator.title = "Отмечено гостей: " + tags.length;
+            indicator.setAttribute("aria-label", indicator.title);
+            const thumbnail = card.querySelector(".thumbnail");
+            indicator.hidden = !thumbnail?.complete || !thumbnail.naturalWidth;
+        } else {
+            indicator?.remove();
+        }
+    }
+
+    visiblePhotoIndices = getVisiblePhotoIndices();
+    if (card && !visiblePhotoIndices.includes(photoIndex)) card.remove();
+    renderedCount = gallery.querySelectorAll(".photo-card").length;
+
+    if (visiblePhotoIndices.length === 0) {
+        setLoadingText(
+            selectedPeople.size
+                ? "Для выбранных гостей пока нет отмеченных фотографий."
+                : untaggedPhotosOnly
+                ? "Все фотографии галереи уже отмечены."
+                : favoritesOnly
+                ? "Пока нет избранных фотографий. Нажмите на сердечко у понравившегося кадра."
+                : "Фотографии скоро появятся."
+        );
+        galleryLoading?.classList.add("empty");
+        loadMoreObserver?.disconnect();
+        return;
+    }
+
+    galleryLoading?.classList.remove("empty");
+    setLoadingText(renderedCount >= visiblePhotoIndices.length
+        ? "Загружаем последние фотографии…"
+        : favoritesOnly
+        ? "Дальше — ещё избранные фотографии."
+        : "Дальше — ещё фотографии.");
+    observeGalleryLoader();
 }
 
 function getAdminToken(action) {
@@ -962,7 +1016,8 @@ function createPhotoCard(filename, index) {
     image.decoding = "async";
     image.addEventListener("load", function () {
         favoriteButton.hidden = false;
-        if (guestTagIndicator) guestTagIndicator.hidden = false;
+        const currentGuestTagIndicator = card.querySelector(".guest-tag-indicator");
+        if (currentGuestTagIndicator) currentGuestTagIndicator.hidden = false;
         updateMasonryCard(card);
     });
 
