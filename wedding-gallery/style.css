@@ -168,6 +168,14 @@ a {
     padding: 0 0 14px;
 }
 
+.guest-filter-section.is-expanded {
+    padding: 14px 14px 8px;
+    background: rgba(250, 247, 243, 0.86);
+    border: 1px solid rgba(123, 31, 58, 0.16);
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(74, 26, 42, 0.07);
+}
+
 .guest-filter-heading {
     display: flex;
     align-items: center;

@@ -348,6 +348,7 @@ function renderGuestFilters() {
     if (!guestFilters) return;
     guestFilters.classList.toggle("is-collapsed", !guestFiltersExpanded);
     guestFilters.classList.toggle("is-expanded", guestFiltersExpanded);
+    guestFilters.closest(".guest-filter-section")?.classList.toggle("is-expanded", guestFiltersExpanded);
     if (guestFiltersCollapse) guestFiltersCollapse.hidden = !guestFiltersExpanded;
     const guestPhotoCounts = getGuestPhotoCounts();
     const existingButtons = new Map(
