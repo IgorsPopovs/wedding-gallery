@@ -270,6 +270,10 @@ async function init() {
 
     } catch (error) {
         console.error(error);
+        if (guestFilterSummary) {
+            guestFilterSummary.textContent = "Не удалось загрузить гостей.";
+            guestFilterSummary.classList.remove("is-loading");
+        }
         guestFilterSummary?.classList.add("is-visible");
 
         setLoadingText(
@@ -390,7 +394,8 @@ function expandGuestFilters() {
 
 function renderGuestFilters() {
     if (!guestFilters) return;
-    if (guestFiltersInitialRender) {
+    const isInitialGuestRender = guestFiltersInitialRender;
+    if (isInitialGuestRender) {
         guestFiltersInitialRender = false;
         guestFilters.classList.add("is-first-render");
     }
@@ -487,7 +492,6 @@ function renderGuestFilters() {
     while (guestFilters.children.length > desiredNodes.length) {
         guestFilters.lastElementChild.remove();
     }
-    guestFilterSummary?.classList.add("is-visible");
     if (guestFiltersCollapse) {
         guestFiltersCollapse.onclick = function () {
             guestFiltersExpanded = false;
@@ -501,12 +505,20 @@ function renderGuestFilters() {
     }
     if (clearGuestFilters) clearGuestFilters.hidden = selectedPeople.size === 0 && !untaggedPhotosOnly;
     if (guestFilterSummary) {
-        const count = getVisiblePhotoIndices().length;
-        guestFilterSummary.textContent = untaggedPhotosOnly
-            ? count.toLocaleString("ru-RU") + " фотографий без отметок гостей"
-            : selectedPeople.size
-            ? count.toLocaleString("ru-RU") + " фотографий с выбранными гостями"
-            : "Выбери гостя, чтобы найти фотографии";
+        if (isInitialGuestRender) {
+            guestFilterSummary.classList.add("is-loading");
+            window.setTimeout(function () {
+                updateGuestFilterSummary();
+                guestFilterSummary.classList.remove("is-loading");
+                window.requestAnimationFrame(function () {
+                    guestFilterSummary.classList.add("is-visible");
+                });
+            }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 560);
+        } else {
+            updateGuestFilterSummary();
+            guestFilterSummary.classList.remove("is-loading");
+            guestFilterSummary.classList.add("is-visible");
+        }
     }
     updateGalleryPhotoCount();
     updateGuestPhotosJump();
@@ -514,6 +526,16 @@ function renderGuestFilters() {
         favoritesCount.textContent = getFavoriteCountForCurrentFilters();
     }
     updateFavoritesToggleVisibility();
+}
+
+function updateGuestFilterSummary() {
+    if (!guestFilterSummary) return;
+    const count = getVisiblePhotoIndices().length;
+    guestFilterSummary.textContent = untaggedPhotosOnly
+        ? count.toLocaleString("ru-RU") + " фотографий без отметок гостей"
+        : selectedPeople.size
+        ? count.toLocaleString("ru-RU") + " фотографий с выбранными гостями"
+        : "Выбери гостя, чтобы найти фотографии";
 }
 
 function renderPhotoPeopleChoices() {

@@ -551,7 +551,12 @@ body.has-bulk-selection .guest-photos-jump {
     font-size: 10px;
     text-align: center;
     opacity: 0;
-    transition: opacity 350ms ease 560ms;
+    transition: opacity 300ms ease;
+}
+
+.guest-filter-summary.is-loading {
+    opacity: 0.75;
+    transition: none;
 }
 
 .guest-filter-summary.is-visible {
