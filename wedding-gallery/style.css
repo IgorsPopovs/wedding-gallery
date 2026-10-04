@@ -169,7 +169,7 @@ a {
 }
 
 .guest-filter-section.is-expanded {
-    padding: 14px 14px 8px;
+    padding: 0 14px 8px;
     background: rgba(250, 247, 243, 0.86);
     border: 1px solid rgba(123, 31, 58, 0.16);
     border-radius: 18px;
@@ -179,12 +179,17 @@ a {
 .guest-filter-heading {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 12px;
+    position: relative;
+    min-height: 34px;
     margin-bottom: 10px;
 }
 
 .guest-filter-heading h2 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     margin: 0;
     color: var(--text-mid);
     font-family: "Cormorant Garamond", Georgia, serif;
