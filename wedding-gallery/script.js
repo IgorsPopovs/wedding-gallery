@@ -45,7 +45,7 @@ const GUEST_AVATARS = {
 const PEOPLE = [
     { id: "igor-zorya-groom", name: "Игорь" },
     { id: "alina-zorya-bride", name: "Алина" },
-    { id: "kristaps-kalns", name: "Kristaps Kalns" },
+    { id: "kristaps-kalns", name: "Kristaps" },
     { id: "alexander-farbtukh", name: "Александр" },
     { id: "alexandra-farbtukh", name: "Александра" },
     { id: "alina-maf", name: "Алина Маф" },
@@ -1174,6 +1174,8 @@ function setBigDownloadAvailability(available, filename) {
         return;
     }
 
+    downloadBig.removeAttribute("aria-busy");
+
     if (available) {
         downloadBig.href = getBigDownloadUrl(filename);
         downloadBig.classList.remove("is-disabled");
@@ -1190,7 +1192,11 @@ function setBigDownloadAvailability(available, filename) {
 
 async function loadDownloadSizes(filename) {
     const requestId = ++downloadSizeRequestId;
-    setBigDownloadAvailability(false, filename);
+    // Keep the download button visually stable while checking this photo.
+    // The link is updated immediately, and clicks are ignored until its
+    // availability check finishes.
+    setBigDownloadAvailability(true, filename);
+    downloadBig?.setAttribute("aria-busy", "true");
 
     if (downloadBigSize) {
         downloadBigSize.textContent = "\u00a0";
@@ -1831,6 +1837,14 @@ if (lightboxImage) {
         "error",
         showLightboxImageError
     );
+}
+
+if (downloadBig) {
+    downloadBig.addEventListener("click", function (event) {
+        if (downloadBig.getAttribute("aria-busy") === "true") {
+            event.preventDefault();
+        }
+    });
 }
 
 if (closeButton) {

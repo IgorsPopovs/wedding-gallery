@@ -1349,10 +1349,6 @@ body.has-bulk-selection .guest-photos-jump {
     border-color: white;
 }
 
-.download-primary {
-    background: rgba(255, 255, 255, 0.09);
-}
-
 .download-button.is-disabled,
 .download-button.is-disabled:hover {
     color: rgba(255, 255, 255, 0.48);
