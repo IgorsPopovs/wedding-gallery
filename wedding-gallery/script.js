@@ -43,11 +43,11 @@ const GUEST_AVATARS = {
     "alina-zorya-bride": "images/guests/alina-zorya-bride.jpg"
 };
 const PEOPLE = [
-    { id: "igor-zorya-groom", name: "Игорь Зоря (жених)" },
-    { id: "alina-zorya-bride", name: "Алина Зоря (невеста)" },
+    { id: "igor-zorya-groom", name: "Игорь" },
+    { id: "alina-zorya-bride", name: "Алина" },
     { id: "kristaps-kalns", name: "Kristaps Kalns" },
-    { id: "alexander-farbtukh", name: "Александр Фарбтух" },
-    { id: "alexandra-farbtukh", name: "Александра Фарбтух" },
+    { id: "alexander-farbtukh", name: "Александр" },
+    { id: "alexandra-farbtukh", name: "Александра" },
     { id: "alina-maf", name: "Алина Маф" },
     { id: "zhenya", name: "Женя" },
     { id: "alina-saf", name: "Алина Саф" },
@@ -57,15 +57,15 @@ const PEOPLE = [
     { id: "artur", name: "Артур" },
     { id: "babushka-larisa", name: "Бабушка Лариса" },
     { id: "babushka-valentina", name: "Бабушка Валентина" },
-    { id: "valeriy-farbtukh", name: "Валерий Фарбтух" },
+    { id: "valeriy-farbtukh", name: "Валерий" },
     { id: "alexandra-romanovskaya", name: "Александра" },
     { id: "daniel-danika", name: "Даниель" },
     { id: "darya-danika", name: "Дарья" },
     { id: "diana", name: "Диана" },
     { id: "alexey", name: "Алексей" },
-    { id: "dmitry-leonov", name: "Дмитрий Леонов" },
-    { id: "dasha-leonova", name: "Даша Леонова" },
-    { id: "kristina-mogilevtseva", name: "Кристина Могилевцева" },
+    { id: "dmitry-leonov", name: "Дмитрий" },
+    { id: "dasha-leonova", name: "Дора" },
+    { id: "kristina-mogilevtseva", name: "Кристина" },
     { id: "leonid", name: "Леонид" },
     { id: "max", name: "Макс" },
     { id: "valeria", name: "Валерия" },
@@ -74,13 +74,13 @@ const PEOPLE = [
     { id: "olya", name: "Оля" },
     { id: "misha", name: "Миша" },
     { id: "papa", name: "Папа" },
-    { id: "kristina-papa", name: "Кристина папы" },
+    { id: "kristina-papa", name: "Кристина" },
     { id: "tatyana", name: "Татьяна" },
     { id: "vladimir", name: "Владимир" },
     { id: "filipp", name: "Филипп" },
-    { id: "kristina-filipp", name: "Кристина Филиппа" },
+    { id: "kristina-filipp", name: "Кристина" },
     { id: "eduard", name: "Эдуард" },
-    { id: "alexandra-leonova", name: "Александра Леонова" }
+    { id: "alexandra-leonova", name: "Александра" }
 ];
 
 const gallery = document.getElementById("gallery");
