@@ -86,6 +86,7 @@ a {
     letter-spacing: -0.025em;
     -webkit-text-stroke: 0.55px rgba(123, 31, 58, 0.48);
     paint-order: stroke fill;
+    animation: introRise 420ms cubic-bezier(0.2, 0.75, 0.25, 1) 40ms both;
 }
 
 .gallery-header h1 span {
@@ -104,6 +105,7 @@ a {
     letter-spacing: 0.31em;
     -webkit-text-stroke: 0.22px rgba(123, 31, 58, 0.45);
     paint-order: stroke fill;
+    animation: introRise 360ms cubic-bezier(0.2, 0.75, 0.25, 1) 250ms both;
 }
 
 .gallery-photo-count {
@@ -111,6 +113,22 @@ a {
     color: var(--text-mid);
     font-size: 10px;
     letter-spacing: 0.12em;
+    animation: introRise 360ms cubic-bezier(0.2, 0.75, 0.25, 1) 250ms both;
+}
+
+@keyframes introRise {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.guest-filter-section {
+    animation: introRise 440ms cubic-bezier(0.2, 0.75, 0.25, 1) 610ms both;
+}
+
+.gallery-toolbar,
+#moments,
+.gallery-footer {
+    animation: introRise 420ms cubic-bezier(0.2, 0.75, 0.25, 1) 1080ms both;
 }
 
 .footer-script {
@@ -359,6 +377,15 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .gallery-header h1,
+    .wedding-date,
+    .gallery-photo-count,
+    .guest-filter-section,
+    .gallery-toolbar,
+    #moments,
+    .gallery-footer {
+        animation: none;
+    }
     .guest-filter-section { transition: none; }
     .guest-filters.is-opening .guest-filter {
         animation-duration: 1ms;
@@ -476,6 +503,8 @@ a {
     cursor: pointer;
     transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
+
+.favorites-toggle[hidden] { display: none; }
 
 .favorites-toggle svg {
     width: 14px;

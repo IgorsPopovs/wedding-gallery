@@ -316,6 +316,11 @@ function getFavoriteCountForCurrentFilters() {
     }, 0);
 }
 
+function updateFavoritesToggleVisibility() {
+    if (!favoritesToggle) return;
+    favoritesToggle.hidden = getFavoriteCountForCurrentFilters() === 0 && !favoritesOnly;
+}
+
 function getGuestPhotoCounts() {
     const counts = new Map(PEOPLE.map(function (person) {
         return [person.id, 0];
@@ -470,6 +475,7 @@ function renderGuestFilters() {
     if (favoritesCount) {
         favoritesCount.textContent = getFavoriteCountForCurrentFilters();
     }
+    updateFavoritesToggleVisibility();
 }
 
 function renderPhotoPeopleChoices() {
@@ -660,6 +666,7 @@ function updateFavoritesControls() {
             favoritesOnly ? "Показать все фотографии" : "Показать избранные фотографии"
         );
     }
+    updateFavoritesToggleVisibility();
     updateGalleryPhotoCount();
     if (lightboxFavoriteButton && photos[currentIndex]) {
         const isFavorite = favoritePhotos.has(photos[currentIndex]);
