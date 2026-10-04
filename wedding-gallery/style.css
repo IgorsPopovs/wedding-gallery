@@ -158,6 +158,7 @@ a {
 }
 
 .gallery-toolbar {
+    position: relative;
     display: flex;
     justify-content: center;
     min-height: 34px;
@@ -552,6 +553,9 @@ body.has-bulk-selection .guest-photos-jump {
 }
 
 .favorites-toggle {
+    position: absolute;
+    top: 0;
+    left: 50%;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -564,6 +568,7 @@ body.has-bulk-selection .guest-photos-jump {
     letter-spacing: 0.1em;
     text-transform: uppercase;
     cursor: pointer;
+    translate: -50% 0;
     transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
