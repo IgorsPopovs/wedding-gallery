@@ -175,7 +175,7 @@ a {
 
 .guest-filter-section.is-expanded {
     padding: 0 14px 8px;
-    background-color: rgba(250, 247, 243, 0.86);
+    background-color: rgba(250, 247, 243, 0.72);
     border-color: rgba(123, 31, 58, 0.16);
     box-shadow: 0 8px 24px rgba(74, 26, 42, 0.07);
 }
