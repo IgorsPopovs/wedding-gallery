@@ -249,6 +249,7 @@ body.has-bulk-selection .guest-photos-jump {
     justify-content: flex-end;
     gap: 12px;
     position: relative;
+    padding-top: 6px;
     min-height: 34px;
     margin-bottom: 10px;
 }
