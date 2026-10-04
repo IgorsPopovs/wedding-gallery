@@ -166,13 +166,17 @@ a {
 
 .guest-filter-section {
     padding: 0 0 14px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 18px;
+    box-shadow: none;
+    transition: background-color 260ms ease, border-color 260ms ease, box-shadow 260ms ease;
 }
 
 .guest-filter-section.is-expanded {
     padding: 0 14px 8px;
-    background: rgba(250, 247, 243, 0.86);
-    border: 1px solid rgba(123, 31, 58, 0.16);
-    border-radius: 18px;
+    background-color: rgba(250, 247, 243, 0.86);
+    border-color: rgba(123, 31, 58, 0.16);
     box-shadow: 0 8px 24px rgba(74, 26, 42, 0.07);
 }
 
@@ -336,6 +340,7 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .guest-filter-section { transition: none; }
     .guest-filters.is-opening .guest-filter {
         animation-duration: 1ms;
         animation-delay: 0ms !important;
