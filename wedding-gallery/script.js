@@ -132,6 +132,9 @@ let selectedPeople = new Set();
 let editablePhotoPeople = new Set();
 let favoritePhotos = loadFavoritePhotos();
 const selectedPhotos = new Set();
+const pageIntroStartedAt = performance.now();
+let favoritesIntroRevealTimer = null;
+let favoritesIntroHasPlayed = false;
 let visiblePhotoIndices = [];
 let favoritesOnly = false;
 let untaggedPhotosOnly = false;
@@ -348,7 +351,25 @@ function getFavoriteCountForCurrentFilters() {
 
 function updateFavoritesToggleVisibility() {
     if (!favoritesToggle) return;
-    favoritesToggle.hidden = getFavoriteCountForCurrentFilters() === 0 && !favoritesOnly;
+    const shouldShow = getFavoriteCountForCurrentFilters() > 0 || favoritesOnly;
+    if (!shouldShow) {
+        favoritesToggle.hidden = true;
+        return;
+    }
+    if (favoritesIntroHasPlayed) {
+        favoritesToggle.hidden = false;
+        return;
+    }
+    if (favoritesIntroRevealTimer !== null) return;
+
+    const delayUntilAfterPhotoCount = Math.max(0, 620 - (performance.now() - pageIntroStartedAt));
+    favoritesIntroRevealTimer = window.setTimeout(function () {
+        favoritesIntroRevealTimer = null;
+        if (getFavoriteCountForCurrentFilters() === 0 && !favoritesOnly) return;
+        favoritesIntroHasPlayed = true;
+        favoritesToggle.hidden = false;
+        favoritesToggle.classList.add("is-intro-visible");
+    }, delayUntilAfterPhotoCount);
 }
 
 function getGuestPhotoCounts() {
