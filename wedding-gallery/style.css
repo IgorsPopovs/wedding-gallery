@@ -203,13 +203,33 @@ a {
 }
 
 .guest-filters-collapse {
-    padding: 4px 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 11px;
     color: var(--fig);
-    background: transparent;
-    border: 1px solid var(--line);
+    background: rgba(123, 31, 58, 0.06);
+    border: 1px solid rgba(123, 31, 58, 0.18);
     border-radius: 999px;
-    font-size: 10px;
+    font-size: 11px;
+    font-weight: 500;
     cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.guest-filters-collapse:hover {
+    background: rgba(123, 31, 58, 0.12);
+    border-color: rgba(123, 31, 58, 0.3);
+}
+
+.guest-filters-collapse:active {
+    transform: scale(0.97);
+}
+
+.guest-filters-collapse:focus-visible {
+    outline: 2px solid var(--fig);
+    outline-offset: 2px;
 }
 
 .guest-filters-collapse[hidden] { display: none; }
