@@ -160,6 +160,7 @@ a {
 .gallery-toolbar {
     display: flex;
     justify-content: center;
+    min-height: 34px;
     padding: 0 0 10px;
 }
 
@@ -377,6 +378,8 @@ body.has-bulk-selection .guest-photos-jump {
     justify-content: center;
     gap: 0;
     overflow: visible;
+    min-height: 84px;
+    box-sizing: border-box;
     padding: 5px 5px 11px;
 }
 
@@ -417,6 +420,10 @@ body.has-bulk-selection .guest-photos-jump {
     animation: guestCircleReveal 280ms ease-out both;
 }
 
+.guest-filters.is-first-render .guest-filter {
+    animation: guestCircleReveal 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @keyframes guestCircleReveal {
     0% {
         opacity: 0;
@@ -446,6 +453,7 @@ body.has-bulk-selection .guest-photos-jump {
         animation-duration: 1ms;
         animation-delay: 0ms !important;
     }
+    .guest-filters.is-first-render .guest-filter { animation-duration: 1ms; }
 }
 
 .guest-filter {

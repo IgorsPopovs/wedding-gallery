@@ -95,6 +95,7 @@ const guestPhotosJump = document.getElementById("guest-photos-jump");
 const clearGuestFilters = document.getElementById("clear-guest-filters");
 const guestFilterSummary = document.getElementById("guest-filter-summary");
 let guestFiltersExpanded = false;
+let guestFiltersInitialRender = true;
 let guestFiltersOpenAnimationTimer = null;
 const untaggedPhotosToggle = document.getElementById("untagged-photos-toggle");
 
@@ -402,6 +403,10 @@ function expandGuestFilters() {
 
 function renderGuestFilters() {
     if (!guestFilters) return;
+    if (guestFiltersInitialRender) {
+        guestFiltersInitialRender = false;
+        guestFilters.classList.add("is-first-render");
+    }
     guestFilters.classList.toggle("is-collapsed", !guestFiltersExpanded);
     guestFilters.classList.toggle("is-expanded", guestFiltersExpanded);
     guestFilters.closest(".guest-filter-section")?.classList.toggle("is-expanded", guestFiltersExpanded);
