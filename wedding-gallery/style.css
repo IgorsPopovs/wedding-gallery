@@ -203,13 +203,20 @@ a {
 
 .clear-guest-filters {
     order: 2;
-    padding: 4px 9px;
+    padding: 3px 8px;
     color: var(--fig);
     background: transparent;
-    border: 1px solid var(--line);
+    border: 0;
     border-radius: 999px;
-    font-size: 10px;
+    font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
+    transition: color 160ms ease, background-color 160ms ease;
+}
+
+.clear-guest-filters:hover {
+    color: var(--text-mid);
+    background: rgba(123, 31, 58, 0.04);
 }
 
 .guest-filters-collapse {
@@ -218,7 +225,7 @@ a {
     align-items: center;
     justify-content: center;
     gap: 7px;
-    padding: 3px 0 3px 8px;
+    padding: 3px 8px;
     color: var(--fig);
     border-radius: 999px;
     background: transparent;
