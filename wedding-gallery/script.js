@@ -362,7 +362,7 @@ function updateFavoritesToggleVisibility() {
     }
     if (favoritesIntroRevealTimer !== null) return;
 
-    const delayUntilAfterPhotoCount = Math.max(0, 620 - (performance.now() - pageIntroStartedAt));
+    const delayUntilAfterPhotoCount = Math.max(0, 240 - (performance.now() - pageIntroStartedAt));
     favoritesIntroRevealTimer = window.setTimeout(function () {
         favoritesIntroRevealTimer = null;
         if (getFavoriteCountForCurrentFilters() === 0 && !favoritesOnly) return;

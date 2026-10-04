@@ -86,7 +86,7 @@ a {
     letter-spacing: -0.025em;
     -webkit-text-stroke: 0.55px rgba(123, 31, 58, 0.48);
     paint-order: stroke fill;
-    animation: introRise 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: introRise 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .gallery-header h1 span {
@@ -105,7 +105,7 @@ a {
     letter-spacing: 0.31em;
     -webkit-text-stroke: 0.22px rgba(123, 31, 58, 0.45);
     paint-order: stroke fill;
-    animation: introRise 430ms cubic-bezier(0.22, 1, 0.36, 1) 110ms both;
+    animation: introRise 620ms cubic-bezier(0.16, 1, 0.3, 1) 70ms both;
 }
 
 .gallery-photo-count {
@@ -113,7 +113,7 @@ a {
     color: var(--text-mid);
     font-size: 10px;
     letter-spacing: 0.12em;
-    animation: introRise 430ms cubic-bezier(0.22, 1, 0.36, 1) 160ms both;
+    animation: introRise 620ms cubic-bezier(0.16, 1, 0.3, 1) 110ms both;
 }
 
 @keyframes introRise {
@@ -122,20 +122,20 @@ a {
 }
 
 .guest-filter-section {
-    animation: introRise 500ms cubic-bezier(0.22, 1, 0.36, 1) 650ms both;
+    animation: introRise 650ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both;
 }
 
 .gallery-toolbar {
-    animation: introRise 460ms cubic-bezier(0.22, 1, 0.36, 1) 590ms both;
+    animation: introRise 620ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both;
 }
 
 .favorites-toggle.is-intro-visible {
-    animation: introRise 430ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: introRise 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 #moments,
 .gallery-footer {
-    animation: introRise 460ms cubic-bezier(0.22, 1, 0.36, 1) 760ms both;
+    animation: introRise 620ms cubic-bezier(0.16, 1, 0.3, 1) 420ms both;
 }
 
 .footer-script {
