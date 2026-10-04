@@ -534,7 +534,10 @@ function updateGuestFilterSummary() {
     guestFilterSummary.textContent = untaggedPhotosOnly
         ? count.toLocaleString("ru-RU") + " фотографий без отметок гостей"
         : selectedPeople.size
-        ? count.toLocaleString("ru-RU") + " фотографий с выбранными гостями"
+        ? count.toLocaleString("ru-RU") + " фотографий: " + PEOPLE
+            .filter(function (person) { return selectedPeople.has(person.id); })
+            .map(function (person) { return person.name; })
+            .join(", ")
         : "Выбери гостя, чтобы найти фотографии";
 }
 
