@@ -376,6 +376,7 @@ body.has-bulk-selection .guest-photos-jump {
 
 .guest-filters.is-collapsed {
     justify-content: center;
+    align-items: center;
     gap: 0;
     overflow: visible;
     min-height: 84px;
