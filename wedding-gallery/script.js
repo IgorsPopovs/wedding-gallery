@@ -531,13 +531,16 @@ function renderGuestFilters() {
 function updateGuestFilterSummary() {
     if (!guestFilterSummary) return;
     const count = getVisiblePhotoIndices().length;
+    const selectedNames = PEOPLE
+        .filter(function (person) { return selectedPeople.has(person.id); })
+        .map(function (person) { return person.name; });
+    const guestNames = selectedNames.length > 1
+        ? selectedNames.slice(0, -1).join(", ") + " и " + selectedNames[selectedNames.length - 1]
+        : selectedNames[0];
     guestFilterSummary.textContent = untaggedPhotosOnly
         ? count.toLocaleString("ru-RU") + " фотографий без отметок гостей"
         : selectedPeople.size
-        ? count.toLocaleString("ru-RU") + " фотографий: " + PEOPLE
-            .filter(function (person) { return selectedPeople.has(person.id); })
-            .map(function (person) { return person.name; })
-            .join(", ")
+        ? count.toLocaleString("ru-RU") + " фотографий с " + guestNames
         : "Выбери гостя, чтобы найти фотографии";
 }
 
