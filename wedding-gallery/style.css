@@ -179,7 +179,7 @@ a {
 .guest-filter-heading {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 12px;
     position: relative;
     min-height: 34px;
@@ -198,6 +198,7 @@ a {
 }
 
 .clear-guest-filters {
+    order: 2;
     padding: 4px 9px;
     color: var(--fig);
     background: transparent;
@@ -208,6 +209,7 @@ a {
 }
 
 .guest-filters-collapse {
+    order: 3;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -240,6 +242,7 @@ a {
 .guest-filters-collapse[hidden] { display: none; }
 
 .untagged-photos-toggle {
+    order: 1;
     display: inline-flex;
     align-items: center;
     gap: 6px;
