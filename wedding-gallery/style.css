@@ -451,6 +451,7 @@ body.has-bulk-selection .guest-photos-jump {
         animation: none;
     }
     .guest-filter-section { transition: none; }
+    .guest-filter-summary { transition-delay: 0ms; }
     .guest-filters.is-opening .guest-filter {
         animation-duration: 1ms;
     }
@@ -549,6 +550,11 @@ body.has-bulk-selection .guest-photos-jump {
     color: var(--text-mid);
     font-size: 10px;
     text-align: center;
+    opacity: 0;
+    transition: opacity 350ms ease 560ms;
+}
+
+.guest-filter-summary.is-visible {
     opacity: 0.75;
 }
 

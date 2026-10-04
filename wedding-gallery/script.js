@@ -270,6 +270,7 @@ async function init() {
 
     } catch (error) {
         console.error(error);
+        guestFilterSummary?.classList.add("is-visible");
 
         setLoadingText(
             "Не удалось загрузить фотографии. Попробуйте обновить страницу."
@@ -486,6 +487,7 @@ function renderGuestFilters() {
     while (guestFilters.children.length > desiredNodes.length) {
         guestFilters.lastElementChild.remove();
     }
+    guestFilterSummary?.classList.add("is-visible");
     if (guestFiltersCollapse) {
         guestFiltersCollapse.onclick = function () {
             guestFiltersExpanded = false;
