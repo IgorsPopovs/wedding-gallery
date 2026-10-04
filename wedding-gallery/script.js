@@ -133,8 +133,6 @@ let selectedPeople = new Set();
 let editablePhotoPeople = new Set();
 let favoritePhotos = loadFavoritePhotos();
 const selectedPhotos = new Set();
-const pageIntroStartedAt = performance.now();
-let favoritesIntroRevealTimer = null;
 let favoritesIntroHasPlayed = false;
 let visiblePhotoIndices = [];
 let favoritesOnly = false;
@@ -357,20 +355,11 @@ function updateFavoritesToggleVisibility() {
         favoritesToggle.hidden = true;
         return;
     }
-    if (favoritesIntroHasPlayed) {
-        favoritesToggle.hidden = false;
-        return;
-    }
-    if (favoritesIntroRevealTimer !== null) return;
-
-    const delayUntilAfterPhotoCount = Math.max(0, 240 - (performance.now() - pageIntroStartedAt));
-    favoritesIntroRevealTimer = window.setTimeout(function () {
-        favoritesIntroRevealTimer = null;
-        if (getFavoriteCountForCurrentFilters() === 0 && !favoritesOnly) return;
+    if (!favoritesIntroHasPlayed) {
         favoritesIntroHasPlayed = true;
-        favoritesToggle.hidden = false;
         favoritesToggle.classList.add("is-intro-visible");
-    }, delayUntilAfterPhotoCount);
+    }
+    favoritesToggle.hidden = false;
 }
 
 function getGuestPhotoCounts() {
@@ -394,9 +383,6 @@ function expandGuestFilters() {
     window.clearTimeout(guestFiltersOpenAnimationTimer);
     guestFiltersOpenAnimationTimer = window.setTimeout(function () {
         guestFilters?.classList.remove("is-opening");
-        guestFilters?.querySelectorAll(".guest-filter").forEach(function (button) {
-            button.style.removeProperty("animation-delay");
-        });
     }, 700);
     renderGuestFilters();
 }
@@ -459,9 +445,6 @@ function renderGuestFilters() {
             });
         }
         if (!guestFiltersExpanded) button.style.zIndex = String(index + 1);
-        if (guestFilters.classList.contains("is-opening")) {
-            button.style.animationDelay = Math.min(index * 18, 320) + "ms";
-        }
         button.setAttribute("aria-pressed", String(selectedPeople.has(person.id)));
         if (adminMode || selectedPeople.has(person.id)) {
             let count = button.querySelector(".guest-filter-count");
@@ -508,9 +491,6 @@ function renderGuestFilters() {
             guestFiltersExpanded = false;
             guestFilters?.classList.remove("is-opening");
             window.clearTimeout(guestFiltersOpenAnimationTimer);
-            guestFilters?.querySelectorAll(".guest-filter").forEach(function (button) {
-                button.style.removeProperty("animation-delay");
-            });
             renderGuestFilters();
         };
     }
