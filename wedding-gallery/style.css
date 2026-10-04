@@ -273,7 +273,8 @@ body.has-bulk-selection .guest-photos-jump {
 }
 
 .clear-guest-filters {
-    order: 2;
+    order: 1;
+    margin-right: auto;
     padding: 3px 8px;
     color: var(--fig);
     background: transparent;
@@ -336,7 +337,7 @@ body.has-bulk-selection .guest-photos-jump {
 .guest-filters-collapse[hidden] { display: none; }
 
 .untagged-photos-toggle {
-    order: 1;
+    order: 2;
     display: inline-flex;
     align-items: center;
     gap: 6px;
