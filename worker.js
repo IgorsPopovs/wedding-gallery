@@ -218,6 +218,59 @@ export default {
             });
         }
 
+        if (path === "/api/delete-photos") {
+            if (request.method !== "DELETE") {
+                return new Response("Method not allowed", {
+                    status: 405,
+                    headers: { "Allow": "DELETE" }
+                });
+            }
+
+            if (!env.GALLERY_ADMIN_TOKEN) {
+                return new Response("Admin token is not configured", { status: 503 });
+            }
+
+            if (request.headers.get("Authorization") !== "Bearer " + env.GALLERY_ADMIN_TOKEN) {
+                return new Response("Unauthorized", { status: 401 });
+            }
+
+            let body;
+            try {
+                body = await request.json();
+            } catch (error) {
+                return new Response("Invalid request body", { status: 400 });
+            }
+
+            const filenames = body?.filenames;
+            if (!Array.isArray(filenames) || filenames.length === 0 || filenames.length > 500) {
+                return new Response("Expected between 1 and 500 photo filenames", { status: 400 });
+            }
+
+            const uniqueFilenames = [...new Set(filenames)];
+            const isValidFilename = (filename) =>
+                typeof filename === "string" &&
+                !filename.includes("/") &&
+                !filename.includes("\\") &&
+                filename.includes("_s_") &&
+                filename.toLowerCase().endsWith(".jpg");
+            if (uniqueFilenames.length !== filenames.length || !filenames.every(isValidFilename)) {
+                return new Response("Invalid photo filenames", { status: 400 });
+            }
+
+            await env.GALLERY.delete(uniqueFilenames.flatMap((filename) => [
+                "small/" + filename,
+                "big/" + filename.replace("_s_", "_b_")
+            ]));
+
+            const tags = await readPhotoTags(env.GALLERY);
+            uniqueFilenames.forEach((filename) => delete tags[filename]);
+            await writePhotoTags(env.GALLERY, tags);
+
+            return new Response(JSON.stringify({ deleted: uniqueFilenames.length }), {
+                headers: { "Content-Type": "application/json; charset=utf-8" }
+            });
+        }
+
         if (path === "/api/delete-photo") {
             if (request.method !== "DELETE") {
                 return new Response("Method not allowed", {

@@ -88,6 +88,7 @@ const galleryLoading = document.getElementById("gallery-loading");
 const galleryPhotoCount = document.getElementById("gallery-photo-count");
 const favoritesToggle = document.getElementById("favorites-toggle");
 const favoritesCount = document.getElementById("favorites-count");
+const bulkDeletePhotosButton = document.getElementById("bulk-delete-photos");
 const guestFilters = document.getElementById("guest-filters");
 const guestFiltersCollapse = document.getElementById("guest-filters-collapse");
 const guestPhotosJump = document.getElementById("guest-photos-jump");
@@ -130,6 +131,7 @@ const deletedPhotos = new Set();
 let selectedPeople = new Set();
 let editablePhotoPeople = new Set();
 let favoritePhotos = loadFavoritePhotos();
+const selectedPhotos = new Set();
 let visiblePhotoIndices = [];
 let favoritesOnly = false;
 let untaggedPhotosOnly = false;
@@ -145,11 +147,39 @@ let isFinishingGalleryVersion = null;
 let galleryRenderVersion = 0;
 let cancelPendingImageWait = null;
 let swipeCloseTimeout = null;
+let isDeletingSelectedPhotos = false;
 const shareImagePromises = new Map();
+const MAX_BULK_DELETE_PHOTOS = 500;
 
 if (deletePhotoButton && adminMode) {
     deletePhotoButton.hidden = false;
 }
+
+function formatPhotoCount(count) {
+    const remainder10 = count % 10;
+    const remainder100 = count % 100;
+    const noun = remainder10 === 1 && remainder100 !== 11
+        ? "фотографию"
+        : remainder10 >= 2 && remainder10 <= 4 && (remainder100 < 12 || remainder100 > 14)
+        ? "фотографии"
+        : "фотографий";
+    return count + " " + noun;
+}
+
+function updateBulkDeleteControls() {
+    if (!bulkDeletePhotosButton) return;
+    const count = selectedPhotos.size;
+    bulkDeletePhotosButton.hidden = !adminMode || count === 0;
+    bulkDeletePhotosButton.disabled = isDeletingSelectedPhotos;
+    const label = isDeletingSelectedPhotos
+        ? "Удаляем фото…"
+        : "Удалить " + formatPhotoCount(count);
+    bulkDeletePhotosButton.querySelector("span").textContent = label;
+    bulkDeletePhotosButton.setAttribute("aria-label", label);
+    document.body.classList.toggle("has-bulk-selection", count > 0);
+}
+
+bulkDeletePhotosButton?.addEventListener("click", deleteSelectedPhotos);
 
 function clearSwipeVisual() {
     if (!lightbox) {
@@ -618,7 +648,10 @@ function updateGalleryAfterTagSave(filename) {
     }
 
     visiblePhotoIndices = getVisiblePhotoIndices();
-    if (card && !visiblePhotoIndices.includes(photoIndex)) card.remove();
+    if (card && !visiblePhotoIndices.includes(photoIndex)) {
+        card.remove();
+        if (selectedPhotos.delete(filename)) updateBulkDeleteControls();
+    }
     renderedCount = gallery.querySelectorAll(".photo-card").length;
 
     if (visiblePhotoIndices.length === 0) {
@@ -785,6 +818,7 @@ async function deleteCurrentPhoto() {
         const removedPosition = visiblePhotoIndices.indexOf(photoIndex);
         await closeLightbox();
         deletedPhotos.add(filename);
+        selectedPhotos.delete(filename);
         renderedCard?.remove();
         delete photoTags[filename];
         favoritePhotos.delete(filename);
@@ -794,6 +828,7 @@ async function deleteCurrentPhoto() {
             renderedCount = Math.max(0, renderedCount - 1);
         }
         renderGuestFilters();
+        updateBulkDeleteControls();
         updateFavoritesControls();
         updateGalleryPhotoCount();
         if (totalPhotos) totalPhotos.textContent = photos.length - deletedPhotos.size;
@@ -824,11 +859,98 @@ async function deleteCurrentPhoto() {
     }
 }
 
+async function deleteSelectedPhotos() {
+    if (!adminMode || isDeletingSelectedPhotos || selectedPhotos.size === 0) return;
+
+    const filenames = [...selectedPhotos];
+    if (!window.confirm(
+        "Удалить " + formatPhotoCount(filenames.length) + " из галереи?\n\nБудут удалены маленькие и большие версии выбранных фото. Это действие нельзя отменить."
+    )) return;
+
+    const token = getAdminToken("массового удаления");
+    if (!token) return;
+
+    isDeletingSelectedPhotos = true;
+    updateBulkDeleteControls();
+    try {
+        const response = await fetch(GALLERY_BASE_PATH + "/api/delete-photos", {
+            method: "DELETE",
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ filenames: filenames })
+        });
+
+        if (response.status === 401) {
+            sessionStorage.removeItem("wedding-gallery-admin-token");
+            showShareStatus("Токен не принят. Обновите страницу и попробуйте снова.");
+            return;
+        }
+        if (response.status === 503) {
+            showShareStatus("Сначала настройте секрет GALLERY_ADMIN_TOKEN у Worker");
+            return;
+        }
+        if (!response.ok) throw new Error("Bulk delete failed: " + response.status);
+
+        const filenamesToDelete = new Set(filenames);
+        const removedVisibleCount = visiblePhotoIndices.reduce(function (count, index) {
+            return count + (filenamesToDelete.has(photos[index]) ? 1 : 0);
+        }, 0);
+        filenames.forEach(function (filename) {
+            const photoIndex = photos.indexOf(filename);
+            gallery?.querySelector('[data-photo-index="' + photoIndex + '"]')?.remove();
+            deletedPhotos.add(filename);
+            selectedPhotos.delete(filename);
+            delete photoTags[filename];
+            favoritePhotos.delete(filename);
+        });
+        saveFavoritePhotos();
+        renderedCount = Math.max(0, renderedCount - removedVisibleCount);
+        visiblePhotoIndices = getVisiblePhotoIndices();
+        renderGuestFilters();
+        updateBulkDeleteControls();
+        updateFavoritesControls();
+        updateGalleryPhotoCount();
+        if (totalPhotos) totalPhotos.textContent = photos.length - deletedPhotos.size;
+
+        if (visiblePhotoIndices.length === 0) {
+            setLoadingText(
+                selectedPeople.size
+                    ? "Для выбранных гостей пока нет отмеченных фотографий."
+                    : favoritesOnly
+                    ? "Пока нет избранных фотографий. Нажмите на сердечко у понравившегося кадра."
+                    : "Фотографии скоро появятся."
+            );
+            galleryLoading?.classList.add("empty");
+            loadMoreObserver?.disconnect();
+        } else {
+            galleryLoading?.classList.remove("empty");
+            setLoadingText(renderedCount >= visiblePhotoIndices.length
+                ? "Загружаем последние фотографии…"
+                : favoritesOnly
+                ? "Дальше — ещё избранные фотографии."
+                : "Дальше — ещё фотографии.");
+            observeGalleryLoader();
+        }
+        updateGuestPhotosJump();
+        showShareStatus("Удалено: " + formatPhotoCount(filenames.length));
+    } catch (error) {
+        console.error(error);
+        showShareStatus("Не удалось удалить фотографии. Попробуйте ещё раз.");
+    } finally {
+        isDeletingSelectedPhotos = false;
+        updateBulkDeleteControls();
+    }
+}
+
 async function renderGalleryFromStart() {
     if (!gallery) {
         return;
     }
 
+    selectedPhotos.clear();
+    updateBulkDeleteControls();
     galleryRenderVersion += 1;
     cancelPendingImageWait?.();
     isWaitingForMorePhotos = false;
@@ -1240,6 +1362,7 @@ function createPhotoCard(filename, index) {
     const image =
         document.createElement("img");
     const favoriteButton = document.createElement("button");
+    const bulkSelectCheckbox = adminMode ? document.createElement("input") : null;
     const taggedPeople = photoTags[filename];
     const guestTagIndicator = adminMode && Array.isArray(taggedPeople) && taggedPeople.length
         ? document.createElement("span")
@@ -1257,6 +1380,29 @@ function createPhotoCard(filename, index) {
         event.stopPropagation();
         toggleFavorite(filename);
     });
+
+    if (bulkSelectCheckbox) {
+        bulkSelectCheckbox.type = "checkbox";
+        bulkSelectCheckbox.className = "photo-bulk-select";
+        bulkSelectCheckbox.checked = selectedPhotos.has(filename);
+        bulkSelectCheckbox.setAttribute("aria-label", "Выбрать фотографию " + filename);
+        bulkSelectCheckbox.addEventListener("click", function (event) {
+            event.stopPropagation();
+        });
+        bulkSelectCheckbox.addEventListener("change", function () {
+            if (bulkSelectCheckbox.checked) {
+                if (selectedPhotos.size >= MAX_BULK_DELETE_PHOTOS) {
+                    bulkSelectCheckbox.checked = false;
+                    showShareStatus("За один раз можно выбрать не более 500 фотографий.");
+                    return;
+                }
+                selectedPhotos.add(filename);
+            } else {
+                selectedPhotos.delete(filename);
+            }
+            updateBulkDeleteControls();
+        });
+    }
 
     if (guestTagIndicator) {
         guestTagIndicator.className = "guest-tag-indicator";
@@ -1295,6 +1441,7 @@ function createPhotoCard(filename, index) {
     card.appendChild(image);
     if (guestTagIndicator) card.appendChild(guestTagIndicator);
     card.appendChild(favoriteButton);
+    if (bulkSelectCheckbox) card.appendChild(bulkSelectCheckbox);
     image.src = getSmallUrl(filename);
 
     return card;
